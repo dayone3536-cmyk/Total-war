@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#090e13">
+<title>Empire</title>
+<!-- PostHog analytics (same project as the circle app; every event carries game:"empire") -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.uploadQueue=t.uploadQueue||[],t.uploadQueue.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_qJWqtKSqrCvpAurqjYjNjNbf9LaeAQwsSRonhUxxZFXG', {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: true,
+    capture_pageleave: true,
+    autocapture: false,               // only our own named events
+    session_recording: {
+      captureCanvas: { recordCanvas: true, canvasFps: 4, canvasQuality: '0.4' }
+    },
+  });
+  posthog.register({ app: 'empire' });
+</script>
+<style>
+html,body{margin:0;height:100%;background:#0b1118;color:#e8eef2;font:14px system-ui,sans-serif;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#app{display:flex;flex-direction:column;height:100%;max-width:900px;margin:0 auto;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+#top{display:flex;justify-content:space-between;padding:8px 12px;font-weight:700;font-size:15px}
+#wrap{flex:1;min-height:0;display:flex;justify-content:center;align-items:center;position:relative}
+#bx{position:relative;overflow:hidden;touch-action:none;width:min(100%,calc((100vh - 230px) * 0.667));aspect-ratio:2/3}#nm{position:absolute;inset:0;pointer-events:none;overflow:hidden}.nm{position:absolute;transform:translate(-50%,-50%);font:700 calc(9px / var(--z,1)) system-ui,sans-serif;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,0 0 2px #000;text-align:center;line-height:1.15;white-space:nowrap}#of{position:absolute;left:8px;right:8px;bottom:44px;background:rgba(8,16,22,.96);border:1px solid #3884ff;border-radius:10px;padding:8px 10px;z-index:4;font-size:13px;display:none;align-items:center;gap:8px}#of div{display:flex;gap:6px}#of button{padding:8px 10px;flex:none}#dp{position:absolute;inset:0;background:rgba(5,10,15,.95);z-index:6;display:none;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:10px;overflow:auto}.dr{display:flex;align-items:center;gap:8px;width:100%;max-width:340px}.dr span{flex:1;font-weight:700}.dr button{flex:none;padding:8px 10px}#zm{position:absolute;inset:0;transform-origin:0 0}#zb{position:absolute;top:6px;left:8px;display:flex;flex-direction:column;gap:6px;z-index:3}#zb button{width:34px;height:34px;padding:0;flex:none;font-size:20px;background:rgba(8,16,22,.8)}.nm .fl{width:calc(18px / var(--z,1));height:calc(12px / var(--z,1))}#c{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none;background:#08141c;border:2px solid #1b2a36}
+#lb{position:absolute;top:6px;right:8px;background:rgba(8,16,22,.78);padding:6px 8px;border-radius:6px;font-size:12px;line-height:1.5;min-width:110px}
+#toast{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:14px;font-size:13px;opacity:0;transition:opacity .25s;white-space:nowrap;pointer-events:none}
+#hud{padding:8px 12px 10px}
+#hud label{display:block;font-weight:700;margin-bottom:2px}
+#hud input{width:100%;height:34px;margin:0;accent-color:#3884ff;touch-action:pan-y}
+.row{display:flex;gap:8px;margin-top:6px}
+button{flex:1;padding:11px;border:0;border-radius:8px;background:#1f3347;color:#e8eef2;font-weight:700;font-size:14px}
+button.p{background:#3884ff}
+#ov{position:absolute;inset:0;background:rgba(5,10,15,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:5}
+#ov h1{margin:0 0 8px;font-size:34px;letter-spacing:2px}
+#ov p{max-width:340px;line-height:1.5;margin:4px 0}
+#ov .row{width:100%;max-width:340px}
+#ov button.sel{outline:2px solid #fff}
+button.dim{opacity:.45}button:active{transform:scale(.97)}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}#dp,#of{animation:fi .22s ease-out}#lb div{transition:opacity .3s}#toast{white-space:normal;text-align:center;max-width:90%}.fa{position:absolute;transform:translate(-50%,-50%);font-size:calc(9px / var(--z,1));line-height:1;pointer-events:none;filter:drop-shadow(0 0 2px #000)}#fb{font-size:13px}
+#hb{position:relative;margin:0 12px 4px;height:18px;background:#1b2a36;border-radius:9px;overflow:hidden}
+#hf{position:absolute;left:0;top:0;bottom:0;background:#3884ff;width:0;transition:width .3s}
+#hl{position:relative;display:block;text-align:center;font-size:11px;line-height:18px;font-weight:700}
+#ov h1{font-size:30px;line-height:1.1}.fl{width:18px;height:12px;image-rendering:pixelated;vertical-align:middle;margin:0 3px 0 0;border:1px solid #000}.ct{position:absolute;transform:translate(-50%,-50%);font:600 calc(6.5px / var(--z,1)) system-ui,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000;white-space:nowrap;pointer-events:none}.ct i{display:inline-block;width:calc(4px / var(--z,1));height:calc(4px / var(--z,1));border:1px solid #fff;margin-right:2px;vertical-align:middle}
+#mv{position:absolute;inset:0;pointer-events:none;overflow:hidden}.mv{position:absolute;transform:translate(-50%,-60%);text-align:center;line-height:1;pointer-events:none;filter:drop-shadow(0 0 2px #000)}.mv span{display:block;font-size:calc(11px / var(--z,1))}.mv b{display:block;font:700 calc(6px / var(--z,1)) system-ui,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000;border-bottom:calc(2px / var(--z,1)) solid var(--tc,#fff);padding-bottom:calc(1px / var(--z,1))}.fp{position:absolute;transform:translate(-50%,-100%);font:800 calc(8px / var(--z,1)) system-ui,sans-serif;color:#9dffa0;text-shadow:0 0 2px #000,0 0 3px #000;animation:fpu 1.4s ease-out forwards;pointer-events:none;white-space:nowrap}@keyframes fpu{from{opacity:1;margin-top:0}to{opacity:0;margin-top:-14px}}
+
+.mv{animation:mvi .35s ease-out}@keyframes mvi{from{opacity:0}to{opacity:1}}
+.mv span{animation:bob 1.3s ease-in-out infinite}.mv.air span{animation:none}
+@keyframes bob{0%,100%{transform:translateY(calc(-.7px / var(--z,1)))}50%{transform:translateY(calc(.7px / var(--z,1)))}}
+.mv span img{display:block;margin:0 auto;width:calc(24px / var(--z,1));height:auto;image-rendering:pixelated;transform-origin:50% 50%;filter:drop-shadow(0 calc(1.5px / var(--z,1)) calc(1px / var(--z,1)) rgba(0,0,0,.55))}
+.mv.air span img{filter:drop-shadow(calc(3px / var(--z,1)) calc(5px / var(--z,1)) calc(2px / var(--z,1)) rgba(0,0,0,.4))}
+.rg{position:absolute;width:calc(10px / var(--z,1));height:calc(10px / var(--z,1));border:calc(1.5px / var(--z,1)) solid var(--rc,#fff);border-radius:50%;pointer-events:none;box-sizing:border-box;animation:rg .9s ease-out forwards}
+@keyframes rg{from{opacity:1;transform:translate(-50%,-50%) scale(.3)}to{opacity:0;transform:translate(-50%,-50%) scale(3.4)}}
+#sm img{width:24px;height:auto;image-rendering:pixelated;display:block;margin:0 auto}
+#zb{display:grid;grid-template-columns:34px 34px;gap:6px}#zb button{font-size:17px;line-height:1}#zb button.on{background:#3884ff;outline:2px solid #fff}#zb button.cd{font-size:13px}
+#tk{text-align:center;font-size:12px;font-weight:700;color:#ffd27a;padding:0 12px 3px;min-height:15px}
+#bx.sk{animation:sk .32s}@keyframes sk{0%,100%{transform:none}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,3px)}}
+#ov{justify-content:flex-start;overflow:auto}#ov>:first-child{margin-top:auto}#ov>:last-child{margin-bottom:auto}
+
+/* ---- minimal design ---- */
+:root{--bg:#090e13;--ink:#eef2f5;--mute:rgba(238,242,245,.55);--line:rgba(255,255,255,.1);--glass:rgba(12,18,25,.62);--ease:cubic-bezier(.2,.8,.2,1)}
+html,body{background:var(--bg);color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#top{padding:12px 18px 2px;align-items:center;font-size:14px;font-weight:600;letter-spacing:.01em}
+#trp{font-weight:500;color:var(--mute);font-variant-numeric:tabular-nums}
+#tk{padding:0 18px 8px;font-size:12px;font-weight:500;color:var(--mute);min-height:15px}
+#hb{height:auto;margin:0 18px 10px;background:none;border-bottom:2px solid var(--line);border-radius:0;overflow:visible}
+#hl{text-align:left;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);line-height:1.4;padding-bottom:6px}
+#hf{top:auto;bottom:-2px;height:2px;border-radius:2px;background:#fff;transition:width .8s var(--ease)}
+#bx{border-radius:20px;box-shadow:0 0 0 1px var(--line),0 24px 60px rgba(0,0,0,.55)}
+#c{border:0;background:#0a1620}
+#lb{top:10px;right:10px;min-width:104px;padding:8px 11px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:11px;font-weight:600;line-height:1.55}
+#zb{top:10px;left:10px}
+#zb button{width:34px;height:34px;border-radius:50%;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:17px;font-weight:500}
+button{padding:13px 10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.07);color:var(--ink);font-size:13px;font-weight:600;letter-spacing:.01em;box-shadow:none;-webkit-tap-highlight-color:transparent;cursor:pointer;transition:transform .14s var(--ease),background-color .2s ease,opacity .25s ease,border-color .2s ease}
+button:active{transform:scale(.96);background:rgba(255,255,255,.14)}
+button.p{background:#fff;color:#0b1118;border-color:transparent}
+button.p:active{background:#dfe6ec}
+button.dim{opacity:.38}
+#fb.p{animation:glow 2s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.45)}60%{box-shadow:0 0 0 9px rgba(255,255,255,0)}}
+.row{gap:10px;margin-top:8px}
+#hud{padding:6px 18px 14px}
+#hud label{margin:0;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mute)}
+#hud input{-webkit-appearance:none;appearance:none;background:transparent;height:30px}
+#hud input::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--line)}
+#hud input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8.5px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#hud input::-moz-range-track{height:3px;border-radius:2px;background:var(--line)}
+#hud input::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#fff}
+#toast{padding:9px 16px;border:1px solid var(--line);border-radius:16px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:13px;font-weight:500;transition:opacity .3s ease}
+#toast.tp{animation:tp .3s var(--ease)}
+@keyframes tp{from{transform:translateX(-50%) translateY(10px) scale(.96)}to{transform:translateX(-50%)}}
+#of{border:1px solid var(--line);border-radius:16px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#ov{background:rgba(9,14,19,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:ovf .35s ease-out}
+@keyframes ovf{from{opacity:0}to{opacity:1}}
+#ov>*{animation:fi .5s var(--ease) both}
+#ov>:nth-child(2){animation-delay:.05s}#ov>:nth-child(3){animation-delay:.1s}#ov>:nth-child(4){animation-delay:.15s}#ov>:nth-child(5){animation-delay:.2s}#ov>:nth-child(6){animation-delay:.25s}#ov>:nth-child(n+7){animation-delay:.3s}
+#ov h1{font-size:26px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:6px 0 10px}
+#ov p{color:rgba(238,242,245,.85)}
+#ov button.sel{outline:0;border-color:#fff;background:rgba(255,255,255,.16)}
+#dp{background:rgba(9,14,19,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#dp h3{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.dr{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04)}
+.dr button{padding:8px 14px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.hw{display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px 8px;width:100%;max-width:340px;margin:10px 0;text-align:left}
+.hw span:nth-child(odd){font-size:19px;text-align:center}.hw span:nth-child(even){font-size:13px;color:rgba(238,242,245,.8)}.hw b{color:#fff}
+
+/* ---- landscape layout ---- */
+html,body{position:fixed;inset:0;width:100%;height:100%;overscroll-behavior:none}
+#app{position:fixed;inset:0;display:block;max-width:none;margin:0;padding:0;height:auto}
+#wrap{position:absolute;inset:0;display:block;background:#0a1620;overflow:hidden}
+#bx{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+#zm{position:absolute;inset:auto;left:0;top:0}
+.gl{border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#top{position:absolute;z-index:3;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:2px;left:calc(env(safe-area-inset-left,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 10px);max-width:30vw;padding:8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none;font-size:13px}
+#trp{font-size:11px;line-height:1.45}
+#tr{position:absolute;z-index:3;display:flex;gap:8px;right:calc(env(safe-area-inset-right,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 10px)}
+#tr button{flex:none;height:44px;min-width:44px;padding:0 14px;border-radius:22px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:14px}
+#tr #mu{padding:0;width:44px;font-size:17px}
+#zb{position:absolute;z-index:3;display:flex;flex-direction:column;gap:8px;grid-template-columns:none;left:calc(env(safe-area-inset-left,0px) + 12px);top:50%;transform:translateY(-50%)}
+#zb button{flex:none;width:46px;height:46px;font-size:22px}
+#bl{position:absolute;z-index:3;left:calc(env(safe-area-inset-left,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);width:min(32vw,300px);padding:8px 12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none}
+#tk{padding:0 0 6px;text-align:left;font-size:12px;font-weight:600;color:#ffd27a;min-height:0}
+#hb{margin:0}
+#hud{position:absolute;z-index:3;padding:0;right:calc(env(safe-area-inset-right,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px)}
+#hud .row{margin:0;gap:10px}
+#hud button{flex:none;min-width:104px;min-height:52px;padding:0 16px;font-size:14px;white-space:nowrap}
+#hud button:not(.p){background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#toast{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 10px);max-width:min(36vw,380px);z-index:4}
+#of{left:0;right:0;margin:0 auto;width:min(560px,56vw);bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}
+#ov,#dp{z-index:6}
+#xc{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(5,9,13,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:ovf .2s ease-out}
+#xc .xb{width:min(380px,86vw);padding:22px 22px 18px;text-align:center;border:1px solid var(--line);border-radius:22px;background:rgba(14,21,29,.96);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+#xc h3{margin:0 0 6px;font-size:18px;font-weight:700;letter-spacing:.02em}
+#xc p{margin:0 0 16px;color:var(--mute);font-size:14px}
+#xc .row{margin:0;gap:10px}
+#xc button{min-height:48px;font-size:15px}
+#xy{background:rgba(255,90,90,.16);border-color:rgba(255,120,120,.5);color:#ffb0b0}
+#rot{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;text-align:center;background:var(--bg);padding:24px}
+#rot .ri{font-size:64px;line-height:1;animation:rotp 2.2s ease-in-out infinite}
+#rot h2{margin:12px 0 6px;font-size:22px}#rot p{margin:0 0 18px;color:var(--mute)}#rot button{flex:none;padding:12px 22px}
+@keyframes rotp{0%,25%{transform:rotate(0)}65%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (pointer:coarse){html:not(.pa) #rot{display:flex}}
+@media (max-height:520px){
+ #ov{padding:10px 20px}
+ #ov h1{font-size:22px;margin:2px 0 4px}
+ #ov p{max-width:600px;margin:2px 0;font-size:13px;line-height:1.4}
+ .hw{max-width:640px;grid-template-columns:30px 1fr 30px 1fr;margin:4px 0}
+ .hw span:nth-child(even){font-size:12px}
+ #ov .row{max-width:340px}
+ #ov .row:has(#go),#ov .row:has(#rm){position:sticky;bottom:0;z-index:2;padding:6px 0;background:linear-gradient(transparent,rgba(9,14,19,.96) 40%)}
+}
+</style></head><body>
+<div id="rot"><div><div class="ri">↻</div><h2>Rotate your phone</h2><p>Empire is played sideways, on a bigger map.</p><button id="rok">Play anyway</button></div></div>
+<div id="app">
+ <div id="wrap">
+  <div id="bx"><div id="zm"><canvas id="c" width="80" height="120"></canvas><div id="nm"></div><div id="mv"></div></div></div>
+  <div id="top"><span id="you"></span><span id="trp"></span></div>
+  <div id="tr"><button id="mu" title="Sound">🔊</button><button id="ex">✕ Exit</button></div>
+  <div id="zb"><button id="zi">+</button><button id="zo">&minus;</button><button id="zf" title="Whole map / back to you">⤢</button></div>
+  <div id="bl"><div id="tk"></div><div id="hb"><i id="hf"></i><span id="hl"></span></div></div>
+  <div id="hud"><div class="row"><button id="dpb">Diplomacy</button><button id="fb">Factory</button><button id="rt">Retreat all</button></div></div>
+  <div id="toast"></div>
+  <div id="of"><span id="ot" style="flex:1"></span><div><button id="oy" class="p">Accept</button><button id="on">Decline</button></div></div>
+  <div id="dp"></div>
+  <div id="ov"></div>
+  <div id="xc"><div class="xb"><h3>Leave this game?</h3><p>Your progress won't be saved.</p><div class="row"><button id="xs" class="p">Keep playing</button><button id="xy">Exit</button></div></div></div>
+ </div>
+</div>
+<script>
+(function () {
+  var W = 80, H = 120, N = W * H, WIN = 0.97, SEND = 0.5, paused = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("c"), cx = cv.getContext("2d"), im = cx.createImageData(W, H);
+  var NAME = [], COL = [], land, own, hot, P, atk = [], fx = [], over = true, ticks = 0, landN, toastT, E, lastE = -1, start0 = 1, erased = 0, peakShare = 0, coolT = 0, shown = {};
+  function hsl(h) { var a = 0.55 * Math.min(0.5, 1 - 0.5), f = function (n) { var k = (n + h / 30) % 12; return Math.round(255 * (0.5 - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }; return [f(0), f(8), f(4)]; }
+  var EUR = [
+    [[-9,37],[-9.5,38.8],[-8.9,41.8],[-9.2,43],[-8,43.8],[-4,43.5],[-1.8,43.4],[-1.2,46],[-2.2,47.3],[-4.5,48],[-4.7,48.6],[-1.6,48.7],[-1.3,49.7],[0.2,49.5],[1.5,50.1],[2.5,51.1],[3.5,51.4],[4.2,52.3],[4.8,53],[6.8,53.5],[8.6,53.9],[8.7,55.5],[8.2,56.8],[10.5,57.7],[10.4,56],[9.8,54.8],[11,54],[14,54],[18,54.8],[19.5,54.4],[21,55.3],[21.1,56.5],[23,57],[24.4,57.2],[24.5,58.3],[23.5,59.2],[28,59.5],[30,60],[30.5,61.5],[30,63.5],[29.5,66],[30,68.5],[33,69.3],[40,67.5],[40,47.5],[37,47],[35,46],[33.5,46.2],[32,46.5],[30.8,46.5],[29.8,45.4],[28.8,44.5],[28.5,43.2],[28,42],[26.5,41.5],[26,40.7],[24.5,40.9],[23.5,40.3],[22.8,39.5],[23.5,38.2],[23,36.5],[21.7,36.8],[21.2,38],[20.4,39.5],[19.4,41.8],[18.6,42.6],[17.2,43.4],[15.5,44.5],[14.5,45.2],[13.7,45.6],[12.4,45.2],[12.3,44.2],[13.6,43.5],[14.5,42.2],[16.2,41.9],[18.4,40.3],[17,39],[16.5,38.2],[15.7,37.9],[16,39],[15.5,40],[14,41],[12.5,41.7],[10.5,43],[10,44],[8.8,44.4],[7.5,43.8],[6,43.1],[4.8,43.4],[3.2,43.1],[3.2,42],[1,41],[-0.3,39.5],[0.2,38.8],[-0.7,37.6],[-2.2,36.7],[-4.5,36.7],[-5.4,36.1],[-6.3,36.6],[-7.4,37.2]],
+    [[5,58.7],[5.5,61],[8,63.4],[11,65],[14,67.5],[18,69.8],[23,70.7],[28,70.9],[25.5,68.5],[23.5,66],[21.5,65],[19,63],[17.5,61],[18.8,59.5],[16.5,57],[15,56.1],[13,55.4],[12.5,56.5],[11.8,58.5],[10.5,59.5],[8,58.2]],
+    [[21.2,61],[22.5,60],[25,60.1],[28,60.5],[30.2,61],[31.5,62.5],[30,64.5],[30,66.5],[29.5,69],[27,70],[25.5,68.5],[24.5,65.8],[21.5,63.2]],
+    [[-5.7,50],[-3,50.6],[1.4,51.2],[1.7,52.7],[0.2,53.5],[-0.5,54.5],[-1.8,55.8],[-2,57.5],[-3.5,58.6],[-5,58.6],[-6.2,57.3],[-5.5,55.8],[-4.8,54.7],[-3.2,54],[-3,53.3],[-4.6,52.8],[-4.2,51.7],[-5.2,51.7],[-3.5,51.3]],
+    [[-10,51.7],[-6.2,52],[-6,54.2],[-5.8,55.2],[-8,55.3],[-10,54]],
+    [[0.9,51.5],[2.4,51.5],[2.4,50.7],[0.9,50.7]],
+    [[-6.4,53.4],[-4.0,53.4],[-4.0,54.4],[-6.4,54.4]],
+    [[-5.4,35.8],[-2,35.1],[1,36.5],[3,36.8],[6,37],[8.6,37.2],[10.2,37],[11,35.5],[10.3,34],[11.5,33.1],[13.2,32.9],[15,32.3],[15.3,31.3],[19,30.3],[20,32],[22,32.8],[24,32],[25.2,31.6],[27,31.4],[29,30.9],[31,31.5],[32.3,31.3],[34.2,31.3],[35,29.5],[36,26],[36,24],[-12,24],[-12,28],[-9.8,30],[-9.5,32.5],[-8,33.6],[-6.5,34.8],[-5.9,35.8]],
+    [[26,40.5],[26.5,38.5],[27.3,37],[28.5,36.6],[30.5,36.2],[32.5,36.1],[34.5,36.7],[36.2,36.7],[35.9,35.6],[35.5,33.8],[35,32.6],[34.3,31.4],[35,29.5],[36,26],[36,24],[45,24],[45,40.8],[43,41.1],[41,41.3],[38,41],[35,42],[33,42],[31,41.2],[29.2,41.2],[28,41]],
+    [[12.4,38],[15.6,38.2],[15.2,36.7],[12.8,37]],
+    [[15.2,38.4],[16.1,38.4],[16.1,37.8],[15.2,37.8]]
+  ];
+  var K = W / ((45 + 11) * 0.574);
+  function xy(lon, lat) { return [(lon + 11) * 0.574 * K, (71.5 - lat) * K]; }
+  var FAC = [], MAXF = 6, MAXBF = 2, FBONUS = 1.6;   /* factories: every nation can build them; they sit on the map and can be captured */
+  function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
+  function facCost(o) { return 400 * (facN(o || 0) + 1); }
+  function track(n, p) { try { posthog.capture(n, Object.assign({ game: "empire" }, p || {})); } catch (_) {} }
+  /* safest spot for owner o: the owned cell furthest from any foreign land, away from other factories */
+  function placeFactory(o) {
+    var dist = new Int16Array(N).fill(-1), q = [], i, j, ns, h = 0;
+    for (i = 0; i < N; i++) if (own[i] === o) { ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]] && own[ns[j]] !== o) { dist[i] = 0; q.push(i); break; } }
+    while (h < q.length) { i = q[h++]; ns = nb(i); for (j = 0; j < ns.length; j++) if (own[ns[j]] === o && dist[ns[j]] < 0) { dist[ns[j]] = dist[i] + 1; q.push(ns[j]); } }
+    var best = -1, bs = -1;
+    for (i = 0; i < N; i++) {
+      if (own[i] !== o) continue;
+      var x = i % W, y = (i / W) | 0, near = false;
+      for (j = 0; j < FAC.length; j++) if (Math.abs((FAC[j].i % W) - x) + Math.abs(((FAC[j].i / W) | 0) - y) < 5) { near = true; break; }
+      if (near) continue;
+      var sc = Math.max(0, dist[i]) + Math.random() * 0.9;
+      if (sc > bs) { bs = sc; best = i; }
+    }
+    return best;
+  }
+  /* ---- naval warfare: fleets sail real sea routes, land on a beach, then fight inland ---- */
+  var SHIPS = [], lastTick = 0, airMode = false;
+  function seaReach(o, maxLen) {
+    var dist = new Int16Array(N).fill(-1), par = new Int32Array(N).fill(-1), q = [], i, j, k, ns, h = 0;
+    for (i = 0; i < N; i++) if (land[i] && own[i] === o) { ns = nb(i); for (j = 0; j < ns.length; j++) { k = ns[j]; if (!land[k] && dist[k] < 0) { dist[k] = 0; par[k] = -1 - i; q.push(k); } } }
+    while (h < q.length) { i = q[h++]; if (dist[i] >= maxLen) continue; ns = nb(i); for (j = 0; j < ns.length; j++) { k = ns[j]; if (!land[k] && dist[k] < 0) { dist[k] = dist[i] + 1; par[k] = i; q.push(k); } } }
+    return { dist: dist, par: par };
+  }
+  function seaPts(R, k, L) {
+    var path = [], e = k; while (e >= 0) { path.push(e); e = R.par[e]; }
+    path.reverse(); return { L: L, pts: [-1 - e].concat(path, [L]), len: path.length };
+  }
+  function seaPlan(o, t, c) {
+    var R = seaReach(o, 110), cx = c % W, cy = (c / W) | 0, best = -1, bd = 1e9, bk = -1, i, j, ns, k, dx, dy, dd;
+    for (i = 0; i < N; i++) {
+      if (!land[i] || own[i] !== t) continue;
+      ns = nb(i); k = -1;
+      for (j = 0; j < ns.length; j++) if (!land[ns[j]] && R.dist[ns[j]] >= 0 && (k < 0 || R.dist[ns[j]] < R.dist[k])) k = ns[j];
+      if (k < 0) continue;
+      dx = i % W - cx; dy = ((i / W) | 0) - cy; dd = dx * dx + dy * dy;
+      if (dd < bd) { bd = dd; best = i; bk = k; }
+    }
+    return best < 0 ? null : seaPts(R, bk, best);
+  }
+
+  /* ---- pixel-art sprites: drawn once per colour, outlined, scaled crisply ---- */
+  var SPRC = {};
+  function spr(kind, col) {
+    var key = kind + col.join(","); if (SPRC[key]) return SPRC[key];
+    var ship = kind === "ship", w = ship ? 20 : 20, h = ship ? 11 : 20, c = document.createElement("canvas"), g;
+    c.width = w; c.height = h; g = c.getContext("2d");
+    var tc = "rgb(" + col.map(Math.round).join(",") + ")", dk = "rgb(" + col.map(function (v) { return Math.round(v * 0.55); }).join(",") + ")";
+    var R = function (x, y, ww, hh, f) { g.fillStyle = f; g.fillRect(x + 1, y + 1, ww, hh); };
+    var i, dy, lx;
+    if (ship) {
+      var hh = [2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 1, 0], cy = 4;
+      for (i = 0; i < hh.length; i++) R(i, cy - hh[i], 1, hh[i] * 2 + 1, "#8f9bac");                    /* hull */
+      for (i = 1; i < hh.length - 1; i++) if (hh[i] > 1) R(i, cy - hh[i] + 1, 1, hh[i] * 2 - 1, "#cfd7e2");   /* deck */
+      for (i = 2; i < 15; i++) R(i, cy, 1, 1, tc);                                                      /* team stripe */
+      R(2, cy - 2, 3, 1, dk); R(2, cy + 2, 3, 1, dk);                                                    /* stern rails */
+      R(4, cy - 1, 2, 3, dk); R(5, cy, 1, 1, "#e8edf3");                                                /* rear turret */
+      R(7, cy - 2, 3, 5, "#f4f6f9"); R(8, cy - 1, 1, 3, dk); R(8, cy, 1, 1, tc);                         /* bridge + funnel */
+      R(11, cy - 1, 2, 3, dk); R(12, cy, 1, 1, "#e8edf3");                                              /* bow turret */
+      R(13, cy, 3, 1, "#fff");                                                                           /* bow highlight */
+    } else {
+      var cx = 9;
+      for (dy = 1; dy <= 8; dy++) {                                                                      /* swept wings */
+        lx = 11 - Math.floor(dy * 0.6);
+        R(lx - 3, cx - dy, 4, 1, dy >= 7 ? tc : "#dfe5ec"); R(lx - 3, cx + dy, 4, 1, dy >= 7 ? tc : "#dfe5ec");
+        if (dy < 7) { R(lx - 3, cx - dy, 1, 1, "#aab5c4"); R(lx - 3, cx + dy, 1, 1, "#aab5c4"); }
+      }
+      for (dy = 1; dy <= 3; dy++) { R(2, cx - dy, 3, 1, dy === 3 ? tc : "#dfe5ec"); R(2, cx + dy, 3, 1, dy === 3 ? tc : "#dfe5ec"); }   /* tailplanes */
+      R(2, cx - 1, 15, 3, "#f1f4f8"); R(2, cx, 15, 1, "#cfd7e2");                                        /* fuselage */
+      R(0, cx, 2, 1, tc); R(17, cx, 1, 1, "#aab5c4");                                                     /* tail fin + nose */
+      R(12, cx - 1, 2, 3, "#5aa7e6"); R(12, cx - 1, 1, 1, "#bfe3ff");                                    /* cockpit */
+      R(5, cx - 1, 6, 1, "#fff"); R(4, cx, 1, 1, tc);                                                      /* stripe */
+    }
+    var im = g.getImageData(0, 0, w, h), d = im.data, o = new Uint8ClampedArray(d), x, y, q, nn;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      q = (y * w + x) * 4; if (d[q + 3]) continue; nn = 0;
+      if (x > 0 && d[q - 1]) nn = 1; if (x < w - 1 && d[q + 7]) nn = 1; if (y > 0 && d[q - w * 4 + 3]) nn = 1; if (y < h - 1 && d[q + w * 4 + 3]) nn = 1;
+      if (nn) { o[q] = 14; o[q + 1] = 20; o[q + 2] = 30; o[q + 3] = 235; }
+    }
+    im.data.set(o); g.putImageData(im, 0, 0);
+    return (SPRC[key] = c.toDataURL());
+  }
+  function ico(air, col) { return "<img src='" + spr(air ? "plane" : "ship", col) + "' style='width:16px;image-rendering:pixelated;vertical-align:middle;margin-right:3px'>"; }
+  function ringAt(i, col, delay) {
+    setTimeout(function () {
+      var e = document.createElement("div"); e.className = "rg"; e.style.setProperty("--rc", col);
+      e.style.left = (((i % W) + 0.5) / W * 100).toFixed(1) + "%"; e.style.top = ((((i / W) | 0) + 0.5) / H * 100).toFixed(1) + "%";
+      $("mv").appendChild(e); setTimeout(function () { if (e.parentNode) e.parentNode.removeChild(e); }, 1000);
+    }, delay || 0);
+  }
+  function sail(p, plan, send, t) {
+    P[p].troops -= send;
+    SHIPS.push({ p: p, t: t, troops: send, pts: plan.pts, L: plan.L, ts: ticks, dur: Math.round(plan.len * 0.9) + 10 });
+    if (p === 0) ringAt(plan.pts[1] !== undefined ? plan.pts[1] : plan.pts[0], "#9fd0ff");
+  }
+  function landing(s) {
+    var pl = P[s.p]; if (!pl.alive) return;
+    var L = s.L, t = own[L], me = s.p === 0, d, r = (E.modern || s.air) ? 3 : 2, X = L % W, Y = (L / W) | 0, cells = [], dx, dy, i, x, y;
+    if (t === s.p) { pl.troops += s.troops; return; }
+    if (t >= 0 && ((me && P[t].pact) || (t === 0 && pl.pact))) { pl.troops += s.troops; if (me) toast("Fleet returned: " + NAME[t] + " is your ally."); return; }
+    d = t >= 0 ? P[t] : null;
+    for (dy = -r; dy <= r; dy++) for (dx = -r; dx <= r; dx++) {
+      x = X + dx; y = Y + dy; if (x < 0 || y < 0 || x >= W || y >= H || dx * dx + dy * dy > r * r + 1) continue;
+      i = y * W + x; if (land[i] && own[i] === t) cells.push(i);
+    }
+    var n = cells.length, D = defence(d, n), A = s.troops, tn = t < 0 ? "the wilds" : NAME[t];
+    if (A < D) {
+      pl.troops += A * 0.4;
+      ringAt(L, "#ff6b6b");
+      if (me) toast("Your landing on " + tn + " was repulsed! Send a bigger fleet.", 4000);
+      else if (t === 0) toast("You repulsed a landing by " + NAME[s.p] + "!", 3500);
+      track("naval_landing", { empire: E.n, by: NAME[s.p], target: tn, result: "repulsed", troops: Math.round(A), defence: Math.round(D) });
+      return;
+    }
+    cells.forEach(function (c) { own[c] = s.p; hot[c] = 9; }); if (me) stat.nl++;
+    pl.cells += n;
+    if (d) { d.cells -= n; d.troops = Math.max(0, d.troops - D * 0.5); d.grudge = s.p; d.gt = ticks; }
+    atk.push({ p: s.p, t: t, troops: Math.max(A * 0.3, A - D * 0.6), idle: 0, took: n });
+    if (me) { toast((s.air ? "Paratroopers landed in " : "Beachhead secured on ") + tn + "! Troops advance inland.", 4000); popAt(L, "Landed!", "#ffd27a"); ringAt(L, "#ffd27a"); ringAt(L, "#ffffff", 180); if (t > 0) allyHelp(t); }
+    else if (t === 0) toast(NAME[s.p] + " landed troops on your coast!", 4000);
+    track("naval_landing", { empire: E.n, by: NAME[s.p], target: tn, result: "success", troops: Math.round(A), defence: Math.round(D) });
+    if (d && d.cells <= 0) { d.alive = false; d.troops = 0; if (d.id === 0) end(false); else if (me) { erased++; toast("You erased the " + NAME[d.id] + " from history!", 3800); } else toast(NAME[d.id] + " was wiped from the map."); }
+  }
+  function shipsDraw(d) {
+    var fr = Math.min(1, (Date.now() - lastTick) / 100);
+    SHIPS.forEach(function (s) {
+      var n = s.pts.length, pos = Math.min(n - 1, Math.max(0, (ticks - s.ts + fr) / s.dur * (n - 1))), k, q, a, b, ax, ay, dx, dy, l, nx, ny, t, sp, col, c2;
+      for (k = 1; k <= 10; k++) {
+        q = Math.max(0, pos - k * 1.05); a = s.pts[Math.floor(q)]; ax = a % W; ay = (a / W) | 0;
+        b = s.pts[Math.min(n - 1, Math.floor(q) + 1)]; dx = (b % W) - ax; dy = ((b / W) | 0) - ay; l = Math.sqrt(dx * dx + dy * dy) || 1; nx = -dy / l; ny = dx / l;
+        t = 1 - k / 11;
+        if (s.air) {                                                    /* contrail: soft white dashes */
+          if (k % 2) { c2 = Math.round(150 + 100 * t); px(d, ax, ay, [c2, c2 + 4, c2 + 8]); }
+        } else {                                                        /* wake: foam core + widening V */
+          col = [26 + 215 * t, 78 + 165 * t, 108 + 135 * t];
+          px(d, ax, ay, col);
+          if (k >= 3) { sp = Math.min(2.2, (k - 2) * 0.42); c2 = [26 + 130 * t, 78 + 110 * t, 108 + 90 * t]; px(d, ax + nx * sp, ay + ny * sp, c2); px(d, ax - nx * sp, ay - ny * sp, c2); }
+        }
+      }
+    });
+  }
+  function touches(c, t) {   /* can troops walk from my border to cell c through t's land within ~6 cells? Deeper taps use planes */
+    var seen = new Uint8Array(N), q = [c], dq = [0], h = 0, i, j, k, ns, dp; seen[c] = 1;
+    while (h < q.length) { i = q[h]; dp = dq[h++]; ns = nb(i); for (j = 0; j < ns.length; j++) { k = ns[j]; if (!land[k]) continue; if (own[k] === 0) return true; if (own[k] === t && !seen[k] && dp < 6) { seen[k] = 1; q.push(k); dq.push(dp + 1); } } }
+    return false;
+  }
+  function botSail(p) {
+    if (ticks < (p.sailT || 0) || SHIPS.some(function (s) { return s.p === p.id; })) return false;
+    var R = seaReach(p.id, 90), best = -1, bs = 1e9, bk = -1, i, j, k, ns, o, dm, dens, sc;
+    for (i = 0; i < N; i++) {
+      if (!land[i]) continue; o = own[i];
+      if (o === p.id || (o >= 0 && !P[o].alive)) continue;
+      if (o === 0 && (p.pact || underSiege() >= 2 || ticks < (E.grace || 350))) continue;
+      if (o === -1 && p.cells > 600) continue;
+      ns = nb(i); dm = -1; k = -1;
+      for (j = 0; j < ns.length; j++) if (!land[ns[j]] && R.dist[ns[j]] >= 0 && (dm < 0 || R.dist[ns[j]] < dm)) { dm = R.dist[ns[j]]; k = ns[j]; }
+      if (k < 0) continue;
+      dens = o >= 0 ? P[o].troops / Math.max(1, P[o].cells) : 0;
+      sc = dm + dens * 2 + (o === -1 ? -5 : 0) + Math.random() * 8;
+      if (sc < bs) { bs = sc; best = i; bk = k; }
+    }
+    if (best < 0) return false;
+    o = own[best];
+    var send = p.troops * (0.55 + Math.random() * 0.25), dd = o >= 0 ? P[o] : null;
+    var bn = E.modern ? 29 : 13, need = dd ? defence(dd, bn) * 1.1 : 40;
+    if (send < need) { p.sailT = ticks + 60; return false; }
+    sail(p.id, seaPts(R, bk, best), send, o); p.sailT = ticks + 250;
+    if (o === 0) toast(NAME[p.id] + " fleet is sailing toward your coast!", 4000);
+    return true;
+  }
+  function navalTap(c, t) {
+    if (ticks < coolT) { toast("Fleet reloading: " + Math.ceil((coolT - ticks) / 10) + "s"); return true; }
+    if (fleetsOut(0, false) >= fleetCap(0)) { toast("All " + fleetCap(0) + " fleets are at sea. Build factories for more ships.", 3500); return true; }
+    var send = P[0].troops * SEND;
+    if (send < 80) { toast("Not enough troops to launch a fleet."); return true; }
+    var plan = seaPlan(0, t, c);
+    if (!plan) return false;
+    var need = defence(t >= 0 ? P[t] : null, beachN(plan.L, t, E.modern ? 3 : 2)) * 1.15;
+    if (send < need) { toast("Fleet too small: that coast needs about " + Math.ceil(need) + " troops. Raise the slider or wait for more.", 4200); return true; }
+    sail(0, plan, send, t); coolT = ticks + 40;
+    var eta = Math.round((Math.round(plan.len * 0.9) + 10) / 10);
+    toast("Fleet sails for " + (t < 0 ? "the wilds" : NAME[t]) + "! Landing in about " + eta + "s.", 3500);
+    track("naval_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], troops: Math.round(send), eta_s: eta });
+    return true;
+  }
+  function defence(d, n) { if (!d) return n * 1.5; var dens = d.troops / Math.max(1, d.cells); return Math.max(dens * n * 2, d.troops * 0.05, n * 10); }
+  function beachN(L, t, r) { var X = L % W, Y = (L / W) | 0, n = 0, dx, dy, x, y, i; for (dy = -r; dy <= r; dy++) for (dx = -r; dx <= r; dx++) { x = X + dx; y = Y + dy; if (x < 0 || y < 0 || x >= W || y >= H || dx * dx + dy * dy > r * r + 1) continue; i = y * W + x; if (land[i] && own[i] === t) n++; } return n; }
+  function fm(n) { return n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(Math.round(n)); }
+  function popAt(i, txt, col) {
+    var e = document.createElement("div"); e.className = "fp"; e.textContent = txt; if (col) e.style.color = col;
+    e.style.left = (((i % W) + 0.5) / W * 100).toFixed(1) + "%"; e.style.top = ((((i / W) | 0) + 0.5) / H * 100).toFixed(1) + "%";
+    $("mv").appendChild(e); setTimeout(function () { if (e.parentNode) e.parentNode.removeChild(e); }, 1500);
+  }
+  /* every ship and plane is a visible unit that shows how many troops it carries */
+  function movers() {
+    var fr = Math.min(1, (Date.now() - lastTick) / 100), host = $("mv");
+    SHIPS.forEach(function (s) {
+      if (!s.el) {
+        s.el = document.createElement("div"); s.el.className = "mv" + (s.air ? " air" : "");
+        s.el.innerHTML = "<span><img src='" + spr(s.air ? "plane" : "ship", COL[s.p]) + "'></span><b></b>";
+        s.ic = s.el.firstChild; s.im = s.ic.firstChild; s.tx = s.el.lastChild; host.appendChild(s.el);
+        s.el.style.setProperty("--tc", "rgb(" + COL[s.p].map(Math.round).join(",") + ")");
+        s.ang = null;
+      }
+      var n = s.pts.length, pos = Math.min(1, Math.max(0, (ticks - s.ts + fr) / s.dur)) * (n - 1), i0 = Math.floor(pos), i1 = Math.min(n - 1, i0 + 1), f = pos - i0, a = s.pts[i0], b = s.pts[i1];
+      var x = (a % W) + ((b % W) - (a % W)) * f + 0.5, y = ((a / W) | 0) + (((b / W) | 0) - ((a / W) | 0)) * f + 0.5;
+      s.el.style.left = (x / W * 100).toFixed(2) + "%"; s.el.style.top = (y / H * 100).toFixed(2) + "%";
+      var pa = s.pts[Math.max(0, i0 - 1)], pb = s.pts[Math.min(n - 1, i0 + 3)];
+      if (pa !== pb) {
+        var tg = Math.atan2(((pb / W) | 0) - ((pa / W) | 0), (pb % W) - (pa % W)) * 180 / Math.PI;
+        if (s.ang === null) s.ang = tg; else { var dl = ((tg - s.ang + 540) % 360) - 180; s.ang += dl * 0.18; }
+      }
+      var sc = 0.9 + Math.min(0.55, s.troops / 5000);
+      s.im.style.transform = "rotate(" + (s.ang || 0).toFixed(1) + "deg) scale(" + sc.toFixed(2) + ")";
+      s.tx.textContent = fm(s.troops);
+    });
+  }
+  function airTap(c, t) {
+    if (ticks < coolT) { toast("Air force reloading: " + Math.ceil((coolT - ticks) / 10) + "s"); return; }
+    if (fleetsOut(0, true) >= fleetCap(0)) { toast("All " + fleetCap(0) + " squadrons are in the air. Build factories for more planes.", 3500); return; }
+    var send = P[0].troops * SEND;
+    if (send < 80) { toast("Not enough troops to launch an airlift."); return; }
+    var need = defence(t >= 0 ? P[t] : null, beachN(c, t, 3)) * 1.15;
+    if (send < need) { toast("Airlift too small: that target needs about " + Math.ceil(need) + " troops. Raise the slider or wait for more.", 4200); return; }
+    var X = c % W, Y = (c / W) | 0, best = 1e9, sx = X, sy = Y, i, dx, dy, dd;
+    for (i = 0; i < N; i++) if (own[i] === 0) { dx = i % W - X; dy = ((i / W) | 0) - Y; dd = dx * dx + dy * dy; if (dd < best) { best = dd; sx = i % W; sy = (i / W) | 0; } }
+    if (best >= 1e9) return;
+    var len = Math.max(2, Math.round(Math.sqrt(best))), pts = [], k, dur = Math.round(len * 0.5) + 8;
+    for (k = 0; k <= len; k++) pts.push(Math.round(sy + (Y - sy) * k / len) * W + Math.round(sx + (X - sx) * k / len));
+    P[0].troops -= send; coolT = ticks + 40;
+    SHIPS.push({ p: 0, t: t, troops: send, pts: pts, L: c, ts: ticks, dur: dur, air: true }); ringAt(pts[0], "#ffffff");
+    toast("Transport planes take off for " + (t < 0 ? "the wilds" : NAME[t]) + "! Landing in about " + Math.max(1, Math.round(dur / 10)) + "s.", 3500);
+    track("air_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], troops: Math.round(send), eta_s: Math.round(dur / 10) });
+  }
+  function landAttack(t) {
+    var fr = SEND;
+    if (launch(0, t, fr)) { track("attack_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], fraction: fr, at_second: Math.round(ticks / 10) }); toast(t < 0 ? "Expanding into empty land" : "Attacking " + NAME[t] + "!"); if (t > 0) allyHelp(t); }
+    else toast("Not enough troops yet.");
+  }
+  var DIFF = { easy: 70, normal: 45, hard: 28 }, diff = "normal";
+  var stat = { nl: 0 }, curM = null, misDone = 0, evT = 0, muted = false, AC = null;
+  function played() { try { return !!localStorage.getItem("pw_played"); } catch (e) { return false; } }
+  function cityN(o) { var n = 0, k; for (k = 0; k < CITY.length; k++) if (own[CITY[k].i] === o && !(CITY[k].dmg > ticks)) n++; return n; }
+  function fleetCap(o) { return 2 + facN(o); }
+  function fleetsOut(o, air) { return SHIPS.filter(function (s) { return s.p === o && !!s.air === !!air; }).length; }
+  /* ---- sound ---- */
+  function sfx(k) {
+    if (muted) return;
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === "suspended") AC.resume();
+      var t = AC.currentTime, o, g, b, d, i, n, f;
+      if (k === "boom" || k === "hurt") {
+        n = Math.floor(AC.sampleRate * 0.45); b = AC.createBuffer(1, n, AC.sampleRate); d = b.getChannelData(0);
+        for (i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.5);
+        o = AC.createBufferSource(); o.buffer = b; g = AC.createGain(); g.gain.value = k === "hurt" ? 0.5 : 0.25; o.connect(g); g.connect(AC.destination); o.start(t);
+      } else {
+        o = AC.createOscillator(); g = AC.createGain(); o.type = k === "win" ? "triangle" : "square";
+        f = { go: 440, ship: 220, air: 330, ok: 660, win: 523 }[k] || 400;
+        o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 1.5, t + 0.25);
+        g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+        o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + 0.3);
+      }
+    } catch (e) {}
+  }
+  /* ---- peasants' revolt: lands near a point fall into anarchy ---- */
+  function revolt(c, r) {
+    var t = own[c], X = c % W, Y = (c / W) | 0, names = 0, facs = 0, cells = [], dx, dy, x, y, i, d, r2 = (r + 1) * (r + 1);
+    if (t < 0 || !land[c]) return;
+    for (dy = -r; dy <= r; dy++) for (dx = -r; dx <= r; dx++) {
+      x = X + dx; y = Y + dy; if (x < 0 || y < 0 || x >= W || y >= H || dx * dx + dy * dy > r * r + 1) continue;
+      i = y * W + x; if (land[i] && own[i] === t) cells.push(i);
+    }
+    CITY.forEach(function (ci) { var ax = ci.i % W - X, ay = ((ci.i / W) | 0) - Y; if (own[ci.i] === t && ax * ax + ay * ay <= r2) { ci.dmg = ticks + 300; names++; } });
+    FAC = FAC.filter(function (f) { var ax = f.i % W - X, ay = ((f.i / W) | 0) - Y; if (f.o === t && ax * ax + ay * ay <= r2) { facs++; return false; } return true; });
+    cells.forEach(function (i2) { own[i2] = -1; hot[i2] = 9; });
+    d = P[t]; d.cells -= cells.length;
+    d.troops = Math.max(0, d.troops * Math.max(0.5, 0.94 - 0.04 * names - 0.05 * facs));
+    if (d.cells <= 0 && d.alive) {
+      d.alive = false; d.troops = 0;
+      if (t === 0) end(false); else toast(NAME[t] + " was wiped from the map.");
+    }
+  }
+  /* ---- world events and missions ---- */
+  function worldEvent() {
+    var k = (Math.random() * 4) | 0, bots = P.filter(function (q) { return q.id > 0 && q.alive && q.cells > 30; }), b, s = -1, j, t2;
+    if (k === 0) { P.forEach(function (q) { q.troops *= 0.88; }); toast("☠ Plague sweeps the continent: every army shrinks.", 5000); }
+    else if (k === 1 && bots.length) {
+      b = bots[(Math.random() * bots.length) | 0];
+      for (j = 0; j < 80 && s < 0; j++) { t2 = (Math.random() * N) | 0; if (land[t2] && own[t2] === b.id) s = t2; }
+      if (s >= 0) { revolt(s, 4); toast("✊ Peasants revolt in " + NAME[b.id] + "! Lands lost to anarchy.", 5000); ringAt(s, "#ffd27a"); }
+    }
+    else if (k === 2) { P[0].troops += 250 + P[0].cells; toast("💰 Golden age! Tax revenue gives you extra troops.", 5000); sfx("ok"); }
+    else if (bots.length) { b = bots.sort(function (a, z) { return z.troops - a.troops; })[0]; b.troops *= 0.7; toast("👑 Coup in " + NAME[b.id] + "! Their army falls into chaos.", 5000); }
+  }
+  function newMission() {
+    var o = [], mine = P[0].cells / landN, en = CITY.filter(function (c) { return own[c.i] !== 0; }), fn = facN(0), n0 = stat.nl, e0 = erased, tgt = Math.min(0.95, mine + 0.08), c;
+    if (en.length) { c = en[(Math.random() * en.length) | 0]; o.push({ t: "Capture " + c.n, ok: function () { return own[c.i] === 0; }, rw: 300 }); }
+    if (fn < MAXF) o.push({ t: "Build a factory (" + (fn + 1) + "/" + MAXF + ")", ok: function () { return facN(0) > fn; }, rw: 150 });
+    o.push({ t: "Land troops by sea or air", ok: function () { return stat.nl > n0; }, rw: 250 });
+    o.push({ t: "Erase a rival nation", ok: function () { return erased > e0; }, rw: 500 });
+    o.push({ t: "Own " + Math.round(tgt * 100) + "% of the land", ok: function () { return P[0].cells / landN >= tgt; }, rw: 350 });
+    curM = o[(Math.random() * o.length) | 0];
+  }
+  /* ---- "coming soon" vote buttons (demand test, tracked in PostHog) ---- */
+  var VOTES = [["countries", "🌍 More countries"], ["nukes", "☢️ Nukes"], ["multiplayer", "🌐 Online"]];
+  function voteHTML() {
+    var done = {}; try { done = JSON.parse(localStorage.getItem("pw_votes") || "{}"); } catch (_) {}
+    return "<div style='margin-top:10px;font-size:11px;opacity:.85'>Coming soon: tap to vote for what we build next</div><div class='row' style='margin-top:4px;gap:6px'>" +
+      VOTES.map(function (v) { return "<button data-v='" + v[0] + "' style='padding:6px 4px;font-size:11px;flex:1'" + (done[v[0]] ? " disabled" : "") + ">" + (done[v[0]] ? "✓ " : "") + v[1] + "</button>"; }).join("") + "</div>";
+  }
+  function bindVote(o, where) {
+    [].forEach.call(o.querySelectorAll("button[data-v]"), function (b) {
+      b.onclick = function () {
+        var f = b.dataset.v; track("feature_vote", { feature: f, where: where, empire: E ? E.n : null });
+        try { var d = JSON.parse(localStorage.getItem("pw_votes") || "{}"); d[f] = 1; localStorage.setItem("pw_votes", JSON.stringify(d)); } catch (_) {}
+        b.disabled = true; b.textContent = "✓ Thanks!";
+      };
+    });
+  }
+var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,"names":["Kazakhstan","Uzbekistan","Indonesia","Timor-Leste","Israel","Lebanon","Palestine","Jordan","United Arab Emirates","Qatar","Kuwait","Iraq","Oman","Cambodia","Thailand","Laos","Myanmar","Vietnam","North Korea","South Korea","Mongolia","India","Bangladesh","Bhutan","Nepal","Pakistan","Afghanistan","Tajikistan","Kyrgyzstan","Turkmenistan","Iran","Syria","Armenia","Turkey","Sri Lanka","China","Taiwan","Azerbaijan","Georgia","Philippines","Malaysia","Brunei","Japan","Yemen","Saudi Arabia","N. Cyprus","Cyprus","Russia"],"rle":[0,325,48,7,0,150,48,3,0,49,48,9,0,146,48,7,0,45,48,20,0,132,48,12,0,37,48,5,0,1,48,25,0,37,48,5,0,84,48,13,0,36,48,36,0,34,48,11,0,78,48,11,0,37,48,39,0,34,48,12,0,2,48,4,0,70,48,8,0,38,48,40,0,36,48,12,0,2,48,7,0,67,48,6,0,39,48,39,0,40,48,2,0,12,48,3,0,68,48,5,0,42,48,36,0,127,48,4,0,34,48,50,0,2,48,3,0,9,48,2,0,24,48,4,0,78,48,4,0,34,48,58,0,6,48,7,0,18,48,6,0,77,48,3,0,18,48,4,0,4,48,1,0,8,48,73,0,99,48,2,0,19,48,6,0,2,48,2,0,7,48,73,0,15,48,11,0,73,48,1,0,19,48,7,0,2,48,2,0,2,48,78,0,15,48,17,0,67,48,1,0,18,48,7,0,2,48,83,0,4,48,2,0,10,48,16,0,67,48,2,0,16,48,8,0,1,48,85,0,3,48,30,0,65,48,4,0,13,48,10,0,1,48,128,0,54,48,4,0,13,48,10,0,2,48,128,0,71,48,9,0,1,48,130,0,60,48,3,0,7,48,9,0,1,48,130,0,3,48,3,0,53,48,8,0,3,48,9,0,1,48,137,0,53,48,9,0,2,48,8,0,1,48,137,0,46,48,6,0,1,48,11,0,2,48,7,0,1,48,136,0,45,48,28,0,1,48,136,0,45,48,28,0,1,48,136,0,45,48,27,0,2,48,136,0,45,48,26,0,2,48,137,0,45,48,25,0,1,48,139,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,165,0,45,48,162,0,1,48,2,0,45,48,162,0,1,48,2,0,45,48,154,0,2,48,5,0,2,48,2,0,45,48,152,0,5,48,3,0,2,48,3,0,45,48,151,0,6,48,1,0,3,48,4,0,45,48,150,0,9,48,6,0,45,48,150,0,8,48,7,0,45,48,142,0,2,48,6,0,7,48,6,0,47,48,132,0,12,48,6,0,6,48,6,0,48,48,130,0,26,48,6,0,48,48,129,0,26,48,6,0,49,48,128,0,24,48,10,0,48,48,127,0,25,48,11,0,47,48,126,0,25,48,12,0,47,48,125,0,26,48,12,0,47,48,124,0,27,48,12,0,47,48,123,0,27,48,11,0,49,48,122,0,28,48,11,0,49,48,20,1,4,48,97,0,29,48,11,0,49,48,16,1,8,48,99,0,27,48,10,0,50,48,13,1,14,48,97,0,1,48,3,0,3,48,1,0,19,48,8,0,51,48,9,1,19,48,2,1,3,48,96,0,2,48,1,0,19,48,7,0,52,48,9,1,25,48,95,0,1,48,3,0,18,48,7,0,52,48,10,1,25,48,64,36,6,48,28,0,18,48,6,0,53,48,9,1,26,48,63,36,8,48,27,0,18,48,5,0,54,48,8,1,28,48,63,36,8,48,26,0,18,48,4,0,49,1,2,0,4,48,8,1,28,48,30,21,1,48,31,36,9,48,26,0,19,48,3,0,47,1,6,0,2,48,9,1,28,48,28,21,5,48,28,36,10,48,21,0,1,48,3,0,19,48,2,0,47,1,9,48,10,1,27,48,1,1,2,48,24,21,7,48,26,36,11,48,21,0,1,48,3,0,19,48,1,0,47,1,54,48,11,21,2,48,8,21,6,48,26,36,11,48,21,0,1,48,3,0,65,1,57,48,8,21,6,48,5,21,8,48,2,21,4,48,18,36,13,48,20,0,1,48,4,0,64,1,58,48,6,21,11,48,1,21,15,48,9,21,3,48,4,36,14,48,20,0,1,48,4,0,63,1,61,48,2,21,30,48,6,21,6,36,20,48,17,0,1,48,4,0,64,1,60,36,1,21,43,36,21,48,15,0,2,48,5,0,62,1,60,36,3,21,41,36,22,48,15,0,2,48,2,0,65,1,59,36,5,21,40,36,23,48,4,36,2,48,8,0,2,48,2,0,66,1,58,36,6,21,39,36,3,21,1,36,19,48,3,36,2,48,8,0,3,48,2,0,68,1,56,36,7,21,43,36,23,48,8,0,3,48,3,0,67,1,52,36,12,21,43,36,21,48,8,0,4,48,3,0,67,1,3,0,4,1,45,36,12,21,39,36,25,48,8,0,4,48,3,0,74,1,44,36,13,21,38,36,26,48,7,0,5,48,1,0,1,48,1,0,74,1,44,36,13,21,37,36,27,48,6,0,80,1,10,2,2,1,35,36,13,21,35,36,28,48,7,0,6,43,1,0,73,1,8,2,5,1,31,36,19,21,28,36,2,21,1,36,26,48,9,0,7,43,2,0,71,1,8,2,8,1,29,36,21,21,26,36,29,48,8,0,8,43,3,0,70,1,8,2,9,1,28,36,22,21,25,36,29,48,8,0,7,43,7,0,68,1,7,2,9,1,28,36,23,21,24,36,29,48,7,0,8,43,7,0,51,39,4,0,13,1,7,2,15,1,23,36,22,21,23,36,30,48,6,0,8,43,8,0,52,39,5,0,12,1,6,2,16,1,11,29,2,1,8,36,24,21,21,36,31,48,5,0,8,43,8,0,54,39,7,0,10,1,5,2,4,30,1,2,11,1,7,29,13,1,1,36,28,21,2,36,1,21,13,36,30,19,1,48,2,0,12,43,7,0,34,34,1,0,9,34,2,0,9,39,7,0,10,1,1,30,2,1,2,2,3,30,3,2,10,1,7,29,14,36,33,21,6,36,34,19,3,0,13,43,3,0,1,43,2,0,33,34,4,0,6,34,6,0,8,39,7,38,1,0,2,38,1,0,5,30,1,0,1,30,2,1,1,2,2,30,5,2,10,1,4,2,2,29,12,36,39,21,1,36,34,19,3,0,14,43,3,0,37,34,4,0,3,34,9,0,6,34,3,39,5,38,4,0,5,30,1,0,1,30,4,2,1,30,5,2,10,1,3,2,2,29,12,36,72,19,6,0,14,43,3,0,36,34,27,33,2,38,7,0,7,30,12,2,9,1,1,2,5,29,7,36,74,19,6,0,14,43,3,0,36,34,27,33,3,38,7,0,3,30,15,2,10,28,2,2,3,29,6,36,67,0,1,36,5,19,7,0,15,43,3,0,37,34,26,33,3,38,7,0,3,30,15,2,10,28,3,29,5,36,69,0,2,36,5,19,6,0,16,43,4,0,36,34,28,33,1,38,6,0,5,30,15,2,9,28,1,29,6,36,69,0,2,36,5,19,5,0,18,43,4,0,36,34,27,31,1,38,1,33,1,38,2,31,1,38,2,0,5,30,16,2,6,28,5,29,4,36,69,0,2,36,3,0,3,19,4,0,18,43,4,0,36,34,27,31,1,38,3,31,2,38,2,0,5,30,17,2,5,28,9,36,67,0,4,36,2,0,4,19,5,0,17,43,4,0,36,34,27,31,6,38,1,0,7,30,17,2,5,28,9,36,65,0,11,19,5,20,1,0,15,43,4,0,37,34,27,31,7,0,7,30,18,2,4,28,3,27,1,28,6,36,65,0,9,19,4,20,3,0,15,43,3,0,38,34,27,31,8,0,6,30,2,31,4,30,14,2,2,28,3,27,2,28,5,36,66,0,2,36,1,0,6,19,2,20,4,0,14,43,4,0,39,34,27,31,8,0,5,30,2,31,7,30,9,27,1,30,1,2,1,28,3,27,3,28,4,27,1,36,72,0,5,20,5,0,10,43,1,0,1,43,5,0,39,34,21,32,2,12,4,31,9,0,3,31,10,30,8,27,10,28,1,27,3,26,1,36,72,0,5,20,5,0,10,43,7,0,40,34,14,32,7,12,5,31,23,30,7,27,11,26,5,36,69,0,6,20,6,0,10,43,7,0,42,34,2,0,3,34,3,0,2,34,2,32,7,12,5,31,24,30,5,27,11,26,7,36,67,0,8,20,5,0,9,43,8,0,52,32,9,12,6,31,24,30,3,27,12,26,7,36,66,0,9,20,5,0,6,43,2,0,1,43,8,0,48,46,2,0,2,32,9,12,7,31,22,27,1,30,2,27,13,26,9,36,63,0,10,20,5,0,4,43,13,0,47,47,3,0,2,32,9,12,6,31,23,27,16,26,9,22,1,36,62,0,10,20,4,0,4,43,13,0,48,47,2,0,3,6,1,32,7,12,7,31,23,27,15,26,5,22,1,26,3,22,2,36,63,0,9,20,3,0,4,43,12,0,54,6,2,32,6,12,8,31,23,27,15,26,4,22,8,36,62,0,15,43,10,0,57,6,2,32,5,12,9,31,23,27,14,26,6,22,7,36,63,0,14,43,9,0,58,6,1,32,5,12,10,31,23,27,14,26,6,22,7,36,63,0,13,43,7,0,2,43,1,0,58,5,1,32,4,8,1,12,11,31,22,27,13,26,7,22,7,36,63,0,12,43,7,0,61,5,2,8,1,32,2,8,2,12,12,31,21,27,13,26,8,22,6,36,64,0,12,43,4,0,63,5,1,7,1,8,5,12,13,31,20,27,13,26,8,22,5,36,65,0,13,43,2,0,64,5,1,7,1,8,4,45,3,12,11,31,20,27,12,26,9,22,5,36,66,0,11,43,3,0,64,5,1,8,3,45,7,12,9,31,21,27,9,26,10,22,7,36,65,0,12,43,2,0,64,5,1,8,4,45,7,12,8,31,21,27,8,26,11,22,8,36,64,0,12,43,1,0,65,5,1,8,4,45,8,12,8,31,20,27,7,26,12,22,9,36,62,0,79,5,1,8,4,45,9,12,7,31,20,27,7,26,11,22,11,25,2,36,59,0,79,5,1,8,3,45,10,12,5,11,2,0,3,31,16,27,8,26,11,22,10,25,4,36,59,0,79,8,2,45,12,12,4,11,2,0,3,31,17,26,1,27,3,26,13,22,11,25,5,36,58,0,78,45,20,11,1,0,3,31,17,26,17,22,11,25,6,36,15,22,3,36,39,0,78,45,21,0,4,31,17,26,15,22,12,25,7,36,13,22,4,36,39,0,78,45,22,0,3,31,18,26,14,22,14,25,6,36,11,22,6,17,1,36,36,0,80,45,21,0,4,31,17,26,11,22,18,25,9,36,1,24,4,36,1,22,8,17,1,36,34,0,81,45,22,0,4,31,16,26,11,22,19,25,8,22,1,24,5,22,7,17,3,36,33,0,82,45,21,0,5,31,16,26,9,22,23,25,5,22,1,24,5,22,6,17,4,36,33,0,82,45,22,0,5,31,3,0,2,31,9,26,11,22,24,25,3,22,10,17,6,36,32,0,84,45,21,0,1,10,1,0,6,13,2,31,8,26,12,22,27,23,1,22,9,17,6,36,32,0,84,45,21,10,2,0,6,9,1,0,1,31,7,26,13,22,27,23,2,22,8,17,5,36,32,0,86,45,20,10,2,0,5,9,2,0,4,31,4,26,14,22,26,23,3,22,7,17,5,36,32,0,86,45,21,10,1,0,5,9,2,0,7,31,1,26,1,0,6,26,7,22,26,23,6,22,4,17,4,36,32,0,3,37,2,0,82,45,22,0,4,9,2,13,2,0,15,26,6,22,26,23,6,22,3,17,5,36,32,0,2,37,3,0,82,45,22,9,6,13,2,0,15,26,3,22,29,23,5,22,4,17,5,36,31,0,3,37,3,0,84,45,20,9,6,13,4,0,14,26,1,22,30,23,5,22,3,17,7,36,29,0,3,37,3,0,85,45,20,9,6,13,5,0,14,22,30,23,6,22,2,17,8,36,27,0,4,37,3,0,85,45,21,9,4,13,7,0,14,22,30,23,5,22,1,17,9,36,9,18,1,36,17,0,4,37,3,0,86,45,23,9,1,45,1,13,6,0,14,22,30,23,5,22,1,17,10,36,4,18,6,36,14,0,7,37,2,0,86,45,25,13,6,0,14,22,30,23,3,0,1,23,2,17,9,36,4,16,1,18,6,36,12,0,9,37,1,0,87,45,25,13,6,0,14,22,30,0,1,23,1,0,2,23,2,17,10,36,3,16,1,18,7,36,9,0,99,45,25,13,6,0,15,22,27,0,6,23,1,17,13,36,1,16,2,18,8,0,1,36,4,0,101,45,25,13,5,0,16,22,27,0,6,23,1,17,13,16,3,18,7,0,3,36,2,0,102,45,24,13,6,0,20,22,22,0,8,17,12,16,6,18,4,0,4,36,2,0,103,45,23,13,5,0,21,22,22,0,8,17,11,15,1,16,6,18,3,0,5,36,2,0,104,45,21,13,5,0,22,22,21,0,10,17,9,15,2,16,6,18,3,0,4,36,3,0,104,45,20,13,6,0,22,22,20,0,11,17,8,15,4,16,5,18,3,0,3,36,4,0,105,45,17,13,9,0,21,22,19,0,13,17,7,15,4,16,5,18,2,0,4,36,4,0,105,45,12,44,5,13,7,0,23,22,18,0,14,17,6,15,5,16,6,18,2,0,3,36,3,0,15,40,2,0,89,45,11,44,6,13,7,0,24,22,17,0,14,17,6,15,5,16,3,15,1,16,3,18,1,0,4,36,1,0,16,40,3,0,89,45,10,44,7,13,5,0,25,22,16,0,16,17,5,15,5,16,1,15,4,16,2,18,2,0,20,40,3,0,89,45,9,44,8,13,4,0,26,22,15,0,17,17,6,15,9,16,2,18,2,0,20,40,4,0,89,45,1,44,15,13,3,0,27,22,14,0,18,17,6,15,10,16,2,18,2,0,19,40,4,0,89,45,1,44,15,13,1,0,29,22,14,0,18,17,7,15,9,16,2,18,2,0,18,40,5,0,89,44,15,0,31,22,13,0,18,17,4,0,1,17,3,15,9,16,3,18,2,0,17,40,4,0,90,44,15,0,32,22,11,0,20,17,2,0,2,17,3,15,9,16,3,18,3,0,16,40,3,0,91,44,15,0,32,22,10,0,26,17,1,15,11,16,3,18,2,0,16,40,3,0,91,44,13,0,34,22,10,0,26,17,1,15,11,16,3,18,2,0,16,40,3,0,91,44,11,0,37,22,9,0,26,17,1,15,11,16,3,18,3,0,16,40,3,0,91,44,9,0,38,22,9,0,26,17,2,15,6,14,3,16,2,14,1,18,4,0,16,40,5,0,89,44,8,0,39,22,9,0,26,17,2,15,6,14,7,18,3,0,16,40,6,0,88,44,7,0,40,22,9,0,27,17,1,15,5,14,8,18,3,0,16,40,2,0,1,40,3,0,88,44,4,0,43,22,9,0,27,17,2,15,4,14,8,18,3,0,16,40,2,0,2,40,2,0,88,44,3,0,45,22,8,0,27,17,2,15,4,14,8,18,3,0,17,40,1,0,3,40,3,0,134,22,8,0,27,17,2,15,1,0,3,14,7,18,4,0,22,40,2,0,134,22,8,0,27,17,2,15,1,0,3,14,6,18,5,0,18,40,1,0,3,40,2,0,135,22,7,0,27,17,2,0,4,14,5,18,5,0,19,40,7,0,134,22,7,0,27,17,1,15,1,0,5,14,5,18,4,0,15,40,1,0,3,40,6,0,135,22,7,0,27,17,1,15,1,0,5,14,3,18,5,0,16,40,2,0,2,40,6,0,135,22,6,0,28,17,1,15,1,0,7,18,5,0,16,40,2,0,4,40,4,0,136,22,6,35,1,0,27,15,2,0,8,18,3,0,17,40,1,0,5,40,2,0,2,40,1,0,136,22,5,35,2,0,26,15,2,0,7,18,3,0,17,40,2,0,5,40,2,0,2,40,2,0,135,22,4,0,1,35,3,0,24,15,4,0,6,18,3,0,16,40,2,0,9,40,3,0,135,22,3,0,2,35,3,0,24,15,4,0,7,18,1,0,17,40,1,0,8,40,1,0,1,40,3,0,136,22,2,0,2,35,3,0,24,15,4,0,33,40,7,0,139,35,3,0,25,15,3,0,32,40,8,0,139,35,4,0,25,15,3,0,31,40,8,0,139,35,3,0,27,15,2,0,23,41,2,0,6,40,1,0,2,40,5,0,139,35,3,0,27,15,4,0,21,41,2,0,9,40,5,0,139,35,3,0,27,41,2,15,2,0,20,41,3,0,9,40,4,0,170,41,5,0,19,41,5,0,8,40,2,0,164,3,4,0,3,41,5,0,18,42,1,41,6,0,173,3,4,0,4,41,5,0,16,42,2,41,5,0,175,3,4,0,3,41,5,0,16,42,2,41,5,0,175,3,5,0,2,41,5,0,15,41,1,42,1,41,2,3,2,41,1,0,177,3,4,0,2,41,5,0,15,41,3,3,3,0,179,3,4,0,2,41,4,0,14,41,4,3,3,0,179,3,5,0,1,41,4,0,12,41,6,3,3,0,180,3,4,0,1,41,5,0,10,41,6,3,5,0,179,3,6,41,4,0,10,41,6,3,5,0,14,3,1,0,165,3,6,41,3,0,7,3,1,41,8,3,5,0,13,3,2,0,165,3,6,0,1,41,2,0,7,3,1,41,7,3,7,0,2,3,1,0,5,3,2,0,2,3,3,0,164,3,7,0,9,3,2,41,2,3,11,0,2,3,7,0,3,3,3,0,165,3,7,0,7,3,14,0,3,3,8,0,3,3,3,0,165,3,8,0,6,3,14,0,3,3,2,0,3,3,2,0,4,3,3,0,165,3,8,0,7,3,13,0,2,3,2,0,11,3,1,0,167,3,6,0,8,3,13,0,2,3,2,0,4,3,1,0,6,3,1,0,5,3,3,0,159,3,7,0,7,3,13,0,2,3,7,0,10,3,6,0,159,3,7,0,7,3,11,0,3,3,6,0,11,3,6,0,159,3,7,0,7,3,11,0,3,3,5,0,14,3,4,0,4,3,3,0,153,3,6,0,7,3,11,0,3,3,5,0,14,3,4,0,3,3,5,0,152,3,7,0,6,3,11,0,2,3,6,0,15,3,4,0,1,3,8,0,150,3,8,0,6,3,10,0,2,3,6,0,5,3,2,0,1,3,4,0,2,3,5,0,1,3,9,0,150,3,7,0,8,3,7,0,4,3,5,0,5,3,8,0,2,3,14,0,150,3,7,0,12,3,3,0,4,3,6,0,5,3,1,0,5,3,1,0,2,3,14,0,151,3,6,0,19,3,6,0,15,3,1,0,1,3,11,0,152,3,5,0,19,3,7,0,17,3,10,0,153,3,4,0,19,3,3,0,2,3,2,0,19,3,8,0,153,3,4,0,19,3,3,0,2,3,1,0,17,3,1,0,4,3,6,0,154,3,4,0,40,3,2,0,4,3,6,0,156,3,4,0,38,3,2,0,5,3,5,0,155,3,6,0,2,3,2,0,33,3,2,0,5,3,5,0,156,3,11,0,38,3,5,0,157,3,10,0,38,3,5,0,159,3,11,0,34,3,6,0,163,3,8,0,3,3,2,0,2,3,1,0,2,3,1,0,5,4,2,0,15,3,6,0,168,3,3,0,2,3,9,0,3,4,4,0,19,3,2,0,172,3,3,0,2,3,3,0,4,3,1,4,2,0,21,3,2,0,176,3,2,0,5,3,2,4,1,0,200,3,3,0,4,3,2,0,202,3,2,0,3,3,2,0,271]},"europe":{"W":220,"H":162,"lon0":-25,"lon1":60,"lat0":33,"lat1":72,"names":["Russia","Norway","France","Sweden","Belarus","Ukraine","Poland","Austria","Hungary","Moldova","Romania","Lithuania","Latvia","Estonia","Germany","Bulgaria","Greece","Albania","Croatia","Switzerland","Luxembourg","Belgium","Netherlands","Portugal","Spain","Ireland","Italy","Denmark","United Kingdom","Iceland","Slovenia","Finland","Slovakia","Czechia","Bosnia and Herz.","North Macedonia","Serbia","Montenegro","Kosovo","Turkey","Georgia","Armenia","Azerbaijan"],"rle":[0,198,1,11,0,209,1,11,0,209,1,12,0,144,2,5,0,63,1,10,0,135,2,15,0,61,1,10,0,133,2,18,0,60,1,10,0,131,2,21,0,192,2,26,0,191,2,19,32,4,2,6,0,3,1,1,0,185,2,19,32,8,2,5,0,1,1,4,0,182,2,20,32,8,2,4,1,7,0,179,2,9,32,2,2,10,32,8,2,3,1,14,0,173,2,8,4,2,32,3,2,9,32,8,1,21,0,168,2,8,4,4,32,8,2,1,32,10,1,23,0,40,1,4,0,9,1,3,0,108,2,10,4,6,32,17,1,26,0,12,1,3,0,19,1,6,0,3,1,11,0,106,2,6,4,12,32,16,1,28,0,10,1,8,0,12,1,7,0,3,1,13,0,103,2,7,4,15,32,15,1,29,0,9,1,7,0,9,1,26,0,102,2,6,4,18,32,16,1,28,0,8,1,8,0,5,1,29,0,101,2,6,4,19,32,16,1,29,0,7,1,7,0,4,1,31,0,101,2,5,4,20,32,15,1,30,0,7,1,5,0,6,1,31,0,100,2,6,4,20,32,15,1,31,0,6,1,5,0,5,1,32,0,99,2,6,4,21,32,14,1,32,0,7,1,5,0,3,1,33,0,98,2,7,4,21,32,15,1,11,0,1,1,18,0,8,1,41,0,3,30,5,0,13,30,7,0,70,2,6,4,22,32,16,1,11,0,4,1,12,0,3,1,5,0,2,1,41,0,2,30,8,0,4,30,4,0,1,30,8,0,70,2,7,4,22,32,16,1,12,0,7,1,7,0,3,1,49,0,2,30,9,0,1,30,15,0,69,2,7,4,23,0,1,32,16,1,12,0,14,1,51,0,1,30,27,0,67,2,7,4,20,0,7,32,14,1,12,0,13,1,52,0,4,30,25,0,66,2,7,4,20,0,8,32,12,1,13,0,12,1,53,0,7,30,23,0,64,2,7,4,20,0,9,32,12,1,13,0,5,1,1,0,7,1,52,0,3,30,26,0,64,2,7,4,20,0,8,32,13,1,14,0,4,1,5,0,5,1,51,0,4,30,24,0,64,2,8,4,20,0,7,32,15,1,14,0,3,1,7,0,2,1,52,0,7,30,20,0,64,2,9,4,21,0,5,32,17,1,13,0,4,1,60,0,7,30,18,0,65,2,10,4,20,0,4,32,20,1,14,0,2,1,60,0,6,30,17,0,66,2,8,4,21,0,5,32,20,1,77,0,9,30,11,0,68,2,9,4,20,0,5,32,21,1,77,0,15,30,2,0,69,2,10,4,20,0,5,32,22,1,77,0,84,2,12,4,19,0,5,32,24,1,76,0,83,2,13,4,17,0,7,32,26,1,74,0,81,2,15,4,16,0,7,32,27,1,74,0,79,2,17,4,15,0,8,32,27,1,74,0,78,2,18,4,15,0,8,32,26,1,75,0,77,2,19,4,14,0,9,32,25,1,76,0,77,2,19,4,14,0,10,32,23,1,77,0,77,2,19,4,14,0,10,32,22,1,78,0,77,2,20,4,13,0,10,32,21,1,79,0,77,2,20,4,13,0,10,32,20,1,80,0,77,2,20,4,14,0,8,32,20,1,81,0,78,2,19,4,15,0,8,32,18,1,82,0,78,2,19,4,16,0,9,32,13,0,3,1,82,0,78,2,18,4,18,0,9,32,7,0,9,1,81,0,78,2,18,4,17,0,10,32,4,0,12,1,81,0,78,2,17,4,18,0,18,14,2,0,5,1,82,0,78,2,16,4,18,0,15,14,10,1,83,0,78,2,13,0,1,2,2,4,18,0,13,14,12,1,83,0,79,2,11,0,2,2,1,4,18,0,14,14,12,1,83,0,79,2,10,0,4,4,16,0,16,14,11,1,84,0,51,29,6,0,23,2,8,0,5,4,16,0,16,14,11,1,84,0,50,29,6,0,25,2,5,0,8,4,15,0,17,14,10,1,84,0,50,29,6,0,38,4,14,0,19,14,9,1,84,0,49,29,6,0,1,29,4,0,34,4,14,0,14,13,2,0,3,13,4,14,5,1,84,0,49,29,11,0,30,28,3,0,2,4,13,0,13,13,3,0,3,13,6,14,3,1,84,0,49,29,11,0,29,28,4,0,2,4,13,0,12,13,5,0,2,13,9,1,84,0,49,29,10,0,27,28,6,0,3,4,13,0,11,13,18,1,83,0,48,29,11,0,27,28,6,0,4,4,11,0,12,13,18,1,83,0,49,29,10,0,26,28,8,0,3,4,11,0,12,13,18,1,83,0,50,29,8,0,27,28,8,0,4,4,10,0,12,13,9,12,1,13,9,1,82,0,50,29,7,0,28,28,8,0,2,28,2,4,6,0,1,4,2,0,13,13,1,12,11,13,6,5,2,1,81,0,50,29,10,0,25,28,6,0,2,28,4,4,5,0,17,12,13,13,3,5,6,1,79,0,50,29,10,0,25,28,5,0,3,28,5,4,4,0,17,12,14,5,11,1,76,0,50,29,1,0,1,29,9,0,25,28,4,0,3,28,4,0,1,4,3,0,18,12,15,5,11,1,75,0,44,26,1,29,3,0,3,29,10,0,25,28,5,0,3,28,3,0,21,1,3,12,12,5,12,1,75,0,43,26,2,29,4,0,3,29,10,0,24,15,2,28,1,15,2,0,4,28,1,0,14,7,1,0,5,1,7,12,9,5,13,1,75,0,42,26,4,29,4,0,3,29,10,0,23,15,5,0,17,7,5,0,2,1,8,12,8,5,14,1,75,0,41,26,4,29,5,0,5,29,9,0,22,15,7,0,3,15,2,0,7,7,11,1,7,12,8,5,15,1,74,0,40,26,5,29,5,0,6,29,9,0,22,15,13,0,3,7,22,12,5,5,16,1,74,0,39,26,9,29,1,0,8,29,8,0,21,15,15,0,1,7,23,12,3,5,19,1,73,0,39,26,10,0,7,29,9,0,18,15,19,7,24,5,22,1,72,0,40,26,9,0,3,29,13,0,14,23,4,15,19,7,24,5,23,1,71,0,40,26,10,0,2,29,14,0,11,23,6,15,19,7,24,5,23,1,71,0,40,26,9,0,3,29,15,0,9,23,7,15,18,7,26,5,19,1,74,0,40,26,9,0,3,29,18,0,6,23,7,15,19,7,24,5,20,1,74,0,40,26,8,0,5,29,16,0,6,23,8,15,19,7,23,5,22,1,73,0,39,26,9,0,4,29,17,0,6,23,8,15,20,7,22,5,22,1,1,6,5,1,67,0,39,26,7,0,5,29,18,0,6,23,7,15,21,7,23,5,19,6,8,1,67,0,39,26,5,0,7,29,17,0,6,23,6,15,23,7,23,5,2,6,6,5,10,6,10,1,66,0,52,29,16,0,6,23,6,15,23,7,23,6,12,5,1,6,1,5,4,6,9,1,43,0,5,1,19,0,54,29,15,0,3,22,3,23,1,22,2,23,3,15,23,7,22,6,28,1,41,0,8,1,17,0,52,29,16,0,1,3,2,22,8,23,2,15,20,34,1,15,1,34,1,7,23,6,29,1,38,0,11,1,15,0,52,29,15,0,1,3,4,22,9,15,19,34,5,7,22,6,29,1,37,0,14,1,4,0,6,1,3,0,51,29,10,0,7,3,5,22,8,15,18,34,8,7,20,6,30,1,34,0,27,1,2,0,50,29,6,0,12,3,6,22,7,15,16,34,10,7,1,34,2,7,16,6,33,1,1,6,2,1,29,0,79,29,2,0,15,3,8,22,5,21,1,15,16,34,14,7,14,6,38,1,25,0,1,1,2,0,94,3,13,22,2,21,1,15,16,34,16,7,11,6,42,1,21,0,3,1,1,0,88,3,2,0,2,3,16,21,2,15,16,34,17,7,9,6,45,1,19,0,93,3,21,15,17,34,14,33,4,7,1,33,4,7,2,6,46,1,17,0,94,3,23,15,16,34,13,33,11,6,45,1,19,0,88,3,3,0,2,3,25,15,15,34,3,8,2,34,6,33,12,6,45,1,18,0,86,3,33,15,15,8,1,34,1,8,6,34,1,33,13,6,46,1,18,0,86,3,32,15,15,8,9,33,9,9,3,33,2,6,13,10,1,6,32,1,17,0,88,3,31,15,14,8,11,33,6,9,8,6,9,11,2,10,4,6,30,1,18,0,87,3,31,15,14,8,10,9,2,33,3,9,10,11,5,6,2,11,5,10,5,6,28,1,19,0,88,3,29,15,2,20,2,15,11,8,8,9,15,11,14,10,4,6,25,1,25,0,87,3,25,20,8,8,1,15,1,8,15,9,14,11,15,10,4,6,24,1,26,0,88,3,24,20,7,8,18,9,14,11,16,10,4,6,23,1,27,0,88,3,22,20,9,8,4,27,2,8,11,9,13,11,17,10,4,6,22,0,1,1,27,0,88,3,21,20,12,27,5,8,9,31,1,9,13,11,18,10,4,6,19,0,1,1,29,0,89,3,20,20,11,27,9,31,1,8,2,31,5,9,11,11,19,10,4,6,3,0,1,6,11,0,5,1,30,0,89,3,21,20,6,27,12,31,6,19,3,9,9,11,20,10,2,6,4,0,3,6,9,0,7,1,29,0,89,3,21,20,4,27,14,31,6,19,4,9,4,37,4,11,20,10,1,6,5,0,7,1,2,6,3,0,7,1,28,0,90,3,21,27,19,31,4,19,9,37,4,11,20,10,1,6,4,0,7,1,5,6,1,0,6,1,29,0,90,3,22,27,15,0,2,31,4,19,10,37,5,11,19,6,4,0,7,1,8,0,5,1,26,0,93,3,22,27,14,0,3,19,15,37,5,11,22,0,6,1,40,0,93,3,21,27,15,0,3,19,2,0,1,19,3,35,7,19,1,37,7,11,21,0,8,1,9,0,1,1,27,0,94,3,21,27,15,0,3,19,1,0,2,19,2,35,9,37,7,11,20,0,10,1,5,0,5,1,26,0,94,3,21,27,15,0,6,19,3,35,8,37,9,11,17,0,11,1,3,0,8,1,24,0,95,3,22,27,14,0,7,19,3,35,7,37,9,11,16,0,13,1,1,0,11,1,23,0,94,3,23,27,3,0,2,27,9,0,6,19,3,35,8,37,8,16,1,11,10,16,2,11,3,0,26,1,22,0,93,3,24,27,2,0,5,27,8,0,6,19,3,35,7,37,8,16,3,11,6,16,5,11,2,0,27,1,22,0,75,25,9,0,8,3,24,0,7,27,9,0,5,19,3,35,7,37,8,16,16,0,28,1,21,0,73,25,19,3,23,0,8,27,9,0,7,19,3,35,4,38,1,37,9,16,14,0,30,41,3,1,17,0,72,25,21,3,13,0,6,3,2,0,9,27,10,0,7,19,2,35,3,38,3,37,2,39,1,37,5,16,14,0,31,41,6,1,13,0,72,25,22,3,11,0,15,3,2,0,2,27,9,0,8,19,2,35,2,38,4,39,3,37,3,16,14,0,33,41,7,1,11,0,73,25,24,3,1,25,2,3,5,0,14,3,3,0,2,27,10,0,9,19,1,38,5,39,4,37,2,16,14,0,34,41,7,1,1,41,1,1,9,0,72,25,28,3,3,25,1,0,14,3,3,0,3,27,10,0,9,38,3,18,2,39,4,37,2,16,14,0,35,41,11,1,6,0,72,25,32,0,13,3,4,0,4,27,10,0,9,38,2,18,3,39,2,36,3,16,14,0,35,41,11,1,7,0,71,25,1,24,2,25,29,0,14,3,3,0,5,27,11,0,8,38,1,18,3,39,1,36,5,16,9,40,5,0,12,40,7,0,15,41,12,1,6,0,71,24,7,25,24,0,15,3,2,0,7,27,11,0,8,18,3,36,6,16,8,17,1,40,5,0,10,40,10,0,14,41,12,43,2,1,4,43,1,0,70,24,7,25,24,0,16,3,1,0,8,27,10,0,7,18,4,36,6,16,3,17,2,16,3,17,1,40,6,0,8,40,13,0,11,40,5,41,9,43,2,1,2,43,3,0,69,24,6,25,24,0,17,27,1,0,9,27,11,0,5,18,4,36,6,17,9,40,11,0,1,40,17,0,8,40,7,41,4,43,2,41,2,43,7,0,70,24,5,25,21,0,18,27,4,0,10,27,10,0,4,18,4,36,3,17,12,40,45,42,4,43,11,0,69,24,5,25,20,0,19,27,4,0,11,27,10,0,3,18,5,17,9,0,3,17,1,40,4,0,3,40,39,42,4,43,11,0,68,24,6,25,20,0,19,27,5,0,12,27,9,0,2,18,5,17,8,0,5,40,46,42,4,43,13,0,66,24,6,25,19,0,20,27,5,0,12,27,6,0,1,27,3,0,1,18,4,17,10,0,4,40,46,42,5,43,12,0,66,24,6,25,18,0,21,27,4,0,14,27,4,0,3,27,2,0,2,18,3,17,6,0,1,17,3,0,6,40,45,42,4,43,11,0,67,24,5,25,19,0,21,27,4,0,15,27,3,0,8,18,1,17,7,0,9,40,47,42,3,43,10,0,67,24,5,25,20,0,21,27,4,0,15,27,4,0,8,17,8,0,7,40,48,43,2,42,2,43,9,0,67,24,6,25,18,0,22,27,4,0,15,27,5,0,7,17,8,0,7,40,47,0,2,43,2,42,2,43,3,0,1,43,4,0,67,24,6,25,19,0,21,27,3,0,17,27,3,0,8,17,8,0,8,40,47,0,1,43,3,42,1,43,2,0,2,43,4,0,67,24,6,25,19,0,41,27,3,0,9,17,7,0,8,40,47,0,2,43,2,42,1,43,1,0,3,43,3,0,68,24,6,25,19,0,40,27,3,0,10,17,8,0,7,40,47,0,9,43,3,0,68,24,6,25,18,0,41,27,2,0,12,17,8,0,6,40,47,0,10,43,2,0,69,24,5,25,18,0,33,27,10,0,12,17,8,0,6,40,47,0,82,24,4,25,18,0,33,27,9,0,13,17,8,0,6,40,47,0,82,24,4,25,17,0,33,27,9,0,14,17,6,0,1,17,1,0,7,40,46,0,81,24,4,25,16,0,37,27,6,0,16,17,6,0,9,40,46,0,80,24,4,25,16,0,38,27,6,0,15,17,4,0,11,40,39,0,4,40,3,0,80,24,4,0,2,25,13,0,42,27,3,0,15,17,5,0,10,40,34,0,99,25,12,0,43,27,1,0,17,17,4,0,11,40,26,0,2,40,3,0,101,25,5,0,69,17,3,0,15,40,4,0,3,40,7,0,3,40,3,0,109,25,3,0,89,40,2,0,5,40,5,0,4,40,3,0,110,25,1,0,107,40,1,0,187,17,1,0,218,17,6,0,214,17,8,0,215,17,5,0,1627]}}, REG = "asia", WORLD = null;
+  var selW = -1, selT = 0, MODE = "eu", WG = null, MAJOR0 = MAJOR ? MAJOR.slice() : null, wFilter = "all";
+  function getDyn() { try { var v = +localStorage.getItem("pw_dyn"); return v > 0 ? v : 1; } catch (_) { return 1; } }
+  function worldGrid() { if (!WG) { WG = new Uint8Array(WORLD.W * WORLD.H); var k = 0, j, n; for (j = 0; j < WORLD.rle.length; j += 2) for (n = 0; n < WORLD.rle[j + 1]; n++) WG[k++] = WORLD.rle[j]; } return WG; }
+  function setMap(m) {
+    var w = m === "world"; if (w) { WORLD = WORLDS[REG]; WG = null; } if (w && !MAJOR0) MAJOR0 = MAJOR.slice(); MODE = m; W = w ? WORLD.W : 80; H = w ? WORLD.H : 120; N = W * H; WIN = w ? 0.35 : 0.97;
+    cv.width = W; cv.height = H; im = cx.createImageData(W, H); NBR = null; CNT = new Uint8Array(N); cv.style.imageRendering = w ? "auto" : "pixelated";
+    if (!w && MAJOR0) MAJOR = MAJOR0.slice();
+    
+    Z = 1; PX = 0; PY = 0; try { zapply(); } catch (_) {}
+  }
+  function wHue(n) { var h = 0, i; for (i = 0; i < n.length; i++) h = (h * 37 + n.charCodeAt(i) * 11) % 360; return h; }
+  function wHex(c) { return "#" + c.map(function (v) { return ("0" + Math.max(0, Math.min(255, v | 0)).toString(16)).slice(-2); }).join(""); }
+  function wFlag(n) { var h = wHue(n), a = wHex(hsl(h)), b = wHex(hsl((h + 150) % 360)); return flag("h:" + a + "," + b + "," + a); }
+  function worldStart() {
+    var g = worldGrid(), idToP = {}, p = 1, i;
+    NAME = [E.n].concat(E.foes.map(function (f) { return f[0]; }));
+    COL = NAME.map(function (n) { return hsl(wHue(n)); });
+    FL = NAME.map(function (n) { return wFlag(n); });
+    NAME.forEach(function (n, j) { P.push({ id: j, cells: 0, troops: 0, alive: true, next: 8 + j * 3, pact: false, cool: 0 }); });
+    idToP[E.cid] = 0; for (i = 1; i <= WORLD.names.length; i++) if (i !== E.cid) idToP[i] = p++;
+    for (i = 0; i < N; i++) if (g[i]) { own[i] = idToP[g[i]]; P[own[i]].cells++; }
+  }
+  function worldCities() {
+    var g = worldGrid(), L = {}, i, id; MAJOR = [];
+    for (i = 0; i < N; i++) if (g[i]) (L[g[i]] = L[g[i]] || []).push(i);
+    for (id in L) {
+      var a = L[id], nm = WORLD.names[id - 1], sx = 0, sy = 0, best = 1e9, bi = a[0];
+      a.forEach(function (q) { sx += q % W; sy += (q / W) | 0; }); sx /= a.length; sy /= a.length;
+      a.forEach(function (q) { var dx = q % W - sx, dy = ((q / W) | 0) - sy, dd = dx * dx + dy * dy; if (dd < best) { best = dd; bi = q; } });
+      CITY.push({ n: nm, i: bi }); if (a.length > 120) MAJOR.push(nm);
+      if (a.length > 250) { var b = a.slice().sort(function (p, q) { return p % W - q % W; }); CITY.push({ n: nm + " West", i: b[(b.length * 0.2) | 0] }); CITY.push({ n: nm + " East", i: b[(b.length * 0.8) | 0] }); }
+    }
+  }
+  function introWorld(cid, reg) {
+    REG = reg || REG; setMap("world"); var g = worldGrid(), cnt = {}, i, others = [], tot = 0;
+    for (i = 0; i < g.length; i++) if (g[i]) { cnt[g[i]] = (cnt[g[i]] || 0) + 1; tot++; }
+    for (i = 1; i <= WORLD.names.length; i++) if (i !== cid) others.push([WORLD.names[i - 1], 0, 0, 0]);
+    var nm = WORLD.names[cid - 1], sh = (cnt[cid] || 1) / tot;
+    var dif = sh <= 0.004 ? "Extreme: a tiny state among giants" : sh <= 0.02 ? "Hard: small, with big neighbours" : sh <= 0.06 ? "Fair fight" : "Big power: many fronts to hold";
+    var where = REG === "asia" ? "Asia" : "Europe";
+    E = { grace: 700, n: nm, y: 2026, end: 2126, par: 420, modern: true, world: true, cid: cid, tag: where + " today", win: "You held on through the whole century!", dif: dif, foes: others, me: [] };
+    P = null; over = true; $("nm").innerHTML = "";
+    var o = $("ov"); o.style.display = "flex";
+    o.innerHTML = "<p style='opacity:.7'>YOU RULE</p><img src='" + wFlag(nm) + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1>" + nm + "</h1><p><b>2026</b> · " + where + " today</p><p>Survive <b>7 minutes</b> or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + dif + "</p><p style='opacity:.7;font-size:12px'>" + others.length + " rival nations</p><div class='hw'><span>⚔️</span><span><b>Land</b> · tap the border of a neighbour</span><span>⛵</span><span><b>Sea</b> · tap a far coast to send a fleet</span><span>✈️</span><span><b>Air</b> · tap deep inside enemy land for planes</span><span>🏭</span><span><b>Factories</b> · more troops, fleets and planes</span></div><div class='row'><button class='p' id='go'>Take command</button></div><div class='row'><button id='ch'>Choose another empire</button></div>" + voteHTML();
+    bindVote(o, "start"); $("go").onclick = function () { newGame(); }; $("ch").onclick = showPicker;
+  }
+  function focusYou() {   /* centre the view on your own country */
+    var x0 = 1e9, x1 = -1, y0 = 1e9, y1 = -1, i, x, y, s = csz();
+    for (i = 0; i < N; i++) if (own[i] === 0) { x = i % W; y = (i / W) | 0; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 < 0) return;
+    var gw = x1 - x0 + 1, gh = y1 - y0 + 1;
+    Z = Math.max(1, Math.min(MODE === "world" ? 8 : 4, 0.6 * s.bw / (gw / W * s.cw), 0.6 * s.bh / (gh / H * s.ch)));
+    PX = s.bw / 2 - (x0 + gw / 2) / W * s.cw * Z; PY = s.bh / 2 - (y0 + gh / 2) / H * s.ch * Z; zapply();
+  }
+  function showWorldPicker() {
+    var o = $("ov"), ids = [], i, nms = WORLDS[REG].names; o.style.display = "flex";
+    for (i = 1; i <= nms.length; i++) ids.push(i);
+    ids.sort(function (a, b) { return nms[a - 1] < nms[b - 1] ? -1 : 1; });
+    o.innerHTML = "<h2 style='margin:0 0 6px'>Pick a country</h2><div class='row' style='gap:6px'>" + [["asia", "Asia"], ["europe", "Europe"]].map(function (f) { return "<button data-f='" + f[0] + "'" + (REG === f[0] ? " class='sel'" : "") + ">" + f[1] + "</button>"; }).join("") + "</div><div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:340px;max-height:48vh;overflow-y:auto;margin-top:8px'>" + ids.map(function (id) { var n = nms[id - 1]; return "<button data-w='" + id + "' style='padding:8px;font-size:12px;text-align:left'><img class='fl' src='" + wFlag(n) + "'> " + n + "</button>"; }).join("") + "</div><div class='row' style='margin-top:8px'><button id='wr'>🎲 Random</button><button id='wb'>Back</button></div>";
+    [].forEach.call(o.querySelectorAll("button[data-w]"), function (b) { b.onclick = function () { introWorld(+b.dataset.w, REG); }; });
+    [].forEach.call(o.querySelectorAll("button[data-f]"), function (b) { b.onclick = function () { REG = b.dataset.f; showWorldPicker(); }; });
+    $("wr").onclick = function () { introWorld(1 + ((Math.random() * nms.length) | 0), REG); }; $("wb").onclick = showPicker;
+  }
+  /* ---- empire picker (after a match) ---- */
+  function pickHTML() {
+    return "<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:340px'>" + EMP.map(function (e, j) { return "<button data-e='" + j + "' style='padding:8px;font-size:12px;text-align:left'><img class='fl' src='" + flag(FLAG[e.n][3]) + "'>" + e.n + "<br><small style='font-weight:400;opacity:.7'>" + e.y + "</small></button>"; }).join("") + "</div>";
+  }
+  function bindPick(o) { [].forEach.call(o.querySelectorAll("button[data-e]"), function (b) { b.onclick = function () { intro(+b.dataset.e); }; }); }
+  function showPicker() {
+    var o = $("ov"); o.style.display = "flex";
+    o.innerHTML = "<h2 style='margin:0 0 8px'>Choose your empire</h2><div class='row' style='margin-bottom:8px'><button class='p' id='wp'>🌍 Play any country today (Asia or Europe)</button></div>" + pickHTML() + "<div class='row' style='margin-top:8px'><button class='p' id='rn'>Random empire</button></div>";
+    bindPick(o); $("rn").onclick = function () { intro(); }; $("wp").onclick = showWorldPicker;
+  }
+  var own, land, hot, P, atk, over, ticks, speed = 1, landN, toastT, chosen = 2;
+
+  function genMap() {
+    land = new Uint8Array(N); landN = 0;
+    if (MODE === "world") { var wg = worldGrid(); for (var wq = 0; wq < N; wq++) if (wg[wq]) { land[wq] = 1; landN++; } return; }
+    var polys = EUR.map(function (pl) { return pl.map(function (q) { return xy(q[0], q[1]); }); });
+    for (var i = 0; i < N; i++) {
+      var x = i % W + 0.5, y = ((i / W) | 0) + 0.5;
+      for (var j = 0; j < polys.length; j++) if (inPoly(x, y, polys[j])) { land[i] = 1; landN++; break; }
+    }
+  }
+  function inPoly(x, y, Q) {
+    var r = false;
+    for (var i = 0, j = Q.length - 1; i < Q.length; j = i++) {
+      if ((Q[i][1] > y) !== (Q[j][1] > y) && x < (Q[j][0] - Q[i][0]) * (y - Q[i][1]) / (Q[j][1] - Q[i][1]) + Q[i][0]) r = !r;
+    }
+    return r;
+  }
+  var NBR = null, CNT = new Uint8Array(N);
+  function nb(i) {
+    if (!NBR) { NBR = []; for (var q = 0; q < N; q++) { var x = q % W, r = []; if (x > 0) r.push(q - 1); if (x < W - 1) r.push(q + 1); if (q >= W) r.push(q - W); if (q < N - W) r.push(q + W); NBR.push(r); } }
+    return NBR[i];
+  }
+
+  var TER;
+  function genTerrain() {
+    TER = new Uint8Array(N * 3);
+    for (var i = 0; i < N; i++) {
+      if (!land[i]) continue;
+      var x = i % W, y = (i / W) | 0, lat = MODE === "world" ? WORLD.lat1 - (y + 0.5) * (WORLD.lat1 - WORLD.lat0) / H : 71.5 - (y + 0.5) / K, lon = MODE === "world" ? WORLD.lon0 + (x + 0.5) * (WORLD.lon1 - WORLD.lon0) / W : (x + 0.5) / (0.574 * K) - 11;
+      var h = (((x * 73856093) ^ (y * 19349663)) >>> 0) % 100 / 100, c;
+      if (MODE === "world") c = (lat > 63 || (lat > 57 && h > 0.75)) ? [226, 232, 238] : ((lat < 35 && lat > 12 && lon > 34 && lon < 62) || (lat > 37 && lat < 47 && lon > 88 && lon < 118) || (lat > 24 && lat < 37 && lon > 60 && lon < 75 && h > 0.3)) ? [206, 184, 128] : (lat > 26 && lat < 37 && lon > 72 && lon < 100 && h > 0.35) ? [146, 138, 128] : lat < 22 ? [60, 140, 70] : [88, 132, 74];
+      else if (lat > 62 || (lat > 58 && h > 0.7)) c = [226, 232, 238];
+      else if (lat < 33 || (lat < 36 && lon > 3 && lon < 12 && h > 0.5)) c = [206, 184, 128];
+      else if (lon > 29 && lat < 40 && lat > 34) c = [176, 160, 108];
+      else if (lon > 5 && lon < 15 && lat > 45.3 && lat < 47.6) c = [146, 138, 128];
+      else c = [88, 132, 74];
+      var v = MODE === "world" ? 1 : 0.88 + h * 0.24;
+      TER[i * 3] = Math.min(255, c[0] * v); TER[i * 3 + 1] = Math.min(255, c[1] * v); TER[i * 3 + 2] = Math.min(255, c[2] * v);
+    }
+  }
+  var CT = [["London",-0.1,51.5],["Paris",2.35,48.85],["Madrid",-3.7,40.4],["Lisbon",-9.1,38.7],["Rome",12.5,41.9],["Naples",14.3,40.85],["Venice",12.3,45.4],["Berlin",13.4,52.5],["Vienna",16.4,48.2],["Prague",14.4,50.1],["Budapest",19,47.5],["Warsaw",21,52.2],["Moscow",37.6,55.75],["St Petersburg",30.3,59.9],["Kyiv",30.5,50.45],["Constantinople",28.98,41],["Ankara",32.9,39.9],["Athens",23.7,38],["Belgrade",20.5,44.8],["Bucharest",26.1,44.4],["Stockholm",18,59.3],["Oslo",10.7,59.9],["Helsinki",25,60.2],["Amsterdam",4.9,52.4],["Copenhagen",12.6,55.7],["Cairo",31.2,30],["Alexandria",29.9,31.2],["Tripoli",13.2,32.9],["Tunis",10.2,36.8],["Algiers",3,36.8],["Fez",-5,34],["Damascus",36.3,33.5],["Jerusalem",35.2,31.8],["Baghdad",44.4,33.3],["Carthage",10.3,36.85]];
+  var CITY = [], MAJOR = ["London", "Paris", "Madrid", "Rome", "Berlin", "Vienna", "Moscow", "Constantinople", "Cairo", "Athens", "Warsaw", "Kyiv", "Baghdad", "Damascus", "Stockholm", "Tunis"];
+  function placeCities() {
+    CITY = [];
+    if (MODE === "world") { worldCities(); return; }
+    CT.forEach(function (c) {
+      var q = xy(c[1], c[2]), cx0 = q[0] | 0, cy0 = q[1] | 0, best = 1e9, bi = -1;
+      for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) {
+        var x = cx0 + dx, y = cy0 + dy; if (x < 0 || y < 0 || x >= W || y >= H || !land[y * W + x]) continue;
+        var dd = dx * dx + dy * dy; if (dd < best) { best = dd; bi = y * W + x; }
+      }
+      if (bi >= 0 && c[0] !== "Carthage") CITY.push({ n: c[0], i: bi });
+    });
+  }
+  var FL = [];
+  function flag(spec) {
+    var c = document.createElement("canvas"); c.width = 30; c.height = 20;
+    var g = c.getContext("2d"), a = spec.split(":"), k = a[0], co = (a[1] || "").split(",");
+    var fr = function (col, x, y, w, h) { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    if (k === "h") co.forEach(function (col, j) { fr(col, 0, j * 20 / co.length, 30, 20 / co.length + 1); });
+    else if (k === "v") co.forEach(function (col, j) { fr(col, j * 30 / co.length, 0, 30 / co.length + 1, 20); });
+    else if (k === "x") { fr(co[0], 0, 0, 30, 20); fr(co[1], 8, 0, 6, 20); fr(co[1], 0, 7, 30, 6); if (co[2]) { fr(co[2], 9.5, 0, 3, 20); fr(co[2], 0, 8.5, 30, 3); } }
+    else if (k === "c") { fr(co[0], 0, 0, 30, 20); g.fillStyle = co[1]; g.beginPath(); g.arc(15, 10, 6, 0, 7); g.fill(); }
+    else if (k === "uk") { fr("#012169", 0, 0, 30, 20); g.strokeStyle = "#fff"; g.lineWidth = 4; g.beginPath(); g.moveTo(0, 0); g.lineTo(30, 20); g.moveTo(30, 0); g.lineTo(0, 20); g.stroke(); fr("#fff", 12, 0, 6, 20); fr("#fff", 0, 7, 30, 6); fr("#c8102e", 13.5, 0, 3, 20); fr("#c8102e", 0, 8.5, 30, 3); }
+    else if (k === "swas") { fr("#c1121f", 0, 0, 30, 20); g.fillStyle = "#fff"; g.beginPath(); g.arc(15, 10, 8, 0, 7); g.fill(); ["10111", "10100", "11111", "00101", "11101"].forEach(function (row, y) { for (var x = 0; x < 5; x++) if (row[x] === "1") fr("#000", 10 + x * 2, 5 + y * 2, 2, 2); }); }
+    else if (k === "hs") {
+      fr("#cc0000", 0, 0, 30, 20); g.fillStyle = "#ffd700"; g.beginPath();
+      for (var q = 0; q < 10; q++) { var rr = q % 2 ? 1.7 : 4, an = -1.5708 + q * 0.6283; g.lineTo(7 + rr * Math.cos(an), 6 + rr * Math.sin(an)); }
+      g.closePath(); g.fill();
+      g.font = "bold 15px 'Segoe UI Symbol','Noto Sans Symbols2','Noto Sans Symbols','Apple Symbols',sans-serif"; g.textAlign = "center"; g.textBaseline = "alphabetic"; g.fillText("\u262D", 17, 16);
+    }
+    else if (k === "spqr") { fr("#7a0000", 0, 0, 30, 20); g.strokeStyle = "#ffd700"; g.lineWidth = 1; g.strokeRect(1.5, 1.5, 27, 17); g.fillStyle = "#ffd700"; g.font = "bold 8px serif"; g.textAlign = "center"; g.fillText("SPQR", 15, 13); }
+    else if (k === "cres") { fr("#1b7a4a", 0, 0, 30, 20); g.fillStyle = "#fff"; g.beginPath(); g.arc(13, 10, 6, 0, 7); g.fill(); g.fillStyle = "#1b7a4a"; g.beginPath(); g.arc(15, 10, 5, 0, 7); g.fill(); g.fillStyle = "#fff"; g.beginPath(); g.arc(21, 10, 2, 0, 7); g.fill(); }
+    else fr("#888", 0, 0, 30, 20);
+    g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 1; g.strokeRect(0.5, 0.5, 29, 19);
+    return c.toDataURL();
+  }
+  var FLAG = {
+    "Nazi Germany": [215, 38, 38, "swas"], "Soviet Union": [150, 20, 40, "hs"], "Roman Empire": [130, 60, 170, "spqr"], "Napoleon's Empire": [40, 90, 220, "v:#0055a4,#fff,#ef4135"], "Ottoman Empire": [30, 150, 100, "cres"], "Ottomans": [30, 150, 100, "cres"],
+    "Britain": [215, 100, 100, "uk"], "Spain": [235, 185, 40, "h:#aa151b,#f1bf00,#aa151b"], "France": [70, 120, 220, "v:#0055a4,#fff,#ef4135"], "West Germany": [110, 110, 120, "h:#000,#dd0000,#ffce00"], "Russia": [225, 225, 230, "h:#fff,#0039a6,#d52b1e"], "Habsburgs": [225, 200, 50, "h:#000,#fcdd09"], "Austria": [225, 200, 50, "h:#000,#fcdd09"], "Poland": [240, 120, 150, "h:#fff,#dc143c"], "Venice": [190, 80, 40, "c:#b22222,#ffd700"], "Italy": [70, 175, 95, "v:#009246,#fff,#ce2b37"], "Sweden": [70, 160, 225, "x:#006aa7,#fecc00"], "Norway": [205, 60, 90, "x:#ba0c2f,#fff,#00205b"], "Finland": [150, 200, 240, "x:#fff,#003580"], "Greece": [90, 150, 230, "h:#0d5eaf,#fff,#0d5eaf,#fff,#0d5eaf"], "Portugal": [40, 130, 80, "v:#046a38,#da291c"], "Prussia": [80, 80, 90, "h:#000,#fff"], "Turkey": [210, 70, 70, "c:#e30a17,#fff"],
+    "Germanic tribes": [120, 140, 70, "c:#3b4a1f,#9bbf5a"], "Sarmatians": [200, 170, 100, "c:#6b4e1f,#e6c27a"], "Caledonians": [90, 110, 200, "c:#0a2a8a,#fff"], "Steppe horde": [190, 140, 60, "c:#222,#e8d9a8"], "Norse": [160, 70, 50, "x:#a02820,#e8e8e8"], "Finns": [120, 170, 200, "x:#fff,#2a6fb0"], "Parthia": [175, 95, 175, "h:#5b2a86,#d8b4fe"], "Berbers": [205, 150, 90, "c:#c8a060,#4a2c0a"], "Nubians": [130, 110, 60, "c:#2d2410,#d8b04a"], "Morocco": [195, 65, 65, "c:#c1272d,#006233"], "Persia": [60, 170, 150, "h:#239f40,#fff,#da0000"],
+    "Byzantine Empire": [140, 60, 170, "c:#5b1a7a,#ffd700"], "Franks": [70, 110, 210, "c:#1c3f94,#e8d27a"], "Visigoths": [200, 150, 60, "c:#8a5a1a,#f0e0a0"], "Lombards": [190, 170, 80, "h:#8a1a1a,#e8d8a0"], "Slavs": [110, 170, 120, "h:#fff,#2a6fb0,#c0392b"], "Avars": [170, 120, 110, "c:#444,#c9a96e"],
+    "Spanish Empire": [235, 185, 40, "h:#aa151b,#f1bf00,#aa151b"], "England": [215, 90, 90, "x:#fff,#c8102e"], "Holy Roman Empire": [225, 200, 50, "h:#000,#fcdd09"], "Dutch Rebels": [235, 140, 50, "h:#ae1c28,#fff,#21468b"],
+    "British Empire": [215, 100, 100, "uk"], "German Empire": [120, 120, 130, "h:#000,#fff,#dd0000"], "Russian Empire": [225, 225, 230, "h:#fff,#0039a6,#d52b1e"], "Austria-Hungary": [225, 200, 50, "h:#c8102e,#fff,#3a7d44"], "Serbia": [200, 60, 70, "h:#c6363c,#0c4076,#fff"], "Romania": [240, 200, 60, "v:#002b7f,#fcd116,#ce1126"], "Bulgaria": [80, 170, 90, "h:#fff,#00966e,#d62612"],
+    "Mongol Horde": [60, 130, 190, "c:#1e5a8a,#f0e68c"], "Hungary": [200, 70, 90, "h:#ce2939,#fff,#477050"], "Novgorod": [180, 190, 200, "c:#8a1a1a,#e8e8e8"], "Kievan Rus": [90, 130, 210, "h:#2a4a8a,#e8c000"], "Lithuania": [200, 170, 60, "h:#fdb913,#006a44,#c1272d"],
+    "Carolingian Empire": [110, 100, 220, "c:#2a2a8a,#f5d300"], "Emirate of Cordoba": [40, 150, 90, "cres"], "Anglo-Saxons": [200, 100, 100, "x:#fff,#c8102e"], "Asturias": [190, 60, 60, "c:#2a5aa8,#ffd700"],
+    "Umayyad Caliphate": [70, 170, 90, "c:#efefef,#1b7a4a"], "Khazars": [90, 170, 200, "c:#1a5a7a,#e8d8a0"], "North Sea Empire": [205, 60, 90, "x:#c8102e,#fff"], "Irish Kings": [60, 150, 80, "v:#169b62,#fff,#ff883e"], "Normandy": [210, 160, 60, "h:#c8102e,#f5d300,#c8102e"],
+    "Polish Commonwealth": [240, 120, 150, "h:#fff,#dc143c"], "Tatars": [90, 150, 170, "c:#2a6a8a,#e8d8a0"], "Swedish Empire": [70, 160, 225, "x:#006aa7,#fecc00"], "Denmark-Norway": [205, 60, 90, "x:#c8102e,#fff"],
+    "Fascist Italy": [70, 175, 95, "v:#009246,#fff,#ce2b37"], "Yugoslavia": [60, 100, 190, "h:#0c4076,#fff,#c6363c"], "Egypt": [210, 180, 80, "h:#ce1126,#fff,#000"]
+  };
+  var EMP = [
+    { n: "Ottoman Empire", y: 1683, end: 1922, par: 240, modern: false, tag: "at the gates of Vienna", win: "You lasted longer than the real Ottoman Empire!",
+      me: [[33,39,14],[37,35,8],[43,34,7],[30,30,9],[15,31,7],[8,35,9],[22,43,18],[22,39,7],[25,45,10],[19,46,8],[34,46,8],[40,26,6]],
+      foes: [["Habsburgs",15,48,9],["Poland",22,52,10],["Russia",37,56,12],["Venice",12.5,45.5,4],["Italy",12.5,42.5,8],["Spain",-3.7,40.4,12],["France",2.3,47,11],["Morocco",-6,34,6],["Persia",44.5,37.5,5]] },
+    { n: "Roman Empire", y: 117, end: 476, par: 240, modern: false, tag: "Trajan's peak, from Britain to Egypt", win: "You held Rome longer than the real emperors ever did!",
+      me: [[12.5,42.5,10],[-3.7,40.4,14],[2.3,47,13],[22,42,12],[-1.5,52,6],[19,46,8],[30,30,9],[19,31,8],[10,35,6],[3,35,8],[-6,34,6],[32,39,10],[37,35,7]],
+      foes: [["Germanic tribes",10,52,11],["Sarmatians",31,49,12],["Caledonians",-4,57,5],["Steppe horde",37,52,10],["Norse",9.5,62,8],["Finns",26,63,8],["Parthia",44,34,9],["Berbers",-3,28,8],["Nubians",25,25,8]] },
+    { n: "Napoleon's Empire", y: 1812, end: 1815, par: 120, modern: false, tag: "before the retreat from Moscow", win: "You did better than even Napoleon did!",
+      me: [[2.3,47,13],[-3.7,40.4,13],[12.5,42.5,10],[8,51,8],[5,52,5],[19,52,8],[16,45,5]],
+      foes: [["Britain",-1.5,52.5,7],["Russia",37,56,14],["Austria",15,48,8],["Prussia",14,53.5,6],["Sweden",16,60,9],["Ottomans",25,42,10],["Portugal",-8,39.5,4]] },
+    { n: "Nazi Germany", y: 1942, end: 1945, par: 120, modern: true, tag: "its widest extent", dif: "Balanced: strong start, but the Soviet Union mobilises after 4 minutes", pw: 1.45, bw: 0.8, bt: 0.75, pt: 2, grace: 1500, late: { "Soviet Union": 2700 }, win: "You outlasted the real Third Reich. History is yours.",
+      me: [[10,51,9],[2.3,47,13],[19,52,9],[5,51,4],[9.5,62,8],[9.5,56,3],[21,43,11],[26,46,5]],
+      foes: [["Britain",-1.5,52.5,7],["Soviet Union",34,53,16],["Sweden",16,60,8],["Spain",-3.7,40.4,11],["Turkey",28,41,6],["Finland",26,63,8],["Italy",12.5,42.5,8]] },
+    { n: "Soviet Union", y: 1945, end: 1991, par: 180, modern: true, tag: "victorious in Europe", dif: "Tougher: you are a superpower, but you start strong", pw: 1.0, bw: 1.0, bt: 1.0, pt: 1.2, grace: 300, win: "You outlived the real Soviet Union!",
+      me: [[37,56,14],[31,49,12],[26,55,8],[19,52,7],[25,46,6],[13,52,5]],
+      foes: [["West Germany",8,50,6],["France",2.3,47,11],["Britain",-1.5,52.5,7],["Italy",12.5,42.5,9],["Spain",-3.7,40.4,11],["Greece",22,39.5,6],["Sweden",16,60,7],["Norway",9.5,62,6]] },
+    { n: "Byzantine Empire", y: 555, end: 1453, par: 240, modern: false, tag: "Justinian reconquers the Mediterranean", win: "You outlived the real Byzantium by centuries!",
+      me: [[29,41,8],[23.7,38,9],[32.9,39.9,10],[12.5,41.9,7],[10.2,36.8,7],[29.9,31.2,6],[36.3,33.5,7],[16,40,4]],
+      foes: [["Franks",2.3,47.5,11],["Visigoths",-3.7,40.4,11],["Lombards",11,45.5,5],["Slavs",26,48,9],["Persia",43,35,7],["Berbers",-1,30,8],["Avars",19,47.2,5]] },
+    { n: "Spanish Empire", y: 1588, end: 1714, par: 200, modern: false, tag: "the Armada sails", win: "You held Europe longer than Spain ever did!",
+      me: [[-3.7,40.4,13],[-8.5,39,5],[14.3,40.85,7],[14,37.5,4],[9,45.3,6],[4.9,51.2,5],[3,36.8,6],[10.2,36.8,5]],
+      foes: [["England",-1.5,52.5,8],["France",2.3,47.5,11],["Ottoman Empire",30,39,14],["Holy Roman Empire",12,49.5,8],["Russia",37,56,12],["Dutch Rebels",5,53,3],["Morocco",-5,33,6],["Sweden",16,60,8]] },
+    { n: "British Empire", y: 1900, end: 1947, par: 180, modern: true, tag: "the sun never sets", dif: "Hard: a small island, but your fleets rule the sea", pw: 1.1, win: "You outlasted the real British Empire!",
+      me: [[-1.5,52.5,10],[-4,56.5,5],[-6.2,53.4,4],[31.2,30.5,9],[29.9,31.2,5],[-5.4,36.1,3]],
+      foes: [["France",2.3,47.5,11],["German Empire",10,51.5,9],["Russian Empire",37,56,13],["Ottoman Empire",30,39,12],["Italy",12.5,42.5,8],["Spain",-3.7,40.4,10],["Austria-Hungary",18,47.5,9]] },
+    { n: "German Empire", y: 1914, end: 1918, par: 120, modern: true, tag: "August 1914", dif: "Hard: surrounded on all fronts", pw: 1.2, win: "You won the Great War the Kaiser lost!",
+      me: [[13.4,52.5,10],[8,50.5,7],[16.4,48.2,9],[19,47.5,7],[14.4,50,5],[28.98,41,6],[32.9,39.9,8]],
+      foes: [["France",2.3,47.5,11],["Britain",-1.5,52.5,7],["Russian Empire",37,56,14],["Italy",12.5,42.5,8],["Serbia",20.5,44.5,4],["Romania",25.5,45.5,6],["Greece",22,39.5,6]] },
+    { n: "Austria-Hungary", y: 1900, end: 1918, par: 120, modern: true, tag: "a patchwork empire", dif: "Tough: many peoples, many enemies", pw: 1.1, win: "You held the patchwork together!",
+      me: [[16.4,48.2,8],[19,47.5,9],[14.4,50,6],[16,45.8,5],[22,49.5,8],[24,47,5]],
+      foes: [["Russian Empire",37,56,14],["Italy",12.5,42.5,8],["Serbia",20.5,44.5,4],["Romania",26.5,45.5,6],["German Empire",10,51.5,8],["Ottoman Empire",30,39,10],["Bulgaria",25.5,42.7,4],["Greece",22,39.5,5]] },
+    { n: "Mongol Horde", y: 1240, end: 1502, par: 240, modern: false, tag: "the Golden Horde storms the steppe", win: "You outlasted the real Golden Horde!",
+      me: [[38,50,11],[34,46.5,8],[41,55.5,8],[44,44,7],[45,50,6]],
+      foes: [["Kievan Rus",31,51,8],["Novgorod",32,58,7],["Lithuania",25,54.5,7],["Poland",20,51,7],["Hungary",19,47.3,6],["Bulgaria",25.5,43,5],["Byzantine Empire",28,40.8,5],["Holy Roman Empire",11,49.5,8]] },
+    { n: "Carolingian Empire", y: 800, end: 843, par: 100, modern: false, tag: "Charlemagne is crowned emperor", win: "You kept Charlemagne's empire whole!",
+      me: [[2.3,47.5,11],[7,50.5,7],[12,45,7],[12.5,42,5],[10,48.5,6],[3,42,4],[13.4,52.5,4]],
+      foes: [["Emirate of Cordoba",-4.8,37.8,9],["Byzantine Empire",24,40,9],["Norse",9.5,57,4],["Slavs",20,51,8],["Avars",19,47,5],["Anglo-Saxons",-1.5,52.5,7],["Asturias",-6,43.2,3],["Berbers",5,31,8]] },
+    { n: "Umayyad Caliphate", y: 732, end: 750, par: 100, modern: false, tag: "from Damascus to the Pyrenees", win: "You ruled longer than the real Umayyads!",
+      me: [[-4.8,37.8,8],[-8,40,5],[-1,41.5,5],[10.2,36.8,6],[13.2,32.9,7],[31.2,30,10],[3,36.8,6],[-5,34,6],[36.3,33.5,9],[44.4,33.3,7],[35,38,6]],
+      foes: [["Franks",2.3,47.5,11],["Byzantine Empire",28,40,7],["Lombards",11,45.5,6],["Asturias",-5.8,43.3,3],["Khazars",42,46,7],["Slavs",24,48,9]] },
+    { n: "North Sea Empire", y: 1028, end: 1035, par: 100, modern: false, tag: "Cnut rules England, Denmark and Norway", win: "You held the North Sea far longer than Cnut's heirs!",
+      me: [[-1.5,52.5,8],[-3,56,4],[9.5,56,4],[9.5,60,7],[15,57,5]],
+      foes: [["Holy Roman Empire",10,50,9],["Sweden",17,59.5,5],["Kievan Rus",32,52,10],["Irish Kings",-7,53,4],["Normandy",0,49.2,4],["Poland",19,52,7],["Finns",26,63,8]] },
+    { n: "Russian Empire", y: 1815, end: 1917, par: 240, modern: false, tag: "after Napoleon's defeat", win: "You outlasted the Tsars!",
+      me: [[37.6,55.75,12],[30.3,59.9,8],[30.5,50.45,10],[21,52.2,8],[25,60.2,6],[24,57,4],[35,46,6]],
+      foes: [["Ottoman Empire",28,41,14],["Sweden",16,60,8],["Prussia",13.5,53,6],["Habsburgs",15,48,8],["Britain",-1.5,52.5,7],["France",2.3,47.5,11],["Persia",44.5,37,5]] },
+    { n: "Polish Commonwealth", y: 1619, end: 1795, par: 200, modern: false, tag: "largest state in Europe", win: "You outlived the partitions of Poland!",
+      me: [[21,52.2,9],[25.3,54.7,9],[30.5,50.45,10],[24,49.8,6],[18.6,54.4,4],[33,53,7]],
+      foes: [["Russia",37.6,56,12],["Sweden",16,60,8],["Ottoman Empire",28,42,12],["Habsburgs",15,48,8],["Prussia",13.4,53,5],["Tatars",35,45.5,6]] },
+    { n: "Swedish Empire", y: 1658, end: 1721, par: 160, modern: false, tag: "master of the Baltic", win: "You kept the Baltic longer than Charles XII!",
+      me: [[17,59.5,9],[25,61,8],[24,57,6],[14,54,4],[28,59.5,5]],
+      foes: [["Denmark-Norway",9.5,59,7],["Russia",37.6,56,12],["Poland",21,52.2,9],["Prussia",13.4,52.8,5],["Holy Roman Empire",11,49,7],["Ottoman Empire",30,40,8]] },
+    { n: "Fascist Italy", y: 1941, end: 1943, par: 100, modern: true, tag: "a new Roman Empire", dif: "Tough: a weak army and many enemies", pw: 0.9, win: "You built the Mediterranean empire Rome dreamed of!",
+      me: [[12.5,42,8],[9,45,6],[15,40.5,5],[14,37.5,3],[13.2,32.9,8],[19.5,41.3,3],[23,38,5],[20,44,3]],
+      foes: [["Britain",-1.5,52.5,7],["France",2.3,47.5,11],["Greece",22,39.5,5],["Yugoslavia",19.5,44.5,6],["Egypt",30,28,10],["Soviet Union",34,53,14],["Morocco",-5,33,6]] }
+  ];
+  function toast(t, ms) { var e = $("toast"); e.textContent = t; e.style.opacity = 1; e.classList.remove("tp"); void e.offsetWidth; e.classList.add("tp"); clearTimeout(toastT); toastT = setTimeout(function () { e.style.opacity = 0; }, ms || 2600); }
+  function once(k, t, ms) { if (!shown[k]) { shown[k] = 1; toast(t, ms || 4500); } }
+  function yearNow() { return Math.round(E.y + ticks / 10 / E.par * (E.end - E.y)); }
+
+  function intro(pick) {
+    if (MODE === "world" && pick === undefined) { introWorld(1 + ((Math.random() * WORLDS[REG].names.length) | 0), REG); return; }
+    setMap("eu");
+    P = null; over = true; $("nm").innerHTML = "";
+    var k; if (pick !== undefined) k = pick; else do { k = (Math.random() * EMP.length) | 0; } while (k === lastE); lastE = k; E = EMP[k];
+    var o = $("ov"); o.style.display = "flex";
+    var fu = flag(FLAG[E.n][3]), rv = E.foes.map(function (f) { return "<img class='fl' title='" + f[0] + "' src='" + flag(FLAG[f[0]] ? FLAG[f[0]][3] : "h:#888,#ccc") + "'>"; }).join("");
+    o.innerHTML = "<p style='opacity:.7'>YOU RULE</p><img src='" + fu + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1 style='color:rgb(" + FLAG[E.n].slice(0, 3) + ")'>" + E.n + "</h1><p><b>" + E.y + "</b> · " + E.tag + "</p><p>Hold it longer than the real one lasted (until " + E.end + "), or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + (E.dif || "Fair fight") + "</p><p style='opacity:.7;font-size:12px'>Your rivals:" + rv + "</p><div class='hw'><span>⚔️</span><span><b>Land</b> · tap the border of a neighbour</span><span>⛵</span><span><b>Sea</b> · tap a far coast to send a fleet</span><span>✈️</span><span><b>Air</b> · tap deep inside enemy land for planes</span><span>🏭</span><span><b>Factories</b> · more troops, fleets and planes</span></div><div class='row'><button class='p' id='go'>Take command</button></div>" + (played() ? "<div class='row'><button id='ch'>Choose another empire</button></div>" : "") + voteHTML();
+    bindVote(o, "start");
+    $("go").onclick = function () { newGame(); }; if ($("ch")) $("ch").onclick = showPicker;
+  }
+  function newGame() {
+    genMap(); genTerrain(); placeCities(); own = new Int8Array(N).fill(-1); hot = new Uint8Array(N);
+    P = []; atk = []; fx = []; FAC = []; SHIPS = []; $("mv").innerHTML = ""; stat = { nl: 0 }; curM = null; misDone = 0; evT = 0; over = false; ticks = 0; erased = 0; coolT = 0; shown = {}; peakShare = 0; if (!NBR) nb(0);
+    var seats = [], i;
+    if (E.world) worldStart(); else {
+    E.me.forEach(function (s) { var q = xy(s[0], s[1]); seats.push([q[0], q[1], s[2], 0]); });
+    E.foes.forEach(function (f, j) { var q = xy(f[1], f[2]); seats.push([q[0], q[1], f[3], j + 1]); });
+    NAME = [E.n].concat(E.foes.map(function (f) { return f[0]; }));
+    COL = NAME.map(function (n, j) { var f = FLAG[n]; return f ? [f[0], f[1], f[2]] : hsl((20 + j * 47) % 360); });
+    FL = NAME.map(function (n) { var f = FLAG[n]; return flag(f ? f[3] : "h:#888,#ccc"); });
+    NAME.forEach(function (n, j) { P.push({ id: j, cells: 0, troops: 0, alive: true, next: 8 + j * 3, pact: false, cool: 0 }); });
+    for (i = 0; i < N; i++) {
+      if (!land[i]) continue;
+      var x = i % W + 0.5, y = ((i / W) | 0) + 0.5, best = 1, o = -1;
+      seats.forEach(function (s) { var dd = Math.sqrt((x - s[0]) * (x - s[0]) + (y - s[1]) * (y - s[1])) / s[2]; if (dd < best) { best = dd; o = s[3]; } });
+      if (o >= 0) { own[i] = o; P[o].cells++; }
+    }
+    }
+    P.forEach(function (p, j) { p.troops = E.world ? (j === 0 ? (150 + p.cells * 9 + Math.max(0, 40 - p.cells) * 10) * 1.5 : (50 + p.cells * 9) * 0.75 * getDyn()) : (j === 0 ? (130 + p.cells * 6) * (E.pt || 1) : (50 + p.cells * (E.modern ? 12 : 9)) * (E.bt || 1) * getDyn()); if (!p.cells) p.alive = false; if (j > 0 && E.late && E.late[NAME[j]]) p.next = E.late[NAME[j]]; });
+    start0 = Math.max(1, P[0].cells);
+    Z = 1; PX = 0; PY = 0; zapply(); focusYou(); closeOffer(); $("dp").style.display = "none";
+    $("ov").style.display = "none"; toast("You rule the " + E.n + " in " + E.y + ". Tap a border to attack, or deep inside for planes!", 4000);
+    track("game_started", { empire: E.n, year: E.y, rivals: E.foes.length });
+  }
+  function neighbours(p) {
+    var near = {}, i, j, ns;
+    for (i = 0; i < N; i++) if (own[i] === p) { ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]] && own[ns[j]] !== p) near[own[ns[j]]] = 1; }
+    return near;
+  }
+  function launch(p, t, frac) {
+    var pl = P[p], send = pl.troops * frac;
+    if (send < 5) return false;
+    pl.troops -= send;
+    var ex = atk.filter(function (a) { return a.p === p && a.t === t; })[0];
+    if (ex) { ex.troops += send; ex.idle = 0; } else atk.push({ p: p, t: t, troops: send, idle: 0, took: 0 });
+    return true;
+  }
+  function botBuild(p) {
+    var cost = facCost(p.id);
+    if (facN(p.id) >= MAXBF || p.cells < 25 || p.troops < cost * 1.4 || Math.random() > 0.5) return;
+    var spot = placeFactory(p.id); if (spot < 0) return;
+    p.troops -= cost; FAC.push({ i: spot, o: p.id });
+    once("bf", NAME[p.id] + " built a factory. Capture it to cripple their income!", 5000);
+  }
+  function underSiege() {   /* how many rivals are attacking you right now (land or sea) */
+    var seen = {}, n = 0;
+    atk.forEach(function (a) { if (a.t === 0 && a.p > 0 && a.troops > 0.5 && !seen[a.p]) { seen[a.p] = 1; n++; } });
+    SHIPS.forEach(function (q) { if (q.t === 0 && q.p > 0 && !seen[q.p]) { seen[q.p] = 1; n++; } });
+    return n;
+  }
+  function botThink(p) {
+    if (p.grudge === 0 && ticks - (p.gt || 0) > 600) p.grudge = undefined;   /* grudges fade after 60s of peace */
+    botBuild(p);
+    if (E.world && Math.random() < 0.85) return;   /* 86 nations: slow the AI so the map doesn't collapse in seconds */
+    if (p.troops < 50 || atk.filter(function (a) { return a.p === p.id; }).length >= 2) return;
+    var near = neighbours(p.id), tg = null, k;
+    var share = P[0].cells / landN;
+    if (p.grudge !== undefined && P[p.grudge].alive && near[p.grudge] && !(p.grudge === 0 && (p.pact || underSiege() >= 2)) && Math.random() < 0.55) tg = p.grudge;
+    else if (!p.pact && near[0] && P[0].alive && share > 0.2 && underSiege() < 2 && Math.random() < 0.15 + share * 0.4) tg = 0;
+    else if (near[-1] && Math.random() < (p.cells < 80 ? 0.85 : 0.4)) tg = -1;
+    else { var best = 1e9; for (k in near) { k = +k; if (k >= 0 && P[k].alive && !(k === 0 && (p.pact || underSiege() >= 2)) && P[k].troops < best) { best = P[k].troops; tg = k; } } }
+    if (tg === 0 && ticks < (E.grace || 350)) tg = near[-1] ? -1 : null;   /* opening peace for the player */
+    if (ticks > 250 && p.troops > 400 && (tg === null || Math.random() < 0.25) && botSail(p)) return;
+    if (tg === null) return;
+    launch(p.id, tg, (tg === 0 ? 0.45 : 0.4) + Math.random() * 0.2);
+  }
+
+  function tick() {
+    if (over || !P || !P[0]) return;
+    ticks++; lastTick = Date.now();
+    P.forEach(function (p) {
+      if (p.id > 0 && p.pact && p.alive && ticks > 600 && P[0].cells > p.cells * 1.5 && P[0].cells / landN > 0.3 && Math.random() < 0.0004) {
+        p.pact = false; p.grudge = 0; p.gt = ticks - 400; toast(NAME[p.id] + " betrayed you!", 4000);
+        if (neighbours(p.id)[0]) launch(p.id, 0, 0.5);
+      }
+    });
+    P.forEach(function (p) {
+      if (!p.alive) return;
+      var cap = p.cells * 20 + 150 + facN(p.id) * (p.id ? 200 : 300);
+      var sh = P[0].cells / landN, mult;
+      if (p.id > 0) mult = (E.modern ? 1.4 : 1.1) * (E.bw || 1) * (1 + Math.max(0, sh - 0.25) * 1.0);          /* the world rallies against the leader */
+      else mult = 1.3 * (E.pw || 1) * Math.max(0.55, 1 - Math.max(0, sh - 0.25) * 0.9) * (p.cells < start0 * 0.6 ? 1.35 : 1) * (underSiege() >= 2 ? 1.35 : 1);   /* big empires strain; small ones get reinforcements */
+      var baseG = (0.1 + 0.05 * Math.pow(p.cells, 0.6) + 0.05 * cityN(p.id)) * Math.max(0, 1 - p.troops / cap) * mult;
+      var facG = facN(p.id) * FBONUS * (p.id ? 0.6 : 1) * Math.max(0.35, 1 - p.troops / (cap * 1.6)) * Math.max(0.7, mult);
+      p.troops += baseG + facG; p.rate = baseG + facG; p.facG = facG;
+      if (p.id > 0 && ticks >= p.next) { p.next = ticks + (E.modern ? 18 : 30) + ((Math.random() * 8) | 0); botThink(p); }
+    });
+    atk.forEach(function (a) {
+      var p = P[a.p], d = a.t >= 0 ? P[a.t] : null, fr = [], i, j, k, ns;
+      if (!p.alive || (d && !d.alive)) { if (p.alive) p.troops += a.troops; a.troops = 0; return; }
+      /* frontier: enemy cells touching us, weighted by how many of our cells surround them */
+      for (i = 0; i < N; i++) if (own[i] === a.p) { ns = nb(i); for (j = 0; j < ns.length; j++) { k = ns[j]; if (land[k] && own[k] === a.t) { if (!CNT[k]) fr.push(k); CNT[k]++; } } }
+      if (!fr.length) { p.troops += a.troops; a.troops = 0; return; }
+      var dens = d ? d.troops / Math.max(1, d.cells) : 0, cost = d ? Math.max(2.5, dens * 1.25 + 1) : 2;
+      if (a.p === 0) cost *= 0.85 * (1 + Math.max(0, P[0].cells / landN - 0.3) * 0.8);
+      if (a.t === 0) cost *= 1.25;                 /* overextended supply lines */
+      if (d && a.troops > d.troops * 1.5) cost *= 0.65;          /* overwhelming force breaks through */
+      var budget = Math.min(a.troops, Math.max(cost * 3, a.troops * 0.09));
+      var n = Math.min(fr.length, 24, Math.floor(budget / cost + Math.random())), got = 0;
+      for (var m = 0; m < n; m++) {
+        var c1 = fr[(Math.random() * fr.length) | 0], c2 = fr[(Math.random() * fr.length) | 0], c = CNT[c2] > CNT[c1] ? c2 : c1;
+        if (own[c] !== a.t) { c = c1 === c ? c2 : c1; if (own[c] !== a.t) continue; }
+        if (a.troops < cost) break;
+        a.troops -= cost;
+        if (d) { d.troops = Math.max(0, d.troops - dens * 0.5); d.cells--; d.grudge = a.p; d.gt = ticks; }
+        own[c] = a.p; p.cells++; hot[c] = 7; got++;
+      }
+      for (j = 0; j < fr.length; j++) CNT[fr[j]] = 0;
+      if (got) { a.idle = 0; a.took = (a.took || 0) + got; }
+      else if (++a.idle >= 20) {                                  /* stalled: pull the army back instead of wasting it */
+        p.troops += a.troops * 0.8; a.troops = 0;
+        if (a.p === 0) toast("Offensive on " + (a.t < 0 ? "the wilds" : NAME[a.t]) + " stalled. Build up more troops and strike again.", 3800);
+      }
+      if (d && d.cells <= 0) { d.alive = false; d.troops = 0; if (d.id === 0) end(false); else if (a.p === 0) { erased++; toast("You erased the " + NAME[d.id] + " from history!", 3800); } else toast(NAME[d.id] + " was wiped from the map."); }
+    });
+    atk = atk.filter(function (a) { return a.troops > 0.5; });
+    if (ticks % 30 === 0 && facN(0)) FAC.forEach(function (f) { if (f.o === 0 && P[0].facG) popAt(f.i, "+" + Math.round(P[0].facG * 30 / facN(0)), "#9dffa0"); });
+    if (FAC.length) FAC = FAC.filter(function (f) {
+      if (own[f.i] === f.o) return true;
+      if (f.o === 0) { toast("A factory fell to " + (own[f.i] >= 0 ? NAME[own[f.i]] : "the enemy") + "!", 3200); track("factory_lost", { to: own[f.i] >= 0 ? NAME[own[f.i]] : "unknown" }); }
+      else if (own[f.i] === 0) { toast("You destroyed " + NAME[f.o] + "'s factory!", 3200); track("enemy_factory_destroyed", { nation: NAME[f.o] }); }
+      return false;
+    });
+    if (SHIPS.length) { var arr = SHIPS.filter(function (s) { return ticks - s.ts >= s.dur; }); SHIPS = SHIPS.filter(function (s) { return ticks - s.ts < s.dur; }); arr.forEach(function (s) { if (s.el) { s.el.remove(); s.el = null; } landing(s); }); }
+    if (ticks >= evT) { if (evT) worldEvent(); evT = ticks + 900 + ((Math.random() * 500) | 0); }
+    if (P.slice(1).every(function (p) { return !p.alive; }) || P[0].cells / landN >= WIN) end(true);
+  }
+
+  function end(win, why) {
+    if (over) return; over = true;
+    var el = ticks / 10, yr = yearNow(), beat = el >= E.par, best = 0, rec = false;
+    try { best = +localStorage.getItem("pw_" + E.n) || 0; if (el > best) { localStorage.setItem("pw_" + E.n, el); rec = best > 0; } } catch (e) {}
+    sfx(win || beat ? "win" : "hurt"); var head = win ? (E.world ? "YOU CONQUERED EURASIA" : "YOU CONQUERED EUROPE") : beat ? (E.world ? "YOU HELD THE CENTURY" : "YOU BEAT HISTORY") : "THE EMPIRE FELL";
+    track("game_ended", { empire: E.n, result: win ? "won" : beat ? "beat_history" : "lost", seconds: Math.round(el), peak_land_pct: Math.round(peakShare * 100), rivals_erased: erased, factories: facN(0), reason: why || null });
+    var l1 = win ? "Before history could end you, you rewrote it." : beat ? E.win : (why || "Your empire fell in " + yr + ".");
+    var l2 = E.world ? (beat ? "You held " + E.n + " until the clock ran out!" : "You lasted " + Math.round(el) + "s of the " + E.par + "s you needed.") : beat ? "You lasted " + Math.max(0, yr - E.end) + " years past the real " + E.end + " collapse." : "The real " + E.n + " lasted until " + E.end + ", " + Math.max(0, E.end - yr) + " years longer. " + (E.par - el < 60 ? "So close: " + Math.round(E.par - el) + " seconds short!" : "Can you do better?");
+    var d0 = getDyn(), d1 = Math.max(0.6, Math.min(1.7, win ? d0 * 1.12 : beat ? d0 * 1.05 : el < E.par * 0.5 ? d0 * 0.85 : d0 * 0.94));
+    try { localStorage.setItem("pw_dyn", d1.toFixed(3)); } catch (_) {}
+    l2 += d1 > d0 * 1.02 ? " Rivals will hit harder next time." : d1 < d0 * 0.98 ? " Rivals ease off next time." : "";
+    track("difficulty_adjusted", { from: +d0.toFixed(2), to: +d1.toFixed(2), empire: E.n });
+    closeOffer(); $("dp").style.display = "none";
+    var o = $("ov"); o.style.display = "flex";
+    o.innerHTML = "<h1>" + head + "</h1><p><b>" + l1 + "</b></p><p>" + l2 + "</p><p style='opacity:.8'>Peak land " + Math.round(peakShare * 100) + "% · Rivals erased " + erased + (rec ? " · NEW BEST" : "") + " · Missions " + misDone + "</p><div class='row'><button class='p' id='rm'>Rematch</button><button id='again'>Random empire</button></div><div class='row'><button id='sh'>Share result</button></div>" + voteHTML() + "<div class='row'><button class='p' id='wp'>🌍 Play any country today (Europe + Asia)</button></div><p style='opacity:.7;margin:8px 0 2px'>or choose a historic empire</p>" + pickHTML();
+    bindVote(o, "end"); $("wp").onclick = showWorldPicker;
+    $("again").onclick = function () { intro(); };
+    $("rm").onclick = function () { track("rematch", { empire: E.n, previous: win ? "won" : beat ? "beat_history" : "lost" }); newGame(); };
+    $("sh").onclick = function () {
+      var b = this, msg = "I ruled the " + E.n + " for " + Math.round(el) + "s in Empire: " + (win ? "I conquered Europe!" : beat ? "I beat history!" : "can you last longer?") + " " + location.href;
+      track("share_clicked", { empire: E.n });
+      try { if (navigator.share) { navigator.share({ title: "Empire", text: msg }).catch(function () {}); return; } } catch (_) {}
+      try { navigator.clipboard.writeText(msg); b.textContent = "Copied!"; } catch (_) { b.textContent = "Copy: " + location.href; }
+    }; bindPick(o); try { localStorage.setItem("pw_played", "1"); } catch (e) {}
+  }
+  function special(c, t) {
+    var old = !E.modern;
+    if (ticks < coolT) { toast((old ? "Fleet" : "Air force") + " reloading: " + Math.ceil((coolT - ticks) / 10) + "s"); return; }
+    if (P[0].troops < 80) { toast("Not enough troops yet."); return; }
+    var X = c % W, Y = (c / W) | 0, best = 1e9, sx = X, sy = Y, i;
+    for (i = 0; i < N; i++) if (own[i] === 0) { var dx = i % W - X, dy = ((i / W) | 0) - Y, dd = dx * dx + dy * dy; if (dd < best) { best = dd; sx = i % W; sy = (i / W) | 0; } }
+    P[0].troops -= 60; coolT = ticks + (old ? 50 : 70);
+    fx.push({ k: old ? 0 : 1, x0: sx, y0: sy, x1: X, y1: Y, t0: Date.now(), dur: 1500, c: c, t: t });
+    toast(old ? "Fleet sails!" : "Air strike launched!"); track("special_strike", { empire: E.n, kind: old ? "fleet" : "air", target: t >= 0 ? NAME[t] : "wilds" });
+  }
+  function hit(f) {
+    var t = f.t, d = t >= 0 ? P[t] : null, r = f.k ? 3 : 2, X = f.c % W, Y = (f.c / W) | 0, dx, dy, i;
+    for (dy = -r; dy <= r; dy++) for (dx = -r; dx <= r; dx++) {
+      var x = X + dx, y = Y + dy; if (x < 0 || y < 0 || x >= W || y >= H || dx * dx + dy * dy > r * r + 1) continue;
+      i = y * W + x; if (!land[i] || own[i] !== t) continue;
+      if (d) d.cells--;
+      if (f.k) own[i] = -1; else { own[i] = 0; P[0].cells++; }
+      hot[i] = 9;
+    }
+    if (d) { d.troops *= f.k ? 0.85 : 0.92; if (d.cells <= 0 && d.alive) { d.alive = false; d.troops = 0; erased++; toast("You erased the " + NAME[t] + " from history!", 3800); } }
+    if (!f.k) atk.push({ p: 0, t: t, troops: 40 });
+  }
+  function px(d, x, y, c) { x = Math.round(x); y = Math.round(y); if (x < 0 || y < 0 || x >= W || y >= H) return; var q = (y * W + x) * 4; d[q] = c[0]; d[q + 1] = c[1]; d[q + 2] = c[2]; }
+  function fxDraw(d) {
+    var now = Date.now();
+    fx = fx.filter(function (f) {
+      var p = (now - f.t0) / f.dur; if (p >= 1) { hit(f); return false; }
+      for (var s = 5; s >= 0; s--) {
+        var q = Math.max(0, p - s * 0.025), x = f.x0 + (f.x1 - f.x0) * q, y = f.y0 + (f.y1 - f.y0) * q - (f.k ? Math.sin(q * 3.14) * 5 : 0), c = s ? [200, 200, 200] : [255, 255, 255];
+        px(d, x, y, c); if (!s) { px(d, x + 1, y, f.k ? c : [255, 220, 120]); px(d, x, y + 1, c); px(d, x - 1, y, f.k ? c : [255, 220, 120]); }
+      }
+      return true;
+    });
+  }
+  function draw() {
+    var d = im.data, tm = (Date.now() >> 8) & 3, i, x, y, o, f, c, ns, j, k, edge, sh0;
+    for (i = 0; i < N; i++) {
+      x = i % W; y = (i / W) | 0; o = land[i] ? own[i] : -2; f = (E.world || !((x + y) & 1)) ? 1 : 0.86;
+      if (o === -2) { ns = nb(i); sh0 = false; for (j = 0; j < ns.length; j++) if (land[ns[j]]) sh0 = true; c = sh0 ? [26, 78, 108] : [10, 34, 60]; f = ((x + y + tm) & 1) ? 0.9 : 1.06; }
+      else if (o === -1) c = [TER[i * 3], TER[i * 3 + 1], TER[i * 3 + 2]];
+      else {
+        c = [COL[o][0] * 0.7 + TER[i * 3] * 0.3, COL[o][1] * 0.7 + TER[i * 3 + 1] * 0.3, COL[o][2] * 0.7 + TER[i * 3 + 2] * 0.3]; ns = nb(i); edge = false;
+        for (j = 0; j < ns.length; j++) { k = ns[j]; if (land[k] && own[k] !== o) edge = true; }
+        if (o === 0) { c = [Math.min(255, COL[0][0] * 0.92 + 25), Math.min(255, COL[0][1] * 0.92 + 25), Math.min(255, COL[0][2] * 0.92 + 25)]; for (j = 0; j < ns.length; j++) if (own[ns[j]] !== 0) { c = [255, 255, 255]; f = 0.8 + 0.2 * Math.sin(Date.now() / 250); break; } }
+        else if (edge) f = 0.6; else f *= 0.88;
+        if (hot[i] > 0) { f = 1.4 + hot[i] * 0.12; hot[i]--; }
+      }
+      d[i * 4] = Math.min(255, c[0] * f); d[i * 4 + 1] = Math.min(255, c[1] * f); d[i * 4 + 2] = Math.min(255, c[2] * f); d[i * 4 + 3] = 255;
+    }
+    for (var fi = 0; fi < FAC.length; fi++) { var fxx = FAC[fi].i % W, fyy = (FAC[fi].i / W) | 0, fcol = [255, ((Date.now() >> 8) & 1) ? 255 : 190, 40], ddx, ddy; for (ddy = -1; ddy <= 1; ddy++) for (ddx = -1; ddx <= 1; ddx++) px(d, fxx + ddx, fyy + ddy, (ddx || ddy) ? fcol : COL[FAC[fi].o]); }
+    shipsDraw(d); fxDraw(d); cx.putImageData(im, 0, 0);
+  }
+
+  function hud() {
+    var s = P.slice().sort(function (a, b) { return b.cells - a.cells; }), top = s.slice(0, 5); if (top.indexOf(P[0]) < 0) top.push(P[0]);
+    var wars = atk.filter(function (a) { return a.p === 0 && a.troops > 0.5; }).map(function (a) { return "<div style='color:#ffd27a'>\u2694 " + (a.t < 0 ? "Wilds" : NAME[a.t]) + " " + Math.floor(a.troops) + "</div>"; }).join("");
+    wars += SHIPS.filter(function (s) { return s.p === 0; }).map(function (s) { return "<div style='color:#9fd0ff'>" + ico(s.air, COL[0]) + (s.t < 0 ? "Wilds" : NAME[s.t]) + " " + Math.floor(s.troops) + "</div>"; }).join("");
+    
+    var el = ticks / 10, sh = P[0].cells / landN; peakShare = Math.max(peakShare, sh);
+    $("you").innerHTML = "<img class='fl' src='" + FL[0] + "'>" + E.n + " · " + yearNow(); $("trp").innerHTML = "Land " + Math.round(sh * 100) + "/" + Math.round(WIN * 100) + "% · Troops " + Math.floor(P[0].troops) + (P[0].rate ? " (+" + Math.round(P[0].rate * 10) + "/s)" : "") + (facN(0) ? " · 🏭" + facN(0) : "") + "<br>Fleets " + fleetsOut(0, false) + "/" + fleetCap(0) + " \u00b7 Planes " + fleetsOut(0, true) + "/" + fleetCap(0);
+    var fc = facCost(0), fbn = $("fb"), maxed = facN(0) >= MAXF;
+    fbn.textContent = maxed ? "Factories " + facN(0) + "/" + MAXF + " (max)" : "Factory " + fc + " (" + facN(0) + "/" + MAXF + ")";
+    fbn.className = (maxed || P[0].troops < fc) ? "dim" : "p";
+    $("hf").style.width = Math.min(100, el / E.par * 100) + "%";
+    $("hl").textContent = el >= E.par ? "History beaten! Keep going" : "Beat the real " + E.n + " (fell " + E.end + ")";
+    if (!curM) newMission();
+    if (curM.ok()) { var rw = curM.rw; P[0].troops += rw; misDone++; try { if (navigator.vibrate) navigator.vibrate([20, 40, 20]); } catch (_) {} toast("🎯 Mission complete: " + curM.t + " (+" + rw + " troops)", 4200); sfx("ok"); track("mission_done", { empire: E.n, mission: curM.t }); newMission(); }
+    $("tk").textContent = "🎯 " + curM.t + " · +" + curM.rw + (misDone ? " · done " + misDone : "");
+    if (ticks > 20) once("t0", "Tap a neighbour's border to attack by land. Tap deep inside for planes.", 5500);
+    if (ticks > 600 && !stat.nl) once("t1", "Far away? Tap a coast for a fleet, or deep inland for planes.", 6000);
+    if (Math.random() < 0.03) makeOffer();
+    if (!facN(0) && P[0].troops >= facCost(0)) once("fh", "You can afford a factory! Each one adds +" + Math.round(FBONUS * 10) + " troops every second.", 5000);
+    if (el >= E.par * 0.5) once("h", "Halfway to beating the real " + E.n + ".");
+    if (el >= E.par) once("p", E.win, 8000);
+    if (P[0].cells >= start0 * 1.25) once("g1", "Your empire is growing past its peak!");
+    if (P[0].cells >= start0 * 1.6) once("g2", "You are bigger than history ever saw you!");
+    if (P[0].cells < start0 * 0.5) once("c", "The empire is crumbling. Hold the line!");
+    if (sh >= 0.25) once("g25", "A quarter of the land is yours. Keep going: you need " + Math.round(WIN * 100) + "% to win!", 5000);
+    if (sh >= 0.5) once("g50", "Half the land is yours! The world is rallying against you.", 5000);
+    if (sh >= 0.75) once("g75", "Three quarters conquered! Only the last holdouts remain.", 5000);
+    if (sh >= 0.9) once("g90", "So close! Hunt down the last " + Math.max(1, Math.round((WIN - sh) * 100)) + "% of the land!", 5000);
+    if (underSiege() >= 2) once("sg", "Under attack from several sides! Your people rally and your troops grow faster.", 5500);
+    if (P[0].cells < start0 * 0.6) once("u", "Reinforcements! Your people rally to defend the homeland.", 5000);
+    if (E.late) for (var ln in E.late) { var lp = P.filter(function (q) { return NAME[q.id] === ln; })[0]; if (lp && lp.alive && ticks >= E.late[ln]) once("l" + ln, ln + " has fully mobilised. Expect a counter-attack!", 5500); }
+  }
+  function labels() {
+    var sx = [], sy = [], n = [], i, h = "";
+    for (i = 0; i < P.length; i++) { sx.push(0); sy.push(0); n.push(0); }
+    for (i = 0; i < N; i++) { var o = own[i]; if (o >= 0) { sx[o] += i % W; sy[o] += (i / W) | 0; n[o]++; } }
+    var top2 = P.filter(function (p) { return p.id > 0 && p.alive; }).sort(function (a, b) { return b.cells - a.cells; }).slice(0, 2).map(function (p) { return p.id; });
+    var rows = [], cnt = {}, sz = csz(), bw = sz.cw, bh = sz.ch, vw = sz.bw, vh = sz.bh;
+    CITY.forEach(function (c) {
+      var ow = own[c.i];
+      if (c.o !== undefined && ow !== c.o && ow >= 0) { if (ow === 0) toast("You captured " + c.n + "!", 3200); else if (c.o === 0) toast(c.n + " fell to " + NAME[ow] + "!", 3200); }
+      c.o = ow;
+      if (ow !== 0 && top2.indexOf(ow) < 0) return;
+      if (E.world) return;   /* Eurasia: no city labels */
+      var mj = MAJOR.indexOf(c.n) >= 0;
+      if (Z < 2 && (!mj || (cnt[ow] = (cnt[ow] || 0) + 1) > 3)) return;
+      var sxp = ((c.i % W) + 0.5) / W * bw * Z + PX, syp = (((c.i / W) | 0) + 0.5) / H * bh * Z + PY;
+      if (sxp < -10 || sxp > vw + 10 || syp < -10 || syp > vh + 10) return;
+      c.mj = mj; rows.push(c);
+    });
+    rows.sort(function (a, b) { return ((b.o === 0) - (a.o === 0)) || ((b.mj ? 1 : 0) - (a.mj ? 1 : 0)); });
+    var placed = [];
+    rows.forEach(function (c) {
+      var x = c.i % W, y = (c.i / W) | 0, ok = true;
+      placed.forEach(function (q) { if (Math.abs(q[0] - x) < 11 / Z && Math.abs(q[1] - y) < 2.6 / Z) ok = false; });
+      if (!ok) return; placed.push([x, y]);
+      h += "<div class='ct' style='left:" + ((x + 0.5) / W * 100).toFixed(1) + "%;top:" + ((y + 0.5) / H * 100).toFixed(1) + "%'><i style='background:" + (c.o >= 0 ? "rgb(" + COL[c.o] + ")" : "#999") + "'></i>" + (c.dmg > ticks ? "🔥" : "") + c.n + "</div>";
+    });
+    P.forEach(function (p) {
+      if (!p.alive || (E.world ? !(p.id === 0 || n[p.id] >= landN * 0.10 || (p.id === selW && Date.now() < selT)) : n[p.id] < 14)) return;
+      h += "<div class='nm' style='left:" + ((sx[p.id] / n[p.id] + 0.5) / W * 100).toFixed(1) + "%;top:" + ((sy[p.id] / n[p.id] + 0.5) / H * 100).toFixed(1) + "%'><img class='fl' src='" + FL[p.id] + "'><br>" + (p.id === 0 ? "YOU" : NAME[p.id]) + (p.pact ? "<br><span style='color:#7dff9a'>ALLY</span>" : "") + "<br>" + Math.floor(p.troops) + "</div>";
+    });
+    FAC.forEach(function (f) { h += "<div class='fa' style='left:" + (((f.i % W) + 0.5) / W * 100).toFixed(1) + "%;top:" + ((((f.i / W) | 0) + 0.5) / H * 100).toFixed(1) + "%'>🏭</div>"; });
+    $("nm").innerHTML = h;
+  }
+  /* ---- diplomacy: one button per country ---- */
+  var offerOpen = null;
+  function threatOf(i) { var nr = neighbours(i), th = null, bc = 0; P.forEach(function (q) { if (q.id > 0 && q.id !== i && q.alive && !q.pact && nr[q.id] && q.cells > bc) { bc = q.cells; th = q; } }); return th; }
+  function pactOn(i, enemy) {
+    P[i].pact = true; toast("You and " + NAME[i] + " are now allies!", 3500); track("pact_formed", { empire: E.n, with_nation: NAME[i] });
+    if (enemy != null && P[enemy] && P[enemy].alive && neighbours(i)[enemy]) launch(i, enemy, 0.45);
+  }
+  var MAXPACTS = 3;
+  function pactCount() { return P.filter(function (q) { return q.id > 0 && q.pact && q.alive; }).length; }
+  /* predictable attitude: no dice. Same rules for your proposals and their offers */
+  function attitude(i) {
+    var p = P[i], me = P[0], share = me.cells / landN;
+    if (p.pact) return { ok: false, txt: "Allied", c: "#7dff9a" };
+    if (ticks < p.cool) return { ok: false, txt: "Cold: talks again in " + Math.ceil((p.cool - ticks) / 10) + "s", c: "#ff8a7a" };
+    if (p.grudge === 0 && ticks - (p.gt || 0) < 400) return { ok: false, txt: "Angry: you attacked them. Wait " + Math.ceil((400 - (ticks - (p.gt || 0))) / 10) + "s", c: "#ff8a7a" };
+    if (share > 0.4 && me.cells > p.cells * 2) return { ok: false, txt: "Fears your power", c: "#ffc46b" };
+    if (pactCount() >= MAXPACTS) return { ok: false, txt: "You already hold " + MAXPACTS + " pacts", c: "#ffc46b" };
+    var th = threatOf(i);
+    return { ok: true, txt: th ? "Eager: wants help against " + NAME[th.id] : "Friendly", c: "#9fd0ff", th: th };
+  }
+  function propose(i) {
+    var a = attitude(i);
+    if (!a.ok) { toast(NAME[i] + ": " + a.txt + "."); return; }
+    pactOn(i, a.th ? a.th.id : null);
+    if (a.th && neighbours(i)[a.th.id]) toast(NAME[i] + " accepts and attacks " + NAME[a.th.id] + "!", 3500);
+  }
+  function breakPact(i) { P[i].pact = false; P[i].cool = ticks + 900; P[i].grudge = 0; P[i].gt = ticks; toast("You broke the pact with " + NAME[i] + ". They will not forgive."); track("pact_broken", { empire: E.n, with_nation: NAME[i] }); }
+  function dipl() {
+    var o = $("dp"); o.style.display = "flex";
+    o.innerHTML = "<h3 style='margin:0'>Diplomacy</h3><p style='margin:0;font-size:12px;opacity:.7'>Allies never attack you and join your wars. Pacts held: " + pactCount() + "/" + MAXPACTS + "</p>" + P.filter(function (p) { return p.id > 0 && p.alive; }).map(function (p) { var a = attitude(p.id); return "<div class='dr'><img class='fl' src='" + FL[p.id] + "'><span>" + NAME[p.id] + "<br><small style='font-weight:400;color:" + a.c + "'>" + a.txt + "</small></span><button data-i='" + p.id + "'" + (p.pact || a.ok ? "" : " class='dim'") + ">" + (p.pact ? "Break pact" : "Propose pact") + "</button></div>"; }).join("") + "<button class='p' id='dx' style='flex:none;max-width:340px;width:100%'>Close</button>";
+    [].forEach.call(o.querySelectorAll("button[data-i]"), function (b) { b.onclick = function () { var i = +b.dataset.i; if (P[i].pact) breakPact(i); else propose(i); dipl(); }; });
+    $("dx").onclick = function () { o.style.display = "none"; };
+  }
+  function closeOffer() { offerOpen = null; $("of").style.display = "none"; }
+  function makeOffer() {
+    if (offerOpen || ticks < 150 || over || pactCount() >= MAXPACTS) return;
+    var c = P.filter(function (q) { return q.id > 0 && q.alive && attitude(q.id).ok; });
+    if (!c.length) return;
+    var r = c[(Math.random() * c.length) | 0], e = threatOf(r.id); if (!e) return;
+    offerOpen = { r: r.id, e: e.id };
+    $("ot").innerHTML = "<img class='fl' src='" + FL[r.id] + "'><b>" + NAME[r.id] + "</b> offers a pact: team up against <b>" + NAME[e.id] + "</b>?";
+    $("of").style.display = "flex"; track("pact_offer_shown", { from_nation: NAME[r.id], against: NAME[e.id] });
+    setTimeout(function () { if (offerOpen && offerOpen.r === r.id) closeOffer(); }, 12000);
+  }
+  function allyHelp(t) {
+    if (ticks < (P[t].helped || 0)) return; P[t].helped = ticks + 150;
+    P.forEach(function (q) { if (q.id > 0 && q.pact && q.alive && q.id !== t && q.troops > 80 && neighbours(q.id)[t]) { launch(q.id, t, 0.35); toast(NAME[q.id] + " joins your war on " + NAME[t] + "!", 3200); } });
+  }
+  function loop() { if (P) { draw(); movers(); } requestAnimationFrame(loop); }
+  var Z = 1, PX = 0, PY = 0, ptrs = {}, moved = false, pinch0 = 0, zbox = $("bx"), zm = $("zm");
+  function csz() {
+    var bw = zbox.clientWidth, bh = zbox.clientHeight, ar = W / H, cw, ch;
+    if (bw / bh > ar) { cw = bw; ch = bw / ar; } else { ch = bh; cw = bh * ar; }
+    return { bw: bw, bh: bh, cw: cw, ch: ch, zmin: Math.min(1, bh / ch, bw / cw) };
+  }
+  function zapply() {
+    var s = csz(), maxZ = MODE === "world" ? 8 : 4;
+    if (!s.bw || !s.bh) return;
+    zm.style.width = s.cw + "px"; zm.style.height = s.ch + "px";
+    Z = Math.max(s.zmin, Math.min(maxZ, Z));
+    var sw = s.cw * Z, sh = s.ch * Z;
+    PX = sw <= s.bw ? (s.bw - sw) / 2 : Math.min(0, Math.max(s.bw - sw, PX));
+    PY = sh <= s.bh ? (s.bh - sh) / 2 : Math.min(0, Math.max(s.bh - sh, PY));
+    zm.style.transform = "translate(" + PX + "px," + PY + "px) scale(" + Z + ")"; zm.style.setProperty("--z", Z); if (P && P[0]) labels();
+  }
+  function zoomAt(f, x, y) { var s = csz(), nz = Math.max(s.zmin, Math.min(MODE === "world" ? 8 : 4, Z * f)); f = nz / Z; PX = x - (x - PX) * f; PY = y - (y - PY) * f; Z = nz; zapply(); }
+  function pdist() { var k = Object.keys(ptrs); if (k.length < 2) return 0; var a = ptrs[k[0]], b = ptrs[k[1]]; return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)); }
+  function tap(cX, cY) {
+    if (over || !P) return;
+    var r = cv.getBoundingClientRect(), x = ((cX - r.left) / r.width * W) | 0, y = ((cY - r.top) / r.height * H) | 0, c = y * W + x;
+    if (x < 0 || y < 0 || x >= W || y >= H) return;
+    if (!land[c]) { toast("That's sea. Tap land."); return; }
+    if (E.world && own[c] >= 0) { selW = own[c]; selT = Date.now() + 3500; labels(); }   /* small countries show their name only when tapped */
+    var t = own[c]; if (t === 0) { toast("That's your land. Tap a rival."); return; }
+    if (t > 0 && !P[t].alive) return;
+    if (t > 0 && P[t].pact) { toast(NAME[t] + " is your ally. Break the pact in Diplomacy first."); return; }
+    ringAt(c, "#ffffff");
+    if (touches(c, t)) { landAttack(t); return; }
+    var pl = seaPlan(0, t, c), dxs = 99, dys = 0;
+    if (pl) { dxs = pl.L % W - c % W; dys = ((pl.L / W) | 0) - ((c / W) | 0); }
+    if (pl && dxs * dxs + dys * dys <= 49) { if (!navalTap(c, t)) airTap(c, t); } else airTap(c, t);
+  }
+  zbox.addEventListener("pointerdown", function (e) { ptrs[e.pointerId] = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY }; if (Object.keys(ptrs).length === 1) moved = false; else pinch0 = pdist(); try { zbox.setPointerCapture(e.pointerId); } catch (_) {} });
+  zbox.addEventListener("pointermove", function (e) {
+    var p = ptrs[e.pointerId]; if (!p) return;
+    var dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    var ids = Object.keys(ptrs);
+    if (ids.length === 2) { var nd = pdist(), r = zbox.getBoundingClientRect(), a = ptrs[ids[0]], b = ptrs[ids[1]]; if (pinch0 > 0) zoomAt(nd / pinch0, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top); pinch0 = nd; moved = true; return; }
+    if (Math.abs(e.clientX - p.sx) + Math.abs(e.clientY - p.sy) > 10) moved = true;
+    if (moved) { PX += dx; PY += dy; zapply(); }
+  });
+  function up(e) { var p = ptrs[e.pointerId]; if (!p) return; var n = Object.keys(ptrs).length; delete ptrs[e.pointerId]; pinch0 = 0; if (!moved && n === 1 && e.type === "pointerup") tap(e.clientX, e.clientY); }
+  zbox.addEventListener("pointerup", up); zbox.addEventListener("pointercancel", up);
+  zbox.addEventListener("wheel", function (e) { e.preventDefault(); var r = zbox.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+  function buildFactory() {
+    if (!P || over) return;
+    if (facN(0) >= MAXF) { toast("You already have the maximum of " + MAXF + " factories."); return; }
+    var cost = facCost(0);
+    if (P[0].troops < cost) { toast("Need " + cost + " troops for the next factory."); return; }
+    var best = placeFactory(0);
+    if (best < 0) { toast("No room for another factory."); return; }
+    P[0].troops -= cost; FAC.push({ i: best, o: 0 }); hot[best] = 9;
+    toast("Factory built! +" + Math.round(FBONUS * 10) + " troops/s, +1 fleet, +1 plane squadron.", 3500); popAt(best, "\uD83C\uDFED +" + Math.round(FBONUS * 10) + "/s", "#ffe27a");
+    track("factory_built", { empire: E.n, count: facN(0), at_second: Math.round(ticks / 10) });
+  }
+  $("fb").onclick = buildFactory;
+  $("dpb").onclick = function () { if (P && !over) dipl(); };
+  $("oy").onclick = function () { if (!offerOpen) return; var o = offerOpen; closeOffer(); track("pact_offer_accepted", { from_nation: NAME[o.r] }); if (P[o.r].alive && !P[o.r].pact) pactOn(o.r, P[o.e].alive ? o.e : null); };
+  $("on").onclick = function () { if (offerOpen) { P[offerOpen.r].cool = ticks + 300; track("pact_offer_declined", { from_nation: NAME[offerOpen.r] }); } closeOffer(); };
+  setInterval(function () { if (P && !over && $("dp").style.display === "flex") dipl(); }, 1000);
+  $("zi").onclick = function () { zoomAt(1.5, zbox.clientWidth / 2, zbox.clientHeight / 2); };
+  $("mu").onclick = function () { muted = !muted; $("mu").textContent = muted ? "🔇" : "🔊"; if (!muted) sfx("ok"); };
+  $("zo").onclick = function () { zoomAt(1 / 1.5, zbox.clientWidth / 2, zbox.clientHeight / 2); };
+  $("rt").onclick = function () { if (!P) return; atk.forEach(function (a) { if (a.p === 0) { P[0].troops += a.troops * 0.75; a.troops = 0; } }); toast("Troops pulled back"); };
+  $("zf").onclick = function () { var s = csz(); if (Z > s.zmin * 1.05) zoomAt(s.zmin / Z, s.bw / 2, s.bh / 2); else focusYou(); };
+  $("ex").onclick = function () { if (!P || over) return; paused = true; $("xc").style.display = "flex"; };
+  $("xs").onclick = function () { paused = false; $("xc").style.display = "none"; };
+  $("xy").onclick = function () {
+    $("xc").style.display = "none"; paused = false;
+    track("game_exited", { empire: E.n, seconds: Math.round(ticks / 10), peak_land_pct: Math.round(peakShare * 100) });
+    closeOffer(); $("dp").style.display = "none"; intro((Math.random() * EMP.length) | 0);
+  };
+  $("rok").onclick = function () { document.documentElement.classList.add("pa"); };
+  window.addEventListener("resize", function () { try { zapply(); } catch (_) {} });
+  var fsTried = false;   /* first tap on touch screens: go fullscreen + lock landscape where the browser allows it */
+  document.addEventListener("click", function (e) {
+    if (fsTried || !(e.target.closest && e.target.closest("button"))) return; fsTried = true;
+    try {
+      if (!window.matchMedia("(pointer:coarse)").matches) return;
+      var d = document.documentElement, f = d.requestFullscreen || d.webkitRequestFullscreen; if (!f) return;
+      var pr = f.call(d); if (pr && pr.then) pr.then(function () { try { screen.orientation.lock("landscape").catch(function () {}); } catch (_) {} }).catch(function () {});
+    } catch (_) {}
+  }, true);
+  document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("button")) { try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} } });
+  intro();
+  setInterval(function () { if (P && !paused) tick(); }, 100);
+  setInterval(function () { if (P && P[0] && !over) { hud(); labels(); } }, 300);
+  loop();
+})();
+</script></body></html>
