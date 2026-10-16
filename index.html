@@ -165,14 +165,46 @@ html.end #hud,html.end #bl{opacity:0;pointer-events:none}
 .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:380px;margin:8px 0}
 .sg div{padding:8px 2px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04)}
 .sg b{display:block;font-size:18px}.sg span{font-size:9px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+#hud button i{font-style:normal;font-size:1.05em;line-height:1;margin-right:.35em}
+#hud button span{display:inline}
+#lb b{font-variant-numeric:tabular-nums;letter-spacing:.02em}
 @media (orientation:portrait){
- #top{max-width:58vw}
- #toast{top:calc(env(safe-area-inset-top,0px) + 66px);max-width:90vw}
- #zb{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 132px);transform:none;flex-direction:row}
- #bl{left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 68px)}
+ #top{max-width:min(58vw,220px);padding:8px 12px;gap:3px;font-size:13px}
+ #trp{font-size:11px;line-height:1.55;margin-top:2px}
+ #toast{top:calc(env(safe-area-inset-top,0px) + 72px);max-width:min(92vw,420px);padding:10px 16px;line-height:1.4}
+ #zb{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 158px);transform:none;flex-direction:row;gap:10px}
+ #zb button{width:44px;height:44px;font-size:20px}
+ #bl{left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);padding:10px 14px 8px}
+ #hl{font-size:10px;letter-spacing:.08em;padding-bottom:7px;line-height:1.35}
+ #tk{font-size:12px;padding:0 0 7px;line-height:1.35}
  #hud{left:calc(env(safe-area-inset-left,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px)}
- #hud .row{width:100%}#hud button{flex:1;min-width:0}
- #of{width:auto;left:10px;right:10px;margin:0;bottom:calc(env(safe-area-inset-bottom,0px) + 190px)}
+ #hud .row{width:100%;gap:8px}
+ #hud button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px;padding:10px 6px;font-size:12px;letter-spacing:0;line-height:1.15;white-space:normal;border-radius:16px}
+ #hud button i{margin:0;font-size:20px;line-height:1}
+ #hud button span{display:block;font-size:11px;font-weight:600;letter-spacing:.02em}
+ #lb{top:calc(env(safe-area-inset-top,0px) + 62px);right:calc(env(safe-area-inset-right,0px) + 12px);max-width:min(48vw,190px);min-width:118px;padding:10px 12px;border-radius:14px;font-size:12px;line-height:1.75}
+ #lb div{gap:7px}#lb .fl{width:16px;height:11px;flex:none}
+ #lb div>span:last-of-type{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+ #lb b{flex:none;font-size:12px;font-weight:700;padding-left:6px!important;margin-left:auto}
+ #of{width:auto;left:12px;right:12px;margin:0;bottom:calc(env(safe-area-inset-bottom,0px) + 230px);padding:12px 14px;gap:10px;border-radius:16px}
+ #of button{padding:10px 14px;min-height:44px}
+ .sg{grid-template-columns:1fr 1fr;gap:10px;max-width:300px;margin:12px 0}
+ .sg div{padding:14px 12px;border-radius:14px}
+ .sg b{font-size:22px;font-variant-numeric:tabular-nums}.sg span{font-size:10px;letter-spacing:.08em}
+ #ov .row{gap:10px}#ov button{min-height:50px;padding:12px 14px}
+ #xc .xb{width:min(380px,90vw);padding:24px 20px 20px}
+ #xc button{min-height:50px}
+}
+@media (orientation:portrait) and (max-width:430px){
+ #top{max-width:calc(100% - 108px)}
+ #trp{font-size:10.5px}
+ #hud button{min-height:64px;padding:11px 4px;gap:5px}
+ #hud button i{font-size:22px}
+ #hud button span{font-size:11.5px}
+ #lb{max-width:min(52vw,168px);padding:9px 11px;font-size:11.5px}
+ #zb{bottom:calc(env(safe-area-inset-bottom,0px) + 168px)}
+ #bl{bottom:calc(env(safe-area-inset-bottom,0px) + 88px)}
+ #of{bottom:calc(env(safe-area-inset-bottom,0px) + 248px)}
 }
 </style></head><body>
 <div id="app">
@@ -183,7 +215,7 @@ html.end #hud,html.end #bl{opacity:0;pointer-events:none}
   <div id="lb" class="gl fd"></div>
   <div id="zb"><button id="zi">+</button><button id="zo">&minus;</button><button id="zf" title="Whole map / back to you">⤢</button></div>
   <div id="bl" class="fd"><div id="tk"></div><div id="hb"><i id="hf"></i><span id="hl"></span></div></div>
-  <div id="hud"><div class="row"><button id="dpb">🤝 Pacts</button><button id="fb">Factory</button><button id="rt">↩ Retreat</button></div></div>
+  <div id="hud"><div class="row"><button id="dpb"><i>🤝</i><span>Pacts</span></button><button id="fb"><i>🏭</i><span>Factory</span></button><button id="rt"><i>↩</i><span>Retreat</span></button></div></div>
   <div id="toast"></div>
   <div id="of"><span id="ot" style="flex:1"></span><div><button id="oy" class="p">Accept</button><button id="on">Decline</button></div></div>
   <div id="dp"></div>
@@ -1013,7 +1045,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     $("lb").innerHTML = LBC ? "<div>🏆 #" + (lbM + 1) + " · " + Math.round(sh * 100) + "%</div>" : lbT.map(function (p) { return "<div" + (p.id === 0 ? " class='me'" : "") + "><span>" + (lbR.indexOf(p) + 1) + "</span>" + (FL[p.id] ? "<img class='fl' src='" + FL[p.id] + "'>" : "") + "<span>" + (p.id === 0 ? "You" : NAME[p.id]) + "</span><b style='margin-left:auto;padding-left:8px'>" + Math.round(p.cells / landN * 100) + "%</b></div>"; }).join("");
     $("you").innerHTML = "<img class='fl' src='" + FL[0] + "'>" + E.n + " · " + yearNow(); $("trp").innerHTML = "Land " + Math.round(sh * 100) + "/" + Math.round(WIN * 100) + "% · Troops " + Math.floor(P[0].troops) + (P[0].rate ? " (+" + Math.round(P[0].rate * 10) + "/s)" : "") + (facN(0) ? " · 🏭" + facN(0) : "") + "<br>Fleets " + fleetsOut(0, false) + "/" + fleetCap(0) + " \u00b7 Planes " + fleetsOut(0, true) + "/" + fleetCap(0);
     var fc = facCost(0), fbn = $("fb"), maxed = facN(0) >= MAXF;
-    fbn.textContent = maxed ? "🏭 " + facN(0) + "/" + MAXF : "🏭 " + fc; fbn.title = "Factory (" + facN(0) + "/" + MAXF + ")";
+    fbn.innerHTML = maxed ? "<i>🏭</i><span>" + facN(0) + "/" + MAXF + "</span>" : "<i>🏭</i><span>" + fc + "</span>"; fbn.title = "Factory (" + facN(0) + "/" + MAXF + ")";
     fbn.className = (maxed || P[0].troops < fc) ? "dim" : "p";
     $("hf").style.width = Math.min(100, el / E.par * 100) + "%";
     $("hl").textContent = el >= E.par ? "History beaten! Keep going" : "Beat the real " + E.n + " (fell " + E.end + ")";
