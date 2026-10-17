@@ -1238,15 +1238,6 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   var actT; document.addEventListener("pointerdown", function () { var h = document.documentElement; h.classList.add("act"); clearTimeout(actT); actT = setTimeout(function () { h.classList.remove("act"); }, 3500); }, true);
   $("lb").onclick = function () { LBC = !LBC; if (P && P[0] && !over) hud(); };
   $("vm").onclick = function () { this.style.display = "none"; $("ov").style.display = "flex"; };
-  var fsTried = false;   /* first tap on touch screens: go fullscreen + lock landscape where the browser allows it */
-  document.addEventListener("click", function (e) {
-    if (fsTried || !(e.target.closest && e.target.closest("button"))) return; fsTried = true;
-    try {
-      if (!window.matchMedia("(pointer:coarse)").matches) return;
-      var d = document.documentElement, f = d.requestFullscreen || d.webkitRequestFullscreen; if (!f) return;
-      var pr = f.call(d); if (pr && pr.catch) pr.catch(function () {});
-    } catch (_) {}
-  }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("button")) { try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} } });
   intro();
   setInterval(function () { if (P && !paused) tick(); }, 100);
