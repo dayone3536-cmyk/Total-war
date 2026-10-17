@@ -114,7 +114,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overscroll-behavior:none
 #trp{font-size:11px;line-height:1.45}
 #tr{position:absolute;z-index:3;display:flex;gap:8px;right:calc(env(safe-area-inset-right,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 10px)}
 #tr button{flex:none;height:44px;min-width:44px;padding:0 14px;border-radius:22px;background:var(--glass);-webkit-font-size:14px}
-#tr #mu{padding:0;width:44px;font-size:17px}
+#tr #mu{padding:0;width:44px;font-size:17px}#tr #rc{font-size:15px}
 #zb{position:absolute;z-index:3;display:flex;flex-direction:column;gap:8px;grid-template-columns:none;left:calc(env(safe-area-inset-left,0px) + 12px);top:50%;transform:translateY(-50%)}
 #zb button{flex:none;width:46px;height:46px;font-size:22px}
 #bl{position:absolute;z-index:3;left:calc(env(safe-area-inset-left,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);width:min(32vw,300px);padding:8px 12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--glass);-webkit-pointer-events:none}
@@ -218,15 +218,19 @@ html.end #hud,html.end #bl{opacity:0;pointer-events:none}
   #bl{bottom:calc(env(safe-area-inset-bottom,0px) + 28px)}
   #of{bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}
 }
-.lv{width:100%;max-width:340px;margin:8px 0 2px}.lv .lt{font-size:11px;letter-spacing:2px;opacity:.65;margin-bottom:5px}.lv .lb2{display:flex;gap:4px}.lv button{flex:1;padding:8px 0 6px;font-size:11px;line-height:1.25;border-radius:10px;background:#1a2b3b;border:2px solid transparent;transition:transform .12s,background .2s}.lv button i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}.lv button.on{border-color:var(--lc,#3884ff);background:#12304f;box-shadow:0 0 14px -2px var(--lc,#3884ff)}.lv .ld{font-size:12px;margin-top:6px;min-height:30px;color:#ffd27a;line-height:1.35}</style></head><body>
+.lv{width:100%;max-width:340px;margin:8px 0 2px}.lv .lt{font-size:11px;letter-spacing:2px;opacity:.65;margin-bottom:5px}.lv .lb2{display:flex;gap:4px}.lv button{flex:1;padding:8px 0 6px;font-size:11px;line-height:1.25;border-radius:10px;background:#1a2b3b;border:2px solid transparent;transition:transform .12s,background .2s}.lv button i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}.lv button.on{border-color:var(--lc,#3884ff);background:#12304f;box-shadow:0 0 14px -2px var(--lc,#3884ff)}.lv .ld{font-size:12px;margin-top:6px;min-height:30px;color:#ffd27a;line-height:1.35}
+#mm{position:absolute;z-index:3;left:calc(env(safe-area-inset-left,0px) + 12px);top:calc(env(safe-area-inset-top,0px) + 78px);width:84px;border:1px solid var(--line);border-radius:10px;background:#08141c;opacity:0;pointer-events:none;transition:opacity .3s;touch-action:none}
+#mm.on{opacity:.88;pointer-events:auto}
+</style></head><body>
 <div id="app">
  <div id="wrap">
   <div id="bx"><div id="zm"><canvas id="c" width="80" height="120"></canvas><div id="nm"></div><div id="mv"></div></div></div>
   <div id="top" class="fd"><span id="you"></span><span id="trp"></span></div>
-  <div id="tr"><button id="mu" title="Sound">🔊</button><button id="ex" title="Exit">✕</button></div>
+  <div id="tr"><button id="rc" title="Recenter">🎯</button><button id="mu" title="Sound">🔊</button><button id="ex" title="Exit">✕</button></div>
   <div id="lb" class="gl fd"></div>
   <div id="bl" class="fd"><div id="hb"><i id="hf"></i><span id="hl"></span></div></div>
   <div id="hud"><div class="row"><button id="dpb" title="Pacts"><i>🤝</i></button><button id="fb" title="Factory"><i>🏭</i><span></span></button></div></div>
+  <canvas id="mm" width="90" height="135"></canvas>
   <div id="toast"></div>
   <div id="of"><span id="ot" style="flex:1"></span><div><button id="oy" class="p">Accept</button><button id="on">Decline</button></div></div>
   <div id="dp"></div>
@@ -633,7 +637,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     for (i = 0; i < N; i++) if (own[i] === 0) { x = i % W; y = (i / W) | 0; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
     if (x1 < 0) return;
     var gw = x1 - x0 + 1, gh = y1 - y0 + 1;
-    Z = Math.max(s.zmin, Math.min(MODE === "world" ? 8 : 4, 0.38 * s.bw / (gw / W * s.cw), 0.38 * s.bh / (gh / H * s.ch)));
+    Z = Math.max(s.zmin, Math.min(MODE === "world" ? 14 : 7, 0.66 * s.bw / (gw / W * s.cw), 0.66 * s.bh / (gh / H * s.ch)));
     PX = s.bw / 2 - (x0 + gw / 2) / W * s.cw * Z; PY = s.bh / 2 - (y0 + gh / 2) / H * s.ch * Z; zapply();
   }
   function showWorldPicker() {
@@ -1162,16 +1166,34 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     P.forEach(function (q) { if (q.id > 0 && q.pact && q.alive && q.id !== t && q.troops > 80 && neighbours(q.id)[t]) { launch(q.id, t, 0.35); toast(NAME[q.id] + " joins your war on " + NAME[t] + "!", 3200); } });
   }
   var lastF = 0;
-  function loop(ts) { if (P && !document.hidden && ts - lastF > 48) { lastF = ts; draw(); movers(); } requestAnimationFrame(loop); }
+
+  var mm = $("mm"), mx = mm.getContext("2d");
+  function drawMM() {
+    if (!P || !P[0] || over) { mm.classList.remove("on"); return; }
+    var s = csz(), show = Z > 1.25; mm.classList.toggle("on", show); if (!show) return;
+    var w = 90, h = Math.round(90 * H / W); if (mm.height !== h) mm.height = h; mm.style.height = (84 * H / W).toFixed(0) + "px";
+    mx.clearRect(0, 0, w, h); mx.drawImage(cv, 0, 0, w, h);
+    var rx = -PX / (s.cw * Z) * w, ry = -PY / (s.ch * Z) * h, rw = s.bw / (s.cw * Z) * w, rh = s.bh / (s.ch * Z) * h;
+    mx.strokeStyle = "#fff"; mx.lineWidth = 1.5; mx.strokeRect(rx, ry, rw, rh);
+  }
+  function mmJump(e) {
+    var s = csz(), r = mm.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+    PX = s.bw / 2 - fx * s.cw * Z; PY = s.bh / 2 - fy * s.ch * Z; zapply();
+  }
+  var mmDown = false;
+  mm.addEventListener("pointerdown", function (e) { mmDown = true; mm.setPointerCapture(e.pointerId); mmJump(e); e.stopPropagation(); });
+  mm.addEventListener("pointermove", function (e) { if (mmDown) mmJump(e); });
+  mm.addEventListener("pointerup", function () { mmDown = false; });
+  function loop(ts) { if (P && !document.hidden && ts - lastF > 48) { lastF = ts; draw(); movers(); drawMM(); } requestAnimationFrame(loop); }
   var Z = 1, PX = 0, PY = 0, ptrs = {}, moved = false, pinch0 = 0, zbox = $("bx"), zm = $("zm");
   function csz() {
     var bw = zbox.clientWidth, bh = zbox.clientHeight, ar = W / H, cw, ch;
     var wf = bw / bh > ar; if (bw < bh) wf = !wf;
     if (wf) { cw = bw; ch = bw / ar; } else { ch = bh; cw = bh * ar; }
-    return { bw: bw, bh: bh, cw: cw, ch: ch, zmin: Math.min(1, bh / ch, bw / cw) * 0.82 };
+    return { bw: bw, bh: bh, cw: cw, ch: ch, zmin: Math.min(1, bh / ch, bw / cw) * 0.95 };
   }
   function zapply() {
-    var s = csz(), maxZ = MODE === "world" ? 8 : 4;
+    var s = csz(), maxZ = MODE === "world" ? 14 : 7;
     if (!s.bw || !s.bh) return;
     zm.style.width = s.cw + "px"; zm.style.height = s.ch + "px";
     Z = Math.max(s.zmin, Math.min(maxZ, Z));
@@ -1180,7 +1202,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     PY = sh <= s.bh ? (s.bh - sh) / 2 : Math.min(0, Math.max(s.bh - sh, PY));
     zm.style.transform = "translate(" + PX + "px," + PY + "px) scale(" + Z + ")"; zm.style.setProperty("--z", Z); if (P && P[0]) labels();
   }
-  function zoomAt(f, x, y) { var s = csz(), nz = Math.max(s.zmin, Math.min(MODE === "world" ? 8 : 4, Z * f)); f = nz / Z; PX = x - (x - PX) * f; PY = y - (y - PY) * f; Z = nz; zapply(); }
+  function zoomAt(f, x, y) { var s = csz(), nz = Math.max(s.zmin, Math.min(MODE === "world" ? 14 : 7, Z * f)); f = nz / Z; PX = x - (x - PX) * f; PY = y - (y - PY) * f; Z = nz; zapply(); }
   function pdist() { var k = Object.keys(ptrs); if (k.length < 2) return 0; var a = ptrs[k[0]], b = ptrs[k[1]]; return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)); }
   function tap(cX, cY) {
     if (over || !P) return;
@@ -1225,6 +1247,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   $("oy").onclick = function () { if (!offerOpen) return; var o = offerOpen; closeOffer(); track("pact_offer_accepted", { from_nation: NAME[o.r] }); if (P[o.r].alive && !P[o.r].pact) pactOn(o.r, P[o.e].alive ? o.e : null); };
   $("on").onclick = function () { if (offerOpen) { P[offerOpen.r].cool = ticks + 300; track("pact_offer_declined", { from_nation: NAME[offerOpen.r] }); } closeOffer(); };
   setInterval(function () { if (P && !over && $("dp").style.display === "flex") dipl(); }, 1000);
+  $("rc").onclick = function () { if (P && P[0] && !over) focusYou(); };
   $("mu").onclick = function () { muted = !muted; $("mu").textContent = muted ? "🔇" : "🔊"; if (!muted) sfx("ok"); };
   $("ex").onclick = function () { if (!P || over) return; paused = true; $("xc").style.display = "flex"; };
   $("xs").onclick = function () { paused = false; $("xc").style.display = "none"; };
@@ -1245,4 +1268,3 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   requestAnimationFrame(loop);
 })();
 </script></body></html>
-
