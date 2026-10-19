@@ -131,3 +131,6 @@ app.post("/api/upload-next", async (req, res) => {
 });
 
 app.listen(process.env.PORT || 3000, () => console.log("Empire server running"));
+
+// Hey from Azure speaking
+
