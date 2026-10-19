@@ -379,7 +379,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     [[15.2,38.4],[16.1,38.4],[16.1,37.8],[15.2,37.8]]
   ];
   var K = W / ((45 + 11) * 0.574);
-  function xy(lon, lat) { return [(lon + 11) * 0.574 * K, (71.5 - lat) * K]; }
+  function xy(lon, lat) { if (E && E.hist) return [(lon - WORLD.lon0) / (WORLD.lon1 - WORLD.lon0) * W, (WORLD.lat1 - lat) / (WORLD.lat1 - WORLD.lat0) * H]; return [(lon + 11) * 0.574 * K, (71.5 - lat) * K]; }
   var FAC = [], MAXF = 6, MAXBF = 2, FBONUS = 1.6;   /* factories: every nation can build them; they sit on the map and can be captured */
   function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
   function facCost(o) { return 400 * (facN(o || 0) + 1); }
@@ -389,8 +389,9 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   var REP = {}, reportOpen = false, repSel = null;
   var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var IC = { go: "⚔️", sea: "⚓", air: "✈️", key: "🏙", cap: "👑", bad: "☠️", mid: "➖", erase: "💥", pact: "🤝" };
-  var FLAVOR = { "Napoleon's Empire": "Bulletin of the Grande Armée", "Roman Empire": "Dispatch to the Senate", "Ottoman Empire": "Imperial dispatch", "German Empire": "General Staff report", "Soviet Union": "STAVKA summary", "Russian Empire": "Report to the Tsar", "British Empire": "Admiralty dispatch", "Spanish Empire": "Report to the Crown", "Mongol Horde": "Report to the Khan", "Byzantine Empire": "Report to the Basileus", "Carolingian Empire": "Report to the Emperor", "Umayyad Caliphate": "Report to the Caliph", "Austria-Hungary": "Report to the Kaiser", "North Sea Empire": "Report to the King", "Polish Commonwealth": "Report to the King", "Swedish Empire": "Report to the King" };
-  var CAPN = { "Prussia": "Berlin", "Russia": "Moscow", "Russian Empire": "St Petersburg", "Soviet Union": "Moscow", "France": "Paris", "Napoleon's Empire": "Paris", "Carolingian Empire": "Paris", "Britain": "London", "England": "London", "British Empire": "London", "Spain": "Madrid", "Spanish Empire": "Madrid", "Italy": "Rome", "Fascist Italy": "Rome", "Roman Empire": "Rome", "Austria": "Vienna", "Habsburgs": "Vienna", "Austria-Hungary": "Vienna", "Holy Roman Empire": "Vienna", "Ottoman Empire": "Constantinople", "Ottomans": "Constantinople", "Byzantine Empire": "Constantinople", "Turkey": "Ankara", "Sweden": "Stockholm", "Swedish Empire": "Stockholm", "Norway": "Oslo", "Finland": "Helsinki", "Greece": "Athens", "Serbia": "Belgrade", "Yugoslavia": "Belgrade", "Romania": "Bucharest", "Hungary": "Budapest", "Poland": "Warsaw", "Polish Commonwealth": "Warsaw", "Portugal": "Lisbon", "Egypt": "Cairo", "Morocco": "Fez", "Denmark-Norway": "Copenhagen", "German Empire": "Berlin", "Nazi Germany": "Berlin", "West Germany": "Berlin", "Venice": "Venice", "Persia": "Baghdad", "Umayyad Caliphate": "Damascus", "Dutch Rebels": "Amsterdam", "Kievan Rus": "Kyiv" };
+  var FLAVOR = { "Napoleon's Empire": "Bulletin of the Grande Armée", "Roman Empire": "Dispatch to the Senate", "Ottoman Empire": "Imperial dispatch", "German Empire": "General Staff report", "Soviet Union": "STAVKA summary", "Russian Empire": "Report to the Tsar", "British Empire": "Admiralty dispatch", "Spanish Empire": "Report to the Crown", "Mongol Horde": "Report to the Khan", "Byzantine Empire": "Report to the Basileus", "Carolingian Empire": "Report to the Emperor", "Umayyad Caliphate": "Report to the Caliph", "Austria-Hungary": "Report to the Kaiser", "North Sea Empire": "Report to the King", "Polish Commonwealth": "Report to the King", "Swedish Empire": "Report to the King", "Mongol Empire": "Report to the Great Khan", "Tang Dynasty": "Memorial to the Son of Heaven", "Mughal Empire": "Report to the Padishah" };
+  var CAPN = { "Prussia": "Berlin", "Russia": "Moscow", "Russian Empire": "St Petersburg", "Soviet Union": "Moscow", "France": "Paris", "Napoleon's Empire": "Paris", "Carolingian Empire": "Paris", "Britain": "London", "England": "London", "British Empire": "London", "Spain": "Madrid", "Spanish Empire": "Madrid", "Italy": "Rome", "Fascist Italy": "Rome", "Roman Empire": "Rome", "Austria": "Vienna", "Habsburgs": "Vienna", "Austria-Hungary": "Vienna", "Holy Roman Empire": "Vienna", "Ottoman Empire": "Constantinople", "Ottomans": "Constantinople", "Byzantine Empire": "Constantinople", "Turkey": "Ankara", "Sweden": "Stockholm", "Swedish Empire": "Stockholm", "Norway": "Oslo", "Finland": "Helsinki", "Greece": "Athens", "Serbia": "Belgrade", "Yugoslavia": "Belgrade", "Romania": "Bucharest", "Hungary": "Budapest", "Poland": "Warsaw", "Polish Commonwealth": "Warsaw", "Portugal": "Lisbon", "Egypt": "Cairo", "Morocco": "Fez", "Denmark-Norway": "Copenhagen", "German Empire": "Berlin", "Nazi Germany": "Berlin", "West Germany": "Berlin", "Venice": "Venice", "Persia": "Baghdad", "Umayyad Caliphate": "Damascus", "Dutch Rebels": "Amsterdam", "Kievan Rus": "Kyiv", "Mongol Empire": "Karakorum", "Uyghur Khaganate": "Karakorum", "Song China": "Hangzhou", "Delhi Sultanate": "Delhi", "Ilkhanate": "Herat", "Tibet": "Lhasa", "Goryeo": "Seoul", "Silla": "Seoul", "Japan": "Kyoto", "Dai Viet": "Hanoi", "Pagan": "Bagan", "Tang Dynasty": "Chang'an", "Abbasid Caliphate": "Herat", "Nanzhao": "Dali", "Pala Empire": "Gaur", "Mughal Empire": "Agra", "Marathas": "Pune", "Bukhara": "Bukhara", "Qing China": "Beijing", "Dzungars": "Almaty", "Burma": "Ava", "Siam": "Ayutthaya", "Mysore": "Mysore" };
+  var CTA = [["Karakorum",102.8,47.2,1],["Beijing",116.4,39.9,1],["Chang'an",108.9,34.3,1],["Hangzhou",120.2,30.3,1],["Chengdu",104.1,30.7,0],["Guangzhou",113.3,23.1,1],["Nanjing",118.8,32.1,0],["Delhi",77.2,28.6,1],["Agra",78,27.2,1],["Lahore",74.3,31.5,0],["Kabul",69.2,34.5,0],["Herat",62.2,34.3,0],["Bukhara",64.4,39.8,0],["Samarkand",67,39.7,1],["Lhasa",91.1,29.7,1],["Seoul",127,37.6,1],["Kyoto",135.8,35,1],["Hanoi",105.8,21,1],["Bagan",94.9,21.2,0],["Ayutthaya",100.6,14.4,0],["Dali",100.2,25.7,0],["Gaur",88.1,24.9,0],["Pune",73.9,18.5,0],["Hyderabad",78.5,17.4,1],["Mysore",76.6,12.3,0],["Ava",96,21.9,0],["Kucha",82.9,41.7,0],["Dunhuang",94.7,40.1,0],["Almaty",76.9,43.2,0]];
   function rep(o) {
     if (o < 0 || !P || !P[o]) return { ev: [], cities: [], elost: [], pins: [], dummy: 1 };
     var r = REP[o];
@@ -936,8 +937,8 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   Object.assign(LVS.brutal, {ft:1.8, fg:1.45, dl:.62, ag:2.2, mg:.88, gr:.35, pc:1.3, bc:.8, d:"Huge armies, almost no peace, and rivals betray you. Expect a fight for survival."});
   Object.assign(LVS.impossible, {ft:2.4, fg:1.8, dl:.5, ag:2.8, mg:.75, gr:.15, pc:1.5, bc:.7, d:"The whole map wants you dead from the first seconds. Almost nobody wins."});
   function worldGrid() { if (!WG) { WG = new Uint8Array(WORLD.W * WORLD.H); var k = 0, j, n; for (j = 0; j < WORLD.rle.length; j += 2) for (n = 0; n < WORLD.rle[j + 1]; n++) WG[k++] = WORLD.rle[j]; } return WG; }
-  function setMap(m) {
-    var w = m === "world"; if (w) { WORLD = WORLDS[REG]; WG = null; } if (w && !MAJOR0) MAJOR0 = MAJOR.slice(); MODE = m; W = w ? WORLD.W : 80; H = w ? WORLD.H : 120; N = W * H; WIN = w ? 0.8 : 0.97;
+  function setMap(m, reg) {
+    var w = m === "world"; if (w) { WORLD = WORLDS[reg || REG]; WG = null; } if (w && !MAJOR0) MAJOR0 = MAJOR.slice(); MODE = m; W = w ? WORLD.W : 80; H = w ? WORLD.H : 120; N = W * H; WIN = w ? 0.8 : 0.97;
     cv.width = W; cv.height = H; im = cx.createImageData(W, H); NBR = null; CNT = new Uint8Array(N); cv.style.imageRendering = (w && !WORLD.px) ? "auto" : "pixelated";
     if (!w && MAJOR0) MAJOR = MAJOR0.slice();
     
@@ -1040,7 +1041,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     var q = t[i], c = PXP[q >> 3] || PXP[0], hh = (((x * 73856093) ^ (y * 19349663)) >>> 0) % 100 / 100, v = (0.9 + hh * 0.2) * (1 + ((q & 7) - 3) * 0.065);
     return [Math.min(255, c[0] * v), Math.min(255, c[1] * v), Math.min(255, c[2] * v)];
   }
-  function TW() { return (E && E.world && WORLD && WORLD.px) ? 0.42 : 0.3; }   /* how much terrain shows through the owner colour */
+  function TW() { return (MODE === "world" && WORLD && WORLD.px) ? 0.42 : 0.3; }   /* how much terrain shows through the owner colour */
   var TER;
   function genTerrain() {
     TER = new Uint8Array(N * 3);
@@ -1063,7 +1064,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   var CITY = [], MAJOR = ["London", "Paris", "Madrid", "Rome", "Berlin", "Vienna", "Moscow", "Constantinople", "Cairo", "Athens", "Warsaw", "Kyiv", "Baghdad", "Damascus", "Stockholm", "Tunis"];
   function placeCities() {
     CITY = [];
-    if (MODE === "world") { worldCities(); return; }
+    if (E && E.hist) { CTA.forEach(function (c) { var q = xy(c[1], c[2]), cx0 = q[0] | 0, cy0 = q[1] | 0, best = 1e9, bi = -1; for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) { var x = cx0 + dx, y = cy0 + dy; if (x < 0 || y < 0 || x >= W || y >= H || !land[y * W + x]) continue; var dd = dx * dx + dy * dy; if (dd < best) { best = dd; bi = y * W + x; } } if (bi >= 0) CITY.push({ n: c[0], i: bi }); }); MAJOR = CTA.filter(function (c) { return c[3]; }).map(function (c) { return c[0]; }); return; } if (MODE === "world") { worldCities(); return; }
     CT.forEach(function (c) {
       var q = xy(c[1], c[2]), cx0 = q[0] | 0, cy0 = q[1] | 0, best = 1e9, bi = -1;
       for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) {
@@ -1107,7 +1108,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     "Carolingian Empire": [110, 100, 220, "c:#2a2a8a,#f5d300"], "Emirate of Cordoba": [40, 150, 90, "cres"], "Anglo-Saxons": [200, 100, 100, "x:#fff,#c8102e"], "Asturias": [190, 60, 60, "c:#2a5aa8,#ffd700"],
     "Umayyad Caliphate": [70, 170, 90, "c:#efefef,#1b7a4a"], "Khazars": [90, 170, 200, "c:#1a5a7a,#e8d8a0"], "North Sea Empire": [205, 60, 90, "x:#c8102e,#fff"], "Irish Kings": [60, 150, 80, "v:#169b62,#fff,#ff883e"], "Normandy": [210, 160, 60, "h:#c8102e,#f5d300,#c8102e"],
     "Polish Commonwealth": [240, 120, 150, "h:#fff,#dc143c"], "Tatars": [90, 150, 170, "c:#2a6a8a,#e8d8a0"], "Swedish Empire": [70, 160, 225, "x:#006aa7,#fecc00"], "Denmark-Norway": [205, 60, 90, "x:#c8102e,#fff"],
-    "Fascist Italy": [70, 175, 95, "v:#009246,#fff,#ce2b37"], "Yugoslavia": [60, 100, 190, "h:#0c4076,#fff,#c6363c"], "Egypt": [210, 180, 80, "h:#ce1126,#fff,#000"]
+    "Fascist Italy": [70, 175, 95, "v:#009246,#fff,#ce2b37"], "Yugoslavia": [60, 100, 190, "h:#0c4076,#fff,#c6363c"], "Egypt": [210, 180, 80, "h:#ce1126,#fff,#000"], "Mongol Empire": [50, 120, 225, "c:#1b4fa0,#f2d479"], "Song China": [230, 80, 70, "h:#b4121b,#f5d300"], "Delhi Sultanate": [150, 200, 80, "c:#6a9a2a,#fff"], "Ilkhanate": [150, 120, 220, "c:#5a3a9a,#e8d8a0"], "Tibet": [235, 150, 60, "h:#e8a020,#fff,#2a4a9a"], "Goryeo": [100, 190, 200, "h:#fff,#2a5aa8"], "Japan": [240, 120, 140, "c:#fff,#bc002d"], "Dai Viet": [205, 205, 70, "c:#c8102e,#ffe000"], "Pagan": [190, 110, 60, "h:#8a4a1a,#e8c070"], "Tang Dynasty": [235, 185, 50, "c:#e6a800,#7a0000"], "Uyghur Khaganate": [90, 200, 170, "c:#2a8a6a,#e8f0c0"], "Abbasid Caliphate": [90, 90, 105, "c:#1a1a1a,#e8e8e8"], "Balhae": [160, 90, 200, "h:#7a3aa0,#e0c8f0"], "Silla": [120, 200, 120, "c:#2a8a3a,#f0e8a0"], "Nanzhao": [220, 120, 200, "c:#b03a8a,#f0d0e8"], "Pala Empire": [230, 130, 60, "c:#c85a1a,#ffe0a0"], "Mughal Empire": [40, 150, 100, "c:#1b7a4a,#f5d27a"], "Marathas": [240, 140, 40, "h:#f08a1a,#fff"], "Bukhara": [90, 150, 190, "h:#2a6aa0,#fff"], "Qing China": [230, 170, 40, "c:#f5d300,#1a4a8a"], "Dzungars": [120, 200, 90, "c:#3a7a2a,#e8f0a0"], "Burma": [200, 170, 40, "h:#fecb00,#34b233,#ea2839"], "Siam": [210, 70, 110, "h:#a51931,#fff,#2d2a4a,#fff,#a51931"], "Mysore": [180, 60, 150, "c:#8a1a6a,#f0d0e0"]
   };
   var EMP = [
     { n: "Ottoman Empire", y: 1683, end: 1922, par: 240, modern: false, tag: "at the gates of Vienna", win: "You lasted longer than the real Ottoman Empire!",
@@ -1163,7 +1164,16 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       foes: [["Denmark-Norway",9.5,59,7],["Russia",37.6,56,12],["Poland",21,52.2,9],["Prussia",13.4,52.8,5],["Holy Roman Empire",11,49,7],["Ottoman Empire",30,40,8]] },
     { n: "Fascist Italy", y: 1941, end: 1943, par: 100, modern: true, tag: "a new Roman Empire", dif: "Tough: a weak army and many enemies", pw: 0.9, win: "You built the Mediterranean empire Rome dreamed of!",
       me: [[12.5,42,8],[9,45,6],[15,40.5,5],[14,37.5,3],[13.2,32.9,8],[19.5,41.3,3],[23,38,5],[20,44,3]],
-      foes: [["Britain",-1.5,52.5,7],["France",2.3,47.5,11],["Greece",22,39.5,5],["Yugoslavia",19.5,44.5,6],["Egypt",30,28,10],["Soviet Union",34,53,14],["Morocco",-5,33,6]] }
+      foes: [["Britain",-1.5,52.5,7],["France",2.3,47.5,11],["Greece",22,39.5,5],["Yugoslavia",19.5,44.5,6],["Egypt",30,28,10],["Soviet Union",34,53,14],["Morocco",-5,33,6]] },
+    { n: "Mongol Empire", y: 1260, end: 1368, par: 160, modern: false, hist: true, wp: 0.6, pt: 1.3, tag: "Kublai Khan rides out of the steppe", dif: "Balanced: a vast horde against rich, divided neighbours", win: "You held the steppe longer than the real Yuan!",
+      me: [[102.8,47.2,17],[116.4,40,10],[77,43.5,13],[67,39.7,10],[126.6,45.8,9]],
+      foes: [["Song China",113,27,30],["Delhi Sultanate",77.5,27,16],["Ilkhanate",62.2,34.3,9],["Tibet",91.1,29.7,11],["Goryeo",127.3,37.5,5],["Japan",135.5,35.5,9],["Dai Viet",105.8,21,6],["Pagan",95,21.5,8]] },
+    { n: "Tang Dynasty", y: 750, end: 907, par: 180, modern: false, hist: true, wp: 0.55, pt: 1.3, tag: "the Silk Road at its height", dif: "Tough: strong rivals on every border", win: "You outlasted the real Tang!",
+      me: [[108.9,34.3,20],[104.1,30.7,9],[119.4,32.4,11],[113.3,23.1,10],[116.4,40,10],[82.9,41.7,11],[94.7,40.1,9]],
+      foes: [["Tibet",91.1,29.7,13],["Uyghur Khaganate",102.5,47.5,15],["Abbasid Caliphate",66,38,12],["Balhae",128,44,9],["Silla",127.5,36,4],["Japan",135.5,35.5,8],["Nanzhao",100.2,25.7,6],["Pala Empire",86,25,11]] },
+    { n: "Mughal Empire", y: 1700, end: 1857, par: 200, modern: true, hist: true, wp: 0.6, pt: 1.3, tag: "Aurangzeb's empire at its widest", dif: "Hard: a huge land with many restless rivals", win: "You held Hindustan longer than the real Mughals!",
+      me: [[78,27.2,16],[74.3,31.5,8],[69.2,34.5,7],[90.4,23.8,8],[78.5,17.4,13],[72.6,23,7],[75.7,16.8,7]],
+      foes: [["Marathas",73.9,18.5,8],["Persia",62.2,34.3,9],["Bukhara",64.5,39.8,10],["Qing China",114,36,21],["Dzungars",82,44,14],["Burma",96,21.9,9],["Siam",100.6,14.4,9],["Mysore",76.6,12.3,6]] }
   ];
   var REAL = {
     "Ottoman Empire": { me: 140000, foes: { "Habsburgs": 70000, "Poland": 27000, "Russia": 100000, "Venice": 15000, "Italy": 20000, "Spain": 60000, "France": 120000, "Morocco": 30000, "Persia": 60000 } },
@@ -1218,7 +1228,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
 
   /* copies of the game's land / owner / colour / terrain data for the current empire or country */
   function tuData() {
-    var w = W, h = H, n = w * h, world = MODE === "world", land = new Uint8Array(n), own = new Int8Array(n).fill(-1), NB = new Int32Array(n * 4), i, j, x, y, names, cols, flags, cells, troops, ter = new Uint8Array(n * 3);
+    var w = W, h = H, n = w * h, world = MODE === "world" && !E.hist, rast = MODE === "world", land = new Uint8Array(n), own = new Int8Array(n).fill(-1), NB = new Int32Array(n * 4), i, j, x, y, names, cols, flags, cells, troops, ter = new Uint8Array(n * 3);
     for (i = 0; i < n; i++) { x = i % w; NB[i * 4] = x > 0 ? i - 1 : -1; NB[i * 4 + 1] = x < w - 1 ? i + 1 : -1; NB[i * 4 + 2] = i >= w ? i - w : -1; NB[i * 4 + 3] = i < n - w ? i + w : -1; }
     names = [E.n].concat(E.foes.map(function (f) { return f[0]; }));
     if (world) {
@@ -1228,7 +1238,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       for (i = 0; i < n; i++) if (g[i]) { land[i] = 1; own[i] = idToP[g[i]]; }
     } else {
       var polys = EUR.map(function (pl) { return pl.map(function (q) { return xy(q[0], q[1]); }); }), seats = [];
-      for (i = 0; i < n; i++) { x = i % w + 0.5; y = ((i / w) | 0) + 0.5; for (j = 0; j < polys.length; j++) if (inPoly(x, y, polys[j])) { land[i] = 1; break; } }
+      for (i = 0; i < n; i++) { x = i % w + 0.5; y = ((i / w) | 0) + 0.5; for (j = 0; j < polys.length; j++) if (inPoly(x, y, polys[j])) { land[i] = 1; break; } } if (E.hist) { var hg = worldGrid(); for (i = 0; i < n; i++) land[i] = hg[i] ? 1 : 0; }
       E.me.forEach(function (s) { var q = xy(s[0], s[1]); seats.push([q[0], q[1], s[2], 0]); });
       E.foes.forEach(function (f, jj) { var q = xy(f[1], f[2]); seats.push([q[0], q[1], f[3], jj + 1]); });
       cols = names.map(function (nm, jj) { var f = FLAG[nm]; return f ? [f[0], f[1], f[2]] : hsl((20 + jj * 47) % 360); });
@@ -1247,7 +1257,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       x = i % w; y = (i / w) | 0;
       var lat = world ? WORLD.lat1 - (y + 0.5) * (WORLD.lat1 - WORLD.lat0) / h : 71.5 - (y + 0.5) / K, lon = world ? WORLD.lon0 + (x + 0.5) * (WORLD.lon1 - WORLD.lon0) / w : (x + 0.5) / (0.574 * K) - 11;
       var hh = (((x * 73856093) ^ (y * 19349663)) >>> 0) % 100 / 100, c;
-      if (world && WORLD.px) { var pc = pxTer(i, x, y); ter[i * 3] = pc[0]; ter[i * 3 + 1] = pc[1]; ter[i * 3 + 2] = pc[2]; continue; }
+      if (rast && WORLD.px) { var pc = pxTer(i, x, y); ter[i * 3] = pc[0]; ter[i * 3 + 1] = pc[1]; ter[i * 3 + 2] = pc[2]; continue; }
       if (world) c = (lat > 63 || (lat > 57 && hh > 0.75)) ? [226, 232, 238] : ((lat < 35 && lat > 12 && lon > 34 && lon < 62) || (lat > 37 && lat < 47 && lon > 88 && lon < 118) || (lat > 24 && lat < 37 && lon > 60 && lon < 75 && hh > 0.3)) ? [206, 184, 128] : (lat > 26 && lat < 37 && lon > 72 && lon < 100 && hh > 0.35) ? [146, 138, 128] : lat < 22 ? [60, 140, 70] : [88, 132, 74];
       else if (lat > 62 || (lat > 58 && hh > 0.7)) c = [226, 232, 238];
       else if (lat < 33 || (lat < 36 && lon > 3 && lon < 12 && hh > 0.5)) c = [206, 184, 128];
@@ -1257,7 +1267,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       var v = world ? 1 : 0.88 + hh * 0.24;
       ter[i * 3] = Math.min(255, c[0] * v); ter[i * 3 + 1] = Math.min(255, c[1] * v); ter[i * 3 + 2] = Math.min(255, c[2] * v);
     }
-    return { w: w, h: h, n: n, world: world, px: world && !!WORLD.px, land: land, own: own, NB: NB, names: names, cols: cols, flags: flags, cells: cells, troops: troops, ter: ter };
+    return { w: w, h: h, n: n, world: rast, px: rast && !!WORLD.px, land: land, own: own, NB: NB, names: names, cols: cols, flags: flags, cells: cells, troops: troops, ter: ter };
   }
 
   /* picks a land border, a deep inland target and a sea target on the real map, and scripts the whole demo */
@@ -1801,13 +1811,13 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
 
 
   function intro(pick) {
-    if (MODE === "world" && pick === undefined) { introWorld(1 + ((Math.random() * WORLDS[REG].names.length) | 0), REG); return; }
-    tuStop(); setMap("eu");
+    if (MODE === "world" && E && E.world && pick === undefined) { introWorld(1 + ((Math.random() * WORLDS[REG].names.length) | 0), REG); return; }
+    tuStop();
     P = null; over = true; endReset(); $("nm").innerHTML = "";
-    var k; if (pick !== undefined) k = pick; else do { k = (Math.random() * EMP.length) | 0; } while (k === lastE); lastE = k; E = EMP[k];
+    var k; if (pick !== undefined) k = pick; else do { k = (Math.random() * EMP.length) | 0; } while (k === lastE); lastE = k; E = EMP[k]; setMap(E.hist ? "world" : "eu", "asia"); if (E.hist) WIN = E.wp || 0.6;
     var o = $("ov"); o.style.display = "flex";
     var fu = flag(FLAG[E.n][3]), rv = E.foes.map(function (f) { return "<img class='fl' title='" + f[0] + "' src='" + flag(FLAG[f[0]] ? FLAG[f[0]][3] : "h:#888,#ccc") + "'>"; }).join("");
-    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + "You rule</p><img src='" + fu + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1 style='color:rgb(" + FLAG[E.n].slice(0, 3) + ")'>" + E.n + "</h1><p><b>" + E.y + "</b> · " + E.tag + "</p><p>Hold it longer than the real one lasted (until " + E.end + "), or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + (E.dif || "Fair fight") + "</p><p style='opacity:.7;font-size:12px'>Your rivals:" + rv + "</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div>" + (played() ? "<div class='row'><button id='ch'>Choose another empire</button></div>" : "") + voteHTML();
+    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + "You rule</p><img src='" + fu + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1 style='color:rgb(" + FLAG[E.n].slice(0, 3) + ")'>" + E.n + "</h1><p><b>" + E.y + "</b> · " + E.tag + "</p><p>Hold it longer than the real one lasted (until " + E.end + "), or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + (E.dif || "Fair fight") + "</p><p style='opacity:.7;font-size:12px'>Your rivals:" + rv + "</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div>" + "<div class='row'><button id='ch'>Choose another empire</button></div>" + voteHTML();
     bindVote(o, "start"); bindLv(o); tuBind(o);
     $("go").onclick = function () { newGame(); }; if ($("ch")) $("ch").onclick = showPicker;
   }
@@ -1946,7 +1956,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     if (over) return; over = true;
     var el = ticks / 10, yr = yearNow(), beat = el >= E.par, best = 0, rec = false;
     try { best = +localStorage.getItem("pw_" + E.n + (lvKey() === "normal" ? "" : "_" + lvKey())) || 0; if (el > best) { localStorage.setItem("pw_" + E.n + (lvKey() === "normal" ? "" : "_" + lvKey()), el); rec = best > 0; } } catch (e) {}
-    sfx(win || beat ? "win" : "hurt"); var head = win ? (E.world ? (REG === "asia" ? "YOU CONQUERED ASIA" : "YOU CONQUERED EURASIA") : "YOU CONQUERED EUROPE") : beat ? (E.world ? "YOU HELD THE CENTURY" : "YOU BEAT HISTORY") : "THE EMPIRE FELL";
+    sfx(win || beat ? "win" : "hurt"); var head = win ? (E.world ? (REG === "asia" ? "YOU CONQUERED ASIA" : "YOU CONQUERED EURASIA") : E.hist ? "YOU CONQUERED ASIA" : "YOU CONQUERED EUROPE") : beat ? (E.world ? "YOU HELD THE CENTURY" : "YOU BEAT HISTORY") : "THE EMPIRE FELL";
     track("game_ended", { level: lvKey(), empire: E.n, result: win ? "won" : beat ? "beat_history" : "lost", seconds: Math.round(el), peak_land_pct: Math.round(peakShare * 100), rivals_erased: erased, factories: facN(0), reason: why || null });
     var l1 = win ? "Before history could end you, you rewrote it." : beat ? E.win : (why || "Your empire fell in " + yr + ".");
     var l2 = E.world ? (beat ? "You held " + E.n + " until the clock ran out!" : "You lasted " + Math.round(el) + "s of the " + E.par + "s you needed.") : beat ? "You lasted " + Math.max(0, yr - E.end) + " years past the real " + E.end + " collapse." : "The real " + E.n + " lasted until " + E.end + ", " + Math.max(0, E.end - yr) + " years longer. " + (E.par - el < 60 ? "So close: " + Math.round(E.par - el) + " seconds short!" : "Can you do better?");
@@ -1969,7 +1979,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       $("vmp").onclick = function () { track("view_map_clicked", { empire: E.n, result: win ? "won" : beat ? "beat_history" : "lost" }); o.style.display = "none"; $("vm").style.display = "block"; };
       $("mo").onclick = function () { var m = $("mr"); m.style.display = "flex"; this.style.display = "none"; m.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
       $("sh").onclick = function () {
-        var b = this, msg = "I ruled the " + E.n + " for " + Math.round(el) + "s in Empire: " + (win ? "I conquered Europe!" : beat ? "I beat history!" : "can you last longer?") + " " + location.href;
+        var b = this, msg = "I ruled the " + E.n + " for " + Math.round(el) + "s in Empire: " + (win ? (E.hist ? "I conquered Asia!" : "I conquered Europe!") : beat ? "I beat history!" : "can you last longer?") + " " + location.href;
         track("share_clicked", { empire: E.n });
         try { if (navigator.share) { navigator.share({ title: "Empire", text: msg }).catch(function () {}); return; } } catch (_) {}
         try { navigator.clipboard.writeText(msg); b.textContent = "Copied!"; } catch (_) { b.textContent = "Copy: " + location.href; }
@@ -2012,7 +2022,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     });
   }
   function draw() {
-    var d = im.data, tm = (Date.now() >> 8) & 3, i, x, y, o, f, c, ns, j, k, edge, sh0, PXW = !!(E.world && WORLD && WORLD.px), tw = PXW ? 0.42 : 0.3, tw1 = 1 - tw;
+    var d = im.data, tm = (Date.now() >> 8) & 3, i, x, y, o, f, c, ns, j, k, edge, sh0, PXW = !!(MODE === "world" && WORLD && WORLD.px), tw = PXW ? 0.42 : 0.3, tw1 = 1 - tw;
     for (i = 0; i < N; i++) {
       x = i % W; y = (i / W) | 0; o = land[i] ? own[i] : -2; f = ((E.world && !PXW) || !((x + y) & 1)) ? 1 : 0.86;
       if (o === -2) { ns = nb(i); sh0 = false; for (j = 0; j < ns.length; j++) if (land[ns[j]]) sh0 = true; c = sh0 ? [26, 78, 108] : [10, 34, 60]; f = ((x + y + tm) & 1) ? 0.9 : 1.06; }
@@ -2248,3 +2258,4 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   requestAnimationFrame(loop);
 })();
 </script></body></html>
+
