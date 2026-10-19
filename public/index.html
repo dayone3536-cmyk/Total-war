@@ -372,6 +372,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
   function facCost(o) { return 400 * (facN(o || 0) + 1); }
   function track(n, p) { try { posthog.capture(n, Object.assign({ game: "empire" }, p || {})); } catch (_) {} }
+  function tagPlayer() { try { posthog.identify(posthog.get_distinct_id(), { name: CMD }); posthog.register({ player_name: CMD }); } catch (_) {} }
   /* ================= WAR REPORT (phase 1) ================= */
   var REP = {}, reportOpen = false, repSel = null;
   var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -962,7 +963,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     E = { grace: 700, n: nm, y: 2026, end: 2126, par: 420, modern: true, world: true, cid: cid, tag: where + " today", win: "You held on through the whole century!", dif: dif, foes: others, me: [] };
     P = null; over = true; $("nm").innerHTML = "";
     var o = $("ov"); o.style.display = "flex";
-    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + esc(CMD || "You") + ", you rule</p><img src='" + wFlag(nm) + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1>" + nm + "</h1><p><b>2026</b> · " + where + " today</p><p>Survive <b>" + Math.round(E.par / 60) + " minutes</b> or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + dif + "</p><p style='opacity:.7;font-size:12px'>" + others.length + " rival nations</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div><div class='row'><button id='ch'>Choose another empire</button></div>" + voteHTML();
+    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + "You rule</p><img src='" + wFlag(nm) + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1>" + nm + "</h1><p><b>2026</b> · " + where + " today</p><p>Survive <b>" + Math.round(E.par / 60) + " minutes</b> or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + dif + "</p><p style='opacity:.7;font-size:12px'>" + others.length + " rival nations</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div><div class='row'><button id='ch'>Choose another empire</button></div>" + voteHTML();
     bindVote(o, "start"); bindLv(o); tuBind(o); $("go").onclick = function () { newGame(); }; $("ch").onclick = showPicker;
   }
   function focusYou() {   /* centre the view on your own country */
@@ -1780,7 +1781,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     var k; if (pick !== undefined) k = pick; else do { k = (Math.random() * EMP.length) | 0; } while (k === lastE); lastE = k; E = EMP[k];
     var o = $("ov"); o.style.display = "flex";
     var fu = flag(FLAG[E.n][3]), rv = E.foes.map(function (f) { return "<img class='fl' title='" + f[0] + "' src='" + flag(FLAG[f[0]] ? FLAG[f[0]][3] : "h:#888,#ccc") + "'>"; }).join("");
-    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + esc(CMD || "You") + ", you rule</p><img src='" + fu + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1 style='color:rgb(" + FLAG[E.n].slice(0, 3) + ")'>" + E.n + "</h1><p><b>" + E.y + "</b> · " + E.tag + "</p><p>Hold it longer than the real one lasted (until " + E.end + "), or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + (E.dif || "Fair fight") + "</p><p style='opacity:.7;font-size:12px'>Your rivals:" + rv + "</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div>" + (played() ? "<div class='row'><button id='ch'>Choose another empire</button></div>" : "") + voteHTML();
+    o.innerHTML = "<p style='opacity:.7;text-transform:uppercase'>" + "You rule</p><img src='" + fu + "' style='width:72px;height:48px;image-rendering:pixelated;border:2px solid #000'><h1 style='color:rgb(" + FLAG[E.n].slice(0, 3) + ")'>" + E.n + "</h1><p><b>" + E.y + "</b> · " + E.tag + "</p><p>Hold it longer than the real one lasted (until " + E.end + "), or <b>own " + Math.round(WIN * 100) + "% of the land</b> to win!</p><p style='color:#ffd27a;font-size:13px'>" + (E.dif || "Fair fight") + "</p><p style='opacity:.7;font-size:12px'>Your rivals:" + rv + "</p>" + tuBlock() + "" + lvHTML() + "<div class='row gor'><button class='p' id='go'>Take command</button></div>" + (played() ? "<div class='row'><button id='ch'>Choose another empire</button></div>" : "") + voteHTML();
     bindVote(o, "start"); bindLv(o); tuBind(o);
     $("go").onclick = function () { newGame(); }; if ($("ch")) $("ch").onclick = showPicker;
   }
@@ -2011,7 +2012,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     var el = ticks / 10, sh = P[0].cells / landN; peakShare = Math.max(peakShare, sh);
     var lbR = s.filter(function (p) { return p.cells > 0; }), lbT = lbR.slice(0, 3), lbM = lbR.indexOf(P[0]);
     if (lbM > 2) lbT.push(P[0]);
-    $("lb").innerHTML = LBC ? "<div>🏆 #" + (lbM + 1) + " · " + Math.round(sh * 100) + "%</div>" : lbT.map(function (p) { return "<div" + (p.id === 0 ? " class='me'" : "") + "><span>" + (lbR.indexOf(p) + 1) + "</span>" + (FL[p.id] ? "<img class='fl' src='" + FL[p.id] + "'>" : "") + "<span>" + (p.id === 0 ? esc(CMD || "You") : NAME[p.id]) + "</span><b style='margin-left:auto;padding-left:8px'>" + Math.round(p.cells / landN * 100) + "%</b></div>"; }).join("");
+    $("lb").innerHTML = LBC ? "<div>🏆 #" + (lbM + 1) + " · " + Math.round(sh * 100) + "%</div>" : lbT.map(function (p) { return "<div" + (p.id === 0 ? " class='me'" : "") + "><span>" + (lbR.indexOf(p) + 1) + "</span>" + (FL[p.id] ? "<img class='fl' src='" + FL[p.id] + "'>" : "") + "<span>" + (p.id === 0 ? "You" : NAME[p.id]) + "</span><b style='margin-left:auto;padding-left:8px'>" + Math.round(p.cells / landN * 100) + "%</b></div>"; }).join("");
     $("you").innerHTML = "<img class='fl' src='" + FL[0] + "'>" + E.n + " · " + yearNow(); $("trp").innerHTML = "Land " + Math.round(sh * 100) + "/" + Math.round(WIN * 100) + "% · Troops " + fm(P[0].troops) + (P[0].rate ? " (+" + fm(P[0].rate * 10) + "/s)" : "") + (facN(0) ? " · 🏭" + facN(0) : "") + "<br>Fleets " + fleetsOut(0, false) + "/" + fleetCap(0) + " \u00b7 Planes " + fleetsOut(0, true) + "/" + fleetCap(0);
     var fc = facCost(0), fbn = $("fb"), maxed = facN(0) >= MAXF;
     var fbh = maxed ? "<i>🏭</i><span>" + facN(0) + "/" + MAXF + "</span>" : "<i>🏭</i><span>" + fm(fc) + "</span>"; if (fbn._h !== fbh) { fbn._h = fbh; fbn.innerHTML = fbh; } fbn.title = "Factory (" + facN(0) + "/" + MAXF + ")";
@@ -2214,7 +2215,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   $("lb").onclick = function () { LBC = !LBC; if (P && P[0] && !over) hud(); };
   $("vm").onclick = function () { this.style.display = "none"; $("ov").style.display = "flex"; };
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("button")) { try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} } });
-  askName(function () { intro(); });
+  askName(function () { tagPlayer(); intro(); });
   var lastT = performance.now(), acc = 0;
   setInterval(function () { var n = performance.now(), d = n - lastT; lastT = n; if (!P || paused || document.hidden) { acc = 0; return; } acc += Math.min(d, 500); while (acc >= 100) { acc -= 100; tick(); } }, 50);
   setInterval(function () { if (P && P[0] && !over) { hud(); labels(); } }, 500);
