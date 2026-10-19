@@ -306,6 +306,18 @@ html.end #hud,html.end #bl{opacity:0;pointer-events:none}
 .pw-md button.on{background:#fff;color:#0b1118}
 .pw-h3{margin-top:28px!important}.pw-rm{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04);padding:12px 14px;font-size:13px;line-height:1.6}.pw-rm img{display:block;width:100%;border-radius:10px;margin-bottom:12px}.rm-n{display:flex;gap:10px;margin-bottom:10px}.rm-n div{flex:1;text-align:center;padding:10px 4px;border-radius:10px;background:rgba(255,255,255,.05)}.rm-n b{display:block;font-size:20px}.rm-n span{font-size:11px;color:var(--mute)}.pw-rm p{margin:0 0 8px}.pw-rm ul{margin:0 0 8px;padding-left:18px}.pw-rm li{margin-bottom:4px}.pw-rm small{color:var(--mute)}
 button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
+
+/* ---- breathing room + tutorial heading ---- */
+#ov{padding:32px 20px 24px}
+#ov p{margin:7px 0}
+#ov h1{margin:10px 0 14px}
+.tu{margin:28px 0 20px}
+.tuh{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#ffd27a;text-align:center;margin:0 0 14px}
+.tup{margin:14px 2px 8px}
+.tuf{margin:10px 2px 0}
+.lv{margin:18px 0 8px}
+#ov .row{margin-top:10px}
+#ov .gor{margin-top:16px}
 </style></head><body>
 <div id="app">
  <div id="wrap">
@@ -1754,7 +1766,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   }
   window.addEventListener("resize", function () { if (TU) { try { tuSize(TU); } catch (_) {} } });
   function tuCard() {
-    return "<div class='tu' id='tu'><div class='tum' id='tum'><canvas id='tuc' width='300' height='200'></canvas><div class='tur' id='tur'>\u21BB Tap to replay</div></div>" +
+    return "<div class='tu' id='tu'><div class='tuh'>Tutorial</div><div class='tum' id='tum'><canvas id='tuc' width='300' height='200'></canvas><div class='tur' id='tur'>\u21BB Tap to replay</div></div>" +
       "<div class='tup'><i><b></b></i><i><b></b></i><i><b></b></i></div><div class='tul'><span>LAND</span><span>AIR</span><span>SEA</span></div>" +
       "<div class='tuk' id='tuk'><b id='tut'>YOUR EMPIRE</b><span id='tud'></span></div><div class='tuf'>\uD83C\uDFED Factories \u00B7 more troops, fleets and planes</div></div>";
   }
