@@ -384,6 +384,44 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
   function facCost(o) { return 400 * (facN(o || 0) + 1); }
   function track(n, p) { try { posthog.capture(n, Object.assign({ game: "empire" }, p || {})); } catch (_) {} }
+
+
+  var CLIP_URL = "https://empire-vlnb.onrender.com";
+
+
+  var clipSent = false;
+  function recordClip(empireName, level) {
+    if (clipSent || !window.MediaRecorder) return;
+    clipSent = true;
+    var out = document.createElement("canvas");
+    out.width = 360; out.height = 640;
+    var ctx = out.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    var running = true;
+    (function paint() {
+      if (!running) return;
+      ctx.fillStyle = "#090e13";
+      ctx.fillRect(0, 0, 360, 640);
+      ctx.drawImage(cv, 0, 50, 360, 540);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 20px system-ui"; ctx.textAlign = "center";
+      ctx.fillText(empireName, 180, 32);
+      requestAnimationFrame(paint);
+    })();
+    var mime = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"]
+      .find(function (m) { return MediaRecorder.isTypeSupported(m); });
+    var rec = new MediaRecorder(out.captureStream(30), { mimeType: mime, videoBitsPerSecond: 1500000 });
+    var chunks = [];
+    rec.ondataavailable = function (e) { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = function () {
+      running = false;
+      var blob = new Blob(chunks, { type: "video/webm" });
+      fetch(CLIP_URL + "?empire=" + encodeURIComponent(empireName) + "&level=" + encodeURIComponent(level),
+        { method: "POST", headers: { "Content-Type": "video/webm" }, body: blob }).catch(function () {});
+    };
+    rec.start();
+    setTimeout(function () { if (rec.state === "recording") rec.stop(); }, 10000);
+  }
+
   function tagPlayer() { try { posthog.identify(posthog.get_distinct_id(), { name: CMD }); posthog.register({ player_name: CMD }); } catch (_) {} }
   /* ================= WAR REPORT (phase 1) ================= */
   var REP = {}, reportOpen = false, repSel = null;
@@ -1845,7 +1883,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     P.forEach(function (p) { var nm = NAME[p.id], cn = E.world ? nm : CAPN[nm], k, f = null; if (cn) for (k = 0; k < CITY.length; k++) if (CITY[k].n === cn && own[CITY[k].i] === p.id) f = CITY[k]; if (!f) for (k = 0; k < CITY.length; k++) if (own[CITY[k].i] === p.id) { f = CITY[k]; break; } p.cap = f ? f.n : null; });
     Z = 1; PX = 0; PY = 0; zapply(); focusYou(); closeOffer(); $("dp").style.display = "none";
     $("ov").style.display = "none"; toast(LV().e + " " + LV().n + " · You rule the " + E.n + " in " + E.y + ". Tap a border to attack, or deep inside for planes!", 4000);
-    track("game_started", { level: lvKey(), empire: E.n, year: E.y, rivals: E.foes.length });
+    track("game_started", { level: lvKey(), empire: E.n, year: E.y, rivals: E.foes.length }); clipSent = false; setTimeout(function () { if (!over && P) recordClip(E.n, lvKey()); }, 20000);
   }
   function neighbours(p) {
     var near = {}, i, j, ns;
