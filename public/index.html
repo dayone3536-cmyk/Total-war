@@ -318,12 +318,46 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 .lv{margin:18px 0 8px}
 #ov .row{margin-top:10px}
 #ov .gor{margin-top:16px}
+/* ---- optional landscape mode (phones; switches on only when the phone is rotated) ---- */
+#fs,#lf{display:none}
+html.land #fs,html.land #lf{display:flex;align-items:center;justify-content:center}
+#fs[hidden]{display:none!important}
+#tr button svg{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#tr button.on{background:#fff;color:#0b1118}
+#lh{position:fixed;left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100vw - 32px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:120;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 12px;border:1px solid var(--line);border-radius:20px;background:rgba(14,21,29,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 12px 40px rgba(0,0,0,.55);touch-action:none;cursor:grab;animation:lhin .55s var(--ease)}
+@keyframes lhin{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+#lh .lhi{flex:none;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center}
+#lh .lhi svg{width:20px;height:20px;fill:none;stroke:#ffd27a;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#lh .lht{display:flex;flex-direction:column;gap:2px;min-width:0}
+#lh .lht b{font-size:13px;font-weight:700;letter-spacing:.02em}
+#lh .lht span{font-size:12px;color:var(--mute);line-height:1.3}
+#lh .lhs{flex:none;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);animation:lhn 1.6s ease-in-out infinite;white-space:nowrap}
+@keyframes lhn{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(3px);opacity:1}}
+@media (orientation:landscape) and (max-height:520px){
+ #top{max-width:34vw;left:calc(env(safe-area-inset-left,0px) + 12px)}
+ #tr{right:calc(env(safe-area-inset-right,0px) + 12px)}
+ #lb{left:calc(env(safe-area-inset-left,0px) + 12px);right:auto;top:calc(env(safe-area-inset-top,0px) + 80px);max-width:170px;min-width:0}
+ #bl{left:calc(env(safe-area-inset-left,0px) + 12px);right:auto;width:min(34vw,280px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+ #hud{left:auto;right:calc(env(safe-area-inset-right,0px) + 14px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+ #hud .row{flex-direction:column;width:auto;gap:10px}
+ #hud button{width:50px;min-width:50px;height:50px;min-height:50px}
+ #hud button i{font-size:21px}
+ #hud button span{font-size:9px}
+ #toast{top:calc(env(safe-area-inset-top,0px) + 10px);max-width:min(38vw,340px)}
+ #of{left:0;right:0;margin:0 auto;width:min(480px,46vw);bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+ #mm{left:auto;right:calc(env(safe-area-inset-right,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 58px)}
+ #ov{padding:14px 20px 12px}
+ #ov h1{font-size:22px;margin:4px 0 8px}
+ #ov .row,#ov button{min-height:44px}
+ #xc .xb{padding:16px 18px 14px}
+}
+@media (orientation:landscape) and (max-height:520px){#nmp{padding:10px 24px!important}#nmp svg{width:44px!important;height:53px!important;margin-bottom:6px!important}#nmp label{font-size:17px!important;margin-bottom:8px!important}#nmp input,#nmp #cmdGo{height:40px!important}#nmp #cmdGo{margin-top:8px!important}#nmp>:first-child{margin-bottom:4px!important}}
 </style></head><body>
 <div id="app">
  <div id="wrap">
   <div id="bx"><div id="zm"><canvas id="c" width="80" height="120"></canvas><div id="nm"></div><div id="mv"></div></div></div>
   <div id="top" class="fd"><span id="you"></span><span id="trp"></span></div>
-  <div id="tr"><button id="rp" title="War report" aria-label="War report">📜</button><button id="ex" title="Exit" aria-label="Exit">✕</button></div>
+  <div id="tr"><button id="lf" title="Whole map / zoom in" aria-label="Whole map or zoom in"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><rect x="9.5" y="8.5" width="5" height="7" rx="1"/></svg></button><button id="fs" title="Full screen" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button id="rp" title="War report" aria-label="War report">📜</button><button id="ex" title="Exit" aria-label="Exit">✕</button></div>
   <div id="lb" class="gl fd"></div>
   <div id="bl" class="fd"><div id="hb"><i id="hf"></i><span id="hl"></span></div></div>
   <div id="hud"><div class="row"><button id="sb" title="Troops to send" aria-label="Troops to send"><i>⚔️</i><span>50%</span></button><button id="dpb" title="Pacts" aria-label="Diplomacy"><i>🤝</i></button><button id="fb" title="Factory" aria-label="Build factory"><i>🏭</i><span></span></button></div></div>
@@ -344,8 +378,8 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function askName(done) {
     if (CMD) { done(); return; }
-    var d = document.createElement("div");
-    d.style.cssText = "position:fixed;inset:0;z-index:99;background:#090e13;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center";
+    var d = document.createElement("div"); d.id = "nmp";
+    d.style.cssText = "position:fixed;inset:0;overflow:auto;z-index:99;background:#090e13;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center";
     d.innerHTML = "<div style='font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-bottom:10px'>Empire</div>" +
       "<svg viewBox='0 0 100 120' width='96' height='115' style='margin-bottom:14px;filter:drop-shadow(0 4px 10px rgba(255,200,60,.35))'><defs><linearGradient id='mdG' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff2a8'/><stop offset='.45' stop-color='#f5c542'/><stop offset='1' stop-color='#b8860b'/></linearGradient><linearGradient id='mdR' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#d93a3a'/><stop offset='1' stop-color='#8f1d1d'/></linearGradient></defs><path d='M26 0h20l14 46H40z' fill='url(#mdR)'/><path d='M74 0H54L40 46h20z' fill='#b02a2a'/><circle cx='50' cy='74' r='36' fill='url(#mdG)' stroke='#8a6508' stroke-width='2.5'/><circle cx='50' cy='74' r='28' fill='none' stroke='#fff6c4' stroke-opacity='.7' stroke-width='1.8'/><path d='M50 54l5.9 12.4 13.6 1.7-10 9.4 2.6 13.5L50 84.2l-12.1 6.8 2.6-13.5-10-9.4 13.6-1.7z' fill='#fffbe0' stroke='#9a6f0a' stroke-width='1.6' stroke-linejoin='round'/></svg>" +
       "<label for='cmdIn' style='font-size:22px;font-weight:700;margin-bottom:16px'>Your name, commander:</label>" +
@@ -2212,9 +2246,11 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   mm.addEventListener("pointerup", function () { mmDown = false; });
   function loop(ts) { if (P && !document.hidden && ts - lastF > 48) { lastF = ts; draw(); movers(); drawMM(); } requestAnimationFrame(loop); }
   var Z = 1, PX = 0, PY = 0, ptrs = {}, moved = false, pinch0 = 0, zbox = $("bx"), zm = $("zm");
+  var LAND = window.matchMedia("(orientation:landscape) and (max-height:520px)"), LFIT = true;
+  try { LFIT = localStorage.getItem("emp_lfit") !== "0"; } catch (_) {}
   function csz() {
     var bw = zbox.clientWidth, bh = zbox.clientHeight, ar = W / H, cw, ch;
-    var wf = bw / bh > ar; if (bw < bh) wf = !wf;
+    var wf = bw / bh > ar; if (bw < bh) wf = !wf; if (LAND.matches && LFIT) wf = false;
     if (wf) { cw = bw; ch = bw / ar; } else { ch = bh; cw = bh * ar; }
     return { bw: bw, bh: bh, cw: cw, ch: ch, zmin: Math.min(1, bh / ch, bw / cw) * 0.95 };
   }
@@ -2289,6 +2325,72 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   $("lb").onclick = function () { LBC = !LBC; if (P && P[0] && !over) hud(); };
   $("vm").onclick = function () { this.style.display = "none"; $("ov").style.display = "flex"; };
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("button")) { try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} } });
+  /* ---- optional landscape mode ---- */
+  (function () {
+    var root = document.documentElement, fsB = $("fs"), lfB = $("lf");
+    var fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+    if (!fsOK) fsB.hidden = true;
+    function fsEl() { return document.fullscreenElement || document.webkitFullscreenElement; }
+    fsB.onclick = function () {
+      try {
+        if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+        var rq = root.requestFullscreen || root.webkitRequestFullscreen, pr = rq.call(root);
+        var lock = function () { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {}); } catch (_) {} };
+        if (pr && pr.then) pr.then(lock, function () {}); else lock();
+      } catch (_) {}
+    };
+    function fsChange() {
+      var on = !!fsEl(); fsB.classList.toggle("on", on); fsB.title = on ? "Exit full screen" : "Full screen"; fsB.setAttribute("aria-label", fsB.title);
+      if (!on) { try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (_) {} }
+      setTimeout(function () { try { zapply(); } catch (_) {} }, 250);
+    }
+    document.addEventListener("fullscreenchange", fsChange); document.addEventListener("webkitfullscreenchange", fsChange);
+
+    function fitUI() { lfB.classList.toggle("on", !LFIT); lfB.title = LFIT ? "Zoom to fill the screen" : "Show the whole map"; lfB.setAttribute("aria-label", lfB.title); }
+    lfB.onclick = function () {
+      LFIT = !LFIT; try { localStorage.setItem("emp_lfit", LFIT ? "1" : "0"); } catch (_) {}
+      fitUI(); Z = 1; zapply(); if (!LFIT && P && P[0]) { try { focusYou(); } catch (_) {} }
+    };
+    fitUI();
+
+    var hint = null, hintT = 0, shown = false, N = 0;
+    try { N = +localStorage.getItem("emp_lhn") || 0; } catch (_) {}
+    function hideHint(dir) {
+      if (!hint) return; var h = hint; hint = null; clearTimeout(hintT);
+      h.style.transition = "transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s";
+      h.style.transform = "translateX(" + (dir * window.innerWidth * 0.55) + "px)"; h.style.opacity = "0";
+      setTimeout(function () { if (h.parentNode) h.parentNode.removeChild(h); }, 330);
+    }
+    function showHint() {
+      if (shown || hint || N >= 3) return;
+      if (document.getElementById("nmp")) { setTimeout(showHint, 700); return; }
+      shown = true;
+      try { localStorage.setItem("emp_lhn", String(++N)); } catch (_) {}
+      var h = document.createElement("div"); h.id = "lh"; h.setAttribute("role", "status");
+      h.innerHTML = '<div class="lhi"><svg viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M18.5 12h.01"/></svg></div>' +
+        '<div class="lht"><b>Landscape mode on &middot; swipe to dismiss</b><span>' + (fsOK ? "Full screen: tap the top-right button" : "Pinch to zoom, drag to move") + '</span></div>' +
+        '<div class="lhs" aria-hidden="true">&lsaquo;&nbsp;&nbsp;&rsaquo;</div>';
+      var sx = 0, dx = 0, down = false;
+      h.addEventListener("pointerdown", function (e) { down = true; sx = e.clientX; dx = 0; clearTimeout(hintT); h.style.animation = "none"; h.style.transition = "none"; try { h.setPointerCapture(e.pointerId); } catch (_) {} });
+      h.addEventListener("pointermove", function (e) { if (!down) return; dx = e.clientX - sx; h.style.transform = "translateX(" + dx + "px)"; h.style.opacity = Math.max(.25, 1 - Math.abs(dx) / 240); });
+      function end() {
+        if (!down) return; down = false;
+        if (Math.abs(dx) > 45) { try { localStorage.setItem("emp_lhn", String(N + 1)); } catch (_) {} hideHint(dx < 0 ? -1 : 1); return; }
+        h.style.transition = "transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s"; h.style.transform = "none"; h.style.opacity = "1";
+        hintT = setTimeout(function () { hideHint(1); }, 4000);
+      }
+      h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end);
+      document.body.appendChild(h); hint = h;
+      hintT = setTimeout(function () { hideHint(1); }, 8000);
+    }
+    function onLand(first) {
+      var l = LAND.matches; root.classList.toggle("land", l);
+      setTimeout(function () { try { Z = 1; zapply(); if (l && !LFIT && P && P[0]) focusYou(); } catch (_) {} }, 320);
+      if (l) setTimeout(showHint, first ? 1200 : 350); else hideHint(1);
+    }
+    if (LAND.addEventListener) LAND.addEventListener("change", function () { onLand(false); }); else if (LAND.addListener) LAND.addListener(function () { onLand(false); });
+    onLand(true);
+  })();
   askName(function () { tagPlayer(); intro(); });
   var lastT = performance.now(), acc = 0;
   setInterval(function () { var n = performance.now(), d = n - lastT; lastT = n; if (!P || paused || document.hidden) { acc = 0; return; } acc += Math.min(d, 500); while (acc >= 100) { acc -= 100; tick(); } }, 50);
@@ -2296,4 +2398,3 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   requestAnimationFrame(loop);
 })();
 </script></body></html>
-
