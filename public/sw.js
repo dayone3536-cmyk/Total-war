@@ -1,5 +1,5 @@
 // Bump VERSION on every deploy so players get an "Update ready" prompt.
-const VERSION = "empire-v1";
+const VERSION = "empire-v2";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png", "./icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
