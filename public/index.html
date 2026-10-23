@@ -319,6 +319,37 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 .lv{margin:18px 0 8px}
 #ov .row{margin-top:10px}
 #ov .gor{margin-top:16px}
+
+/* ---- first-run tutorial: full-screen over the map, new players only ---- */
+#tub{display:none;position:absolute;inset:0;z-index:7;box-sizing:border-box;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);background:radial-gradient(120% 55% at 50% 0%,rgba(255,210,122,.13),transparent 62%),#070b10;animation:tbin .45s var(--ease) both}
+@keyframes tbin{from{opacity:0}to{opacity:1}}
+@keyframes tbup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#tub>*{width:100%;max-width:560px;flex:none;animation:tbup .6s var(--ease) both}
+#tub>:nth-child(2){animation-delay:.08s}#tub>:nth-child(3){animation-delay:.16s}
+#tub .tbh{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
+#tub .tbh div{text-align:left}
+#tub .tbh small{display:block;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);margin-bottom:3px}
+#tub .tbh b{display:block;font-size:24px;font-weight:800;letter-spacing:.02em;color:#fff}
+#tub button{flex:none;border-radius:999px;font-weight:700}
+#tub #tus2{min-height:40px;padding:0 20px;font-size:13px}
+#tub .tu{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;margin:0;max-width:560px;animation:none}
+#tub .tum{flex:1 1 auto;min-height:170px;position:relative;border-radius:22px;border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 70px rgba(0,0,0,.65),0 0 0 7px rgba(255,255,255,.03)}
+#tub .tum canvas{position:absolute;left:0;top:0;width:100%;height:100%}
+#tub .tur{font-size:11px;right:14px;bottom:11px}
+#tub .tup{margin:18px 2px 10px;gap:6px}
+#tub .tup i{height:5px;border-radius:3px}
+#tub .tul{margin:0 0 12px;gap:8px;font-size:12px}
+#tub .tul span{text-align:center;padding:8px 0;border-radius:999px;border:1px solid var(--line);transition:background .3s,color .3s}
+#tub .tul span.on{background:#ffd27a;color:#17110a;border-color:transparent}
+#tub .tuk{min-height:96px;padding:0 2px}
+#tub .tuk b{font-size:15px;letter-spacing:.16em;margin-bottom:5px}
+#tub .tuk span{font-size:19px;line-height:1.4;color:#fff;font-weight:500}
+#tub .tbb{margin-top:6px}
+#tub .tbb button{width:100%;min-height:60px;font-size:17px;letter-spacing:.01em;background:rgba(255,255,255,.09)}
+#tub button.on{background:#fff;color:#0b1118;border-color:transparent;animation:tbg 1.8s ease-in-out infinite}
+@keyframes tbg{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 9px rgba(255,255,255,0)}}
+#tub .tbn{margin:10px 0 0;font-size:12px;text-align:center;color:var(--mute)}
+@media (max-height:560px){#tub .tul,#tub .tbn{display:none}#tub .tuk{min-height:56px}#tub .tuk span{font-size:15px}#tub .tbb button{min-height:48px}#tub .tbh b{font-size:18px}}
 </style></head><body>
 <div id="app">
  <div id="wrap">
@@ -331,6 +362,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   <canvas id="mm" width="90" height="135"></canvas>
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="of"><span id="ot" style="flex:1"></span><div><button id="oy" class="p">Accept</button><button id="on">Decline</button></div></div>
+  <div id="tub" role="dialog" aria-label="How to play"></div>
   <div id="dp"></div><div id="rpt"></div>
   <div id="bn"></div><button id="vm" class="p">Results</button>
   <div id="ov"></div>
@@ -1194,7 +1226,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
      Uses the game's own land grid, owner seats, colours, flags, terrain colours, pixel sprites (spr),
      xy() projection and setMap() grid size, and the same draw() look. It runs on its OWN copies of the
      arrays, so it never touches the real game, saves or timers, and stops when the intro screen closes. */
-  var TU = null, TUP = null, TUI = {};
+  var TU = null, TUP = null, TUI = {}, tuHold = false, tuMem = false;
   function tuImg(u) { var m = TUI[u]; if (!m) { m = new Image(); m.src = u; TUI[u] = m; } return m; }
   function tuRed() { try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { return false; } }
   function tuRng(s) { return function () { s = (s + 0x6D2B79F5) | 0; var t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -1202,7 +1234,8 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   function tuIO(u) { u = u < 0 ? 0 : u > 1 ? 1 : u; return u * u * (3 - 2 * u); }
   function tuOut(u) { u = u < 0 ? 0 : u > 1 ? 1 : u; return 1 - Math.pow(1 - u, 3); }
   function tuCl(v, a, b) { return v < a ? a : v > b ? b : v; }
-  function tuStop() { try { $("ov").classList.remove("tuo"); } catch (_) {} if (TU) { TU.dead = true; if (TU.raf) cancelAnimationFrame(TU.raf); } TU = null; }
+  function tuHalt() { if (TU) { TU.dead = true; if (TU.raf) cancelAnimationFrame(TU.raf); } TU = null; }
+  function tuStop() { tuHalt(); tuHold = false; var b = $("tub"); if (b) { b.style.display = "none"; b.innerHTML = ""; } }
 
   /* copies of the game's land / owner / colour / terrain data for the current empire or country */
   function tuData() {
@@ -1734,7 +1767,11 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   }
 
   function tuSize(T) {
-    var c = T.c, cssW = Math.max(160, Math.round(c.parentNode.clientWidth || 300)), cssH = Math.round(Math.max(120, Math.min(cssW * 0.66, window.innerHeight * 0.4)));
+    var c = T.c, pn = c.parentNode, cssW, cssH;
+    if (T.mini) { pn.style.flex = ""; pn.style.height = ""; }
+    cssW = Math.max(160, Math.round(pn.clientWidth || 300));
+    cssH = T.mini ? Math.round(tuCl(Math.min(pn.clientHeight || 200, cssW * 0.8), 120, 520)) : Math.round(Math.max(120, Math.min(cssW * 0.66, window.innerHeight * 0.4)));
+    if (T.mini) { pn.style.flex = "0 0 auto"; pn.style.height = cssH + "px"; }
     T.dpr = Math.min(2.5, window.devicePixelRatio || 1); c.style.height = cssH + "px";
     T.cw = Math.round(cssW * T.dpr); T.ch = Math.round(cssH * T.dpr); c.width = T.cw; c.height = T.ch;
     tuViews(T);
@@ -1743,18 +1780,18 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   function tuLoop(ts) {
     var T = TU; if (!T || T.dead) return;
     var c = T.c, conn = c.isConnected !== undefined ? c.isConnected : document.body.contains(c);
-    if (!conn || $("ov").style.display === "none") { tuStop(); return; }
+    if (!conn || !tuHold) { tuHalt(); return; }
     T.raf = requestAnimationFrame(tuLoop);
     var dt = Math.min(64, Math.max(0, ts - T.last)); T.last = ts;
     if (document.hidden) return;
     if (++T.fr % 12 === 0) { var rc = c.getBoundingClientRect(); T.vis = rc.bottom > 0 && rc.top < window.innerHeight; }
     if (!T.vis) return;
-    T.clock += dt; T.t += dt; if (T.t >= T.plan.tl.end) T.t = 0;
+    T.clock += dt; T.t += dt; if (T.t >= T.plan.tl.end) { T.t = T.t0; tuLooped(T); }
     tuFrame(T, T.t);
   }
   function tuLaunch(pl) {
-    tuStop(); var c = $("tuc"); if (!c || !pl) return;
-    var T = { plan: pl, c: c, g: c.getContext("2d"), t: 0, clock: 0, last: performance.now(), fix: null, dead: false, cap: null, fr: 0, vis: true, red: tuRed(), raf: 0 };
+    tuHalt(); var c = $("tuc"); if (!c || !pl) return;
+    var t0 = pl.stages.length ? Math.max(0, pl.stages[0].t0 - 1500) : 0, T = { plan: pl, c: c, g: c.getContext("2d"), t: t0, t0: t0, clock: 0, last: performance.now(), fix: null, dead: false, cap: null, fr: 0, vis: true, red: tuRed(), raf: 0, loops: 0, mini: !!(c.closest && c.closest("#tub")) };
     T.oc = document.createElement("canvas"); T.oc.width = pl.w; T.oc.height = pl.h; T.og = T.oc.getContext("2d"); T.id = T.og.createImageData(pl.w, pl.h);
     T.buf = new Int8Array(pl.n); T.hotT = new Float32Array(pl.n);
     T.ti = $("tut"); T.td = $("tud"); T.kk = $("tuk"); T.segs = $("tu").querySelectorAll(".tup i"); T.lbs = $("tu").querySelectorAll(".tul span");
@@ -1762,30 +1799,41 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     pl.flags.forEach(function (f) { tuImg(f); });
     if (T.red) { T.fix = pl.tl.end - 250; $("tur").style.display = "none"; }
     TU = T; tuSize(T);
-    $("tum").onclick = function () { if (TU === T && !T.red) { T.t = 0; } };
+    $("tum").onclick = function () { if (TU === T && !T.red) { T.t = T.t0; } };
     if (!T.red) T.raf = requestAnimationFrame(tuLoop);
   }
   window.addEventListener("resize", function () { if (TU) { try { tuSize(TU); } catch (_) {} } });
+  /* The tutorial is no longer on the start screen. New players get it once, in a small box over the map right after "Take command". */
+  function tuSeen() { if (tuMem) return true; try { return !!localStorage.getItem("pw_tut_seen"); } catch (e) { return false; } }
+  function tuMark() { tuMem = true; try { localStorage.setItem("pw_tut_seen", "1"); } catch (e) {} }
   function tuCard() {
-    return "<div class='tu' id='tu'><div class='tuh'>Tutorial</div><div class='tum' id='tum'><canvas id='tuc' width='300' height='200'></canvas><div class='tur' id='tur'>\u21BB Tap to replay</div></div>" +
+    return "<div class='tbh'><div><small>Quick guide</small><b>How to play</b></div><button id='tus2'>Skip</button></div>" +
+      "<div class='tu' id='tu'><div class='tum' id='tum'><canvas id='tuc' width='300' height='200'></canvas><div class='tur' id='tur'>\u21BB Tap to replay</div></div>" +
       "<div class='tup'><i><b></b></i><i><b></b></i><i><b></b></i></div><div class='tul'><span>LAND</span><span>AIR</span><span>SEA</span></div>" +
-      "<div class='tuk' id='tuk'><b id='tut'>YOUR EMPIRE</b><span id='tud'></span></div><div class='tuf'>\uD83C\uDFED Factories \u00B7 more troops, fleets and planes</div></div>";
+      "<div class='tuk' id='tuk'><b id='tut'>YOUR EMPIRE</b><span id='tud'></span></div></div>" +
+      "<div class='tbb'><button id='tus'>Skip tutorial</button><div class='tbn'>Your game is paused until you continue.</div></div>";
   }
-  /* first-time players get the demo straight away; returning players get a "How to play" button */
-  function tuBlock() {
-    if (!played()) { TUP = tuPlanSafe(); if (TUP) return tuCard(); }
-    return "<div class='row' id='tuhr'><button id='tuhb'>\u25B6 How to play</button></div>";
-  }
-  function tuBind(o) {
-    var b = $("tuhb");
-    if (b) b.onclick = function () {
-      var pl = tuPlanSafe(), r = $("tuhr"); if (!pl || !r) { b.textContent = "Demo not available here"; b.disabled = true; return; }
-      r.outerHTML = tuCard(); track("howto_opened", { empire: E.n }); tuLaunch(pl); o.classList.add("tuo");
-      try { $("tu").scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (_) {}
+  function tuBlock() { return ""; }
+  function tuBind() {}
+  function tuLooped(T) { T.loops++; if (T.loops === 1 && T.done) T.done(); }
+  function tuNudge() { var b = $("tub"); if (!b) return; b.classList.remove("nu"); void b.offsetWidth; b.classList.add("nu"); }
+  function tuOpen() {
+    var b = $("tub"), pl, T, s, t0 = performance.now();
+    if (!b || played() || tuSeen()) return;
+    pl = tuPlanSafe(); if (!pl) return;
+    b.className = ""; b.innerHTML = tuCard(); b.style.display = "flex";
+    tuHold = true; tuLaunch(pl); T = TU;
+    if (!T) { tuStop(); return; }
+    s = $("tus");
+    T.done = function () { s.textContent = "Start playing"; s.className = "on"; };
+    if (T.red) T.done();
+    track("tutorial_shown", { empire: E.n });
+    s.onclick = $("tus2").onclick = function () {
+      var full = T.loops > 0 || T.red;
+      track(full ? "tutorial_completed" : "tutorial_skipped", { empire: E.n, watched_ms: Math.round(performance.now() - t0), loops: T.loops });
+      tuMark(); tuStop();
     };
-    else if ($("tuc")) { var pl2 = TUP; TUP = null; if (pl2) { tuLaunch(pl2); o.classList.add("tuo"); } }
   }
-
 
   function intro(pick) {
     if (!CMD) { askName(function () { tagPlayer(); intro(pick); }); return; }
@@ -1824,6 +1872,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     Z = 1; PX = 0; PY = 0; zapply(); focusYou(); closeOffer(); $("dp").style.display = "none";
     $("ov").style.display = "none"; toast(LV().e + " " + LV().n + " · You rule the " + E.n + " in " + E.y + ". Tap a border to attack, or deep inside for planes!", 4000);
     track("game_started", { level: lvKey(), empire: E.n, year: E.y, rivals: E.foes.length });
+    tuOpen();
   }
   function neighbours(p) {
     var near = {}, i, j, ns;
@@ -2171,6 +2220,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   function zoomAt(f, x, y) { var s = csz(), nz = Math.max(s.zmin, Math.min(MODE === "world" ? 14 : 7, Z * f)); f = nz / Z; PX = x - (x - PX) * f; PY = y - (y - PY) * f; Z = nz; zapply(); }
   function pdist() { var k = Object.keys(ptrs); if (k.length < 2) return 0; var a = ptrs[k[0]], b = ptrs[k[1]]; return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)); }
   function tap(cX, cY) {
+    if (tuHold) { tuNudge(); return; }
     if (over || !P || paused) return;
     var r = cv.getBoundingClientRect(), x = ((cX - r.left) / r.width * W) | 0, y = ((cY - r.top) / r.height * H) | 0, c = y * W + x;
     if (x < 0 || y < 0 || x >= W || y >= H) return;
@@ -2231,7 +2281,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("button")) { try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} } });
   askName(function () { tagPlayer(); intro(); });
   var lastT = performance.now(), acc = 0;
-  setInterval(function () { var n = performance.now(), d = n - lastT; lastT = n; if (!P || paused || document.hidden) { acc = 0; return; } acc += Math.min(d, 500); while (acc >= 100) { acc -= 100; tick(); } }, 50);
+  setInterval(function () { var n = performance.now(), d = n - lastT; lastT = n; if (!P || paused || tuHold || document.hidden) { acc = 0; return; } acc += Math.min(d, 500); while (acc >= 100) { acc -= 100; tick(); } }, 50);
   setInterval(function () { if (P && P[0] && !over) { hud(); labels(); } }, 500);
   requestAnimationFrame(loop);
 })();
