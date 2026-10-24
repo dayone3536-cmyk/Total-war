@@ -370,49 +370,17 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 .pw-mp{position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04)}
 .pw-mp.arm{border-color:#9fd0ff;box-shadow:0 0 0 2px rgba(159,208,255,.5),0 0 34px rgba(90,167,230,.35);cursor:crosshair}
 .pw-mp canvas{touch-action:pan-y}
-.pw-air{position:relative;overflow:hidden;margin:4px 0 8px;padding:16px 14px 14px;border-radius:20px;border:1px solid rgba(159,208,255,.3);background:radial-gradient(120% 120% at 0% 0%,rgba(80,160,235,.28),transparent 58%),radial-gradient(90% 90% at 100% 100%,rgba(255,210,122,.12),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 18px 44px rgba(0,0,0,.45)}
-.pw-air::before{content:"";position:absolute;left:-30%;top:0;width:30%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:paSweep 5s ease-in-out infinite;pointer-events:none}
+.pw-mp.arm canvas{touch-action:none;cursor:grab}
+.pw-air{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
 .pw-air.off{opacity:.55}
+.pa-b{flex:1;min-height:50px;border-radius:16px;font-size:15px;font-weight:700}
+.pa-b.go{background:#fff;color:#0b1118;border-color:transparent}
+.pa-b:disabled{opacity:.4}
+.pa-x{flex:none;width:50px;min-height:50px;padding:0;border-radius:16px;font-size:15px}
+.pa-hint{flex:0 0 100%;margin:0;text-align:center;font-size:12px;line-height:1.4;color:var(--mute)}
 .pw-zm{position:absolute;top:10px;right:10px;display:flex;gap:4px;z-index:2}
 .pw-zm button{min-height:0;padding:6px 11px;font-size:11px;font-weight:700;border-radius:999px;background:rgba(9,14,19,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .pw-zm button.on{background:#fff;color:#0b1118}
-.pa-top{display:flex;align-items:center;gap:12px}
-.pa-ic{flex:none;width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:25px;background:linear-gradient(145deg,#8ad0ff,#2f6fd8);box-shadow:0 8px 22px rgba(47,111,216,.55),inset 0 1px 0 rgba(255,255,255,.5)}
-.pa-ic span{display:block;animation:paFly 3.4s ease-in-out infinite}
-.pa-ttl{min-width:0}
-.pa-ttl b{display:block;font-size:14px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#fff}
-.pa-ttl small{display:block;font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35}
-.pa-sq{display:flex;gap:5px;margin-left:auto;align-items:flex-end}
-.pa-sq i{display:block;width:9px;height:24px;border-radius:3px 3px 2px 2px;background:rgba(255,255,255,.14);clip-path:polygon(50% 0,100% 28%,100% 100%,0 100%,0 28%)}
-.pa-sq i.rd{background:#7dff9a;box-shadow:0 0 10px rgba(125,255,154,.6)}
-.pa-sq i.out{background:#ffb23a}
-.pa-pct{display:flex;gap:6px;margin-top:14px;align-items:center}
-.pa-pct em{flex:none;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-right:2px}
-.pa-pct button{flex:1;padding:8px 0;font-size:12px;border-radius:12px}
-.pa-pct button.on{background:#fff;color:#0b1118}
-.pa-main{position:relative;width:100%;margin-top:12px;min-height:56px;border:0;border-radius:18px;font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0b1118;background:linear-gradient(110deg,#fff 0%,#bfe2ff 40%,#fff 80%);background-size:220% 100%;animation:paShine 3.2s linear infinite;box-shadow:0 10px 28px rgba(120,190,255,.35)}
-.pa-main.armed{color:#fff;background:linear-gradient(110deg,#2f6fd8,#58b0ff,#2f6fd8);background-size:220% 100%;animation:paShine 2s linear infinite,paPulse 1.6s ease-in-out infinite}
-.pa-main:disabled{animation:none;background:rgba(255,255,255,.1);color:var(--mute);box-shadow:none}
-.pa-hint{margin:12px 2px 0;font-size:12px;line-height:1.5;color:rgba(238,242,245,.8);text-align:center}
-.pa-card{margin-top:12px;border-radius:16px;border:1px solid var(--line);background:rgba(8,14,20,.55);padding:12px}
-.pa-tg{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
-.pa-tg img{width:30px;height:20px;border:1px solid #000;image-rendering:pixelated}
-.pa-tg small{display:block;font-weight:500;font-size:11px;color:var(--mute)}
-.pa-st{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
-.pa-st div{padding:8px 2px;border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
-.pa-st b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
-.pa-st span{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.pa-mt{margin-top:12px}
-.pa-mt>div{display:flex;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-.pa-bar{height:10px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}
-.pa-bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .6s var(--ease)}
-.pa-go{position:relative;width:100%;margin-top:12px;min-height:58px;border:0;border-radius:18px;font-size:16px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1a1204;background:linear-gradient(110deg,#ffe38a,#ffb23a 50%,#ffe38a);background-size:220% 100%;animation:paShine 2.4s linear infinite;box-shadow:0 12px 30px rgba(255,178,58,.4)}
-.pa-go:disabled{animation:none;background:rgba(255,255,255,.1);color:var(--mute);box-shadow:none}
-.pa-x{width:100%;margin-top:8px;min-height:40px;border-radius:14px;font-size:12px}
-@keyframes paSweep{0%{left:-35%}60%,100%{left:120%}}
-@keyframes paFly{0%,100%{transform:translate(-3px,2px) rotate(-6deg)}50%{transform:translate(3px,-2px) rotate(4deg)}}
-@keyframes paShine{to{background-position:-220% 0}}
-@keyframes paPulse{0%,100%{box-shadow:0 10px 28px rgba(90,170,255,.35)}50%{box-shadow:0 10px 40px rgba(90,170,255,.8)}}
 </style></head><body>
 <div id="app">
  <div id="wrap">
@@ -694,7 +662,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
       if (!pl) {
         var bw = 300, bh = 30; g.fillStyle = "rgba(9,14,19," + (0.62 + 0.14 * pul) + ")"; g.strokeStyle = "rgba(159,208,255,.8)"; g.lineWidth = 2;
         g.beginPath(); g.roundRect ? g.roundRect(V.cvw / 2 - bw / 2, 14, bw, bh, 15) : g.rect(V.cvw / 2 - bw / 2, 14, bw, bh); g.fill(); g.stroke();
-        tt("✈  TAP ENEMY LAND TO MARK A DROP ZONE", V.cvw / 2, 29, 12.5, "#cfe8ff");
+        tt("✈  NO TARGET IN REACH", V.cvw / 2, 29, 12.5, "#cfe8ff");
       } else {
         var S = [(pl.sx - bx + 0.5) * sx, (pl.sy - by + 0.5) * sy], T = [(pl.tx - bx + 0.5) * sx, (pl.ty - by + 0.5) * sy], dxr = T[0] - S[0], dyr = T[1] - S[1], ang2 = Math.atan2(dyr, dxr), L2 = Math.sqrt(dxr * dxr + dyr * dyr);
         g.save(); g.lineCap = "round";
@@ -720,7 +688,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
         g.fillStyle = "#fff"; g.beginPath(); g.arc(0, 0, 2.5, 0, 7); g.fill();
         g.fillStyle = "rgba(160,215,255,.6)"; g.fillRect(-sh2, sw * sh2 - 1, sh2 * 2, 2);
         g.restore();
-        tt("TARGET LOCKED", T[0], T[1] - sh2 - 13, 11.5, "#bfe0ff"); tt("~" + Math.max(1, Math.round(pl.dur / 10)) + "s", (S[0] + T[0]) / 2, (S[1] + T[1]) / 2 - 18, 12, "#cfe8ff");
+        tt("DRAG ME", T[0], T[1] - sh2 - 13, 11.5, "#bfe0ff"); tt("~" + Math.max(1, Math.round(pl.dur / 10)) + "s", (S[0] + T[0]) / 2, (S[1] + T[1]) / 2 - 18, 12, "#cfe8ff");
         tt(fm(pl.send) + " men", S[0], S[1] + 22, 11, "#7dff9a");
       }
     }
@@ -743,54 +711,50 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     else if (t > 0 && P[t].pact) block = NAME[t] + " is your ally. Break the pact in Diplomacy first.";
     else if (fleetsOut(0, true) >= fleetCap(0)) block = "All " + fleetCap(0) + " squadrons are in the air. Build factories for more planes.";
     else if (send < 30) block = "Not enough troops to launch an airlift.";
-    else if (send < need) block = "Too small: this target needs about " + fm(Math.ceil(need)) + " troops. Raise the send % or wait.";
+    else if (send < need) block = "Too small: needs about " + fm(Math.ceil(need)) + " men. Raise the \u2694\uFE0F send % in the game, or wait.";
     return { c: c, t: t, sx: sx0, sy: sy0, tx: X, ty: Y, len: len, dur: Math.round(len * 0.5) + 8, send: send, need: need, ratio: need > 0 ? send / need : 9, block: block, wait: Math.max(0, coolT - ticks) };
+  }
+  function airDefault() {
+    var V = repV, mx = V ? V.bx + V.cw / 2 : W / 2, my = V ? V.by + V.ch / 2 : H / 2, best = -1, bd = 1e9, i, dx, dy, dd;
+    for (i = 0; i < N; i++) if (land[i] && own[i] === repSel) { dx = i % W - mx; dy = ((i / W) | 0) - my; dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = i; } }
+    return best;
+  }
+  function airHint() {
+    var h = $("pah"), b = $("pal"), pl = AIR.plan; if (!h) return;
+    h.textContent = !pl ? "Drag the blue square onto enemy land." : pl.block ? pl.block : "Drag the blue square \u00B7 " + fm(pl.send) + " men \u00B7 ~" + Math.max(1, Math.round(pl.dur / 10)) + "s" + (pl.wait > 0 ? " \u00B7 refuelling" : "");
+    if (b) b.disabled = !pl || !!pl.block;
   }
   function airPanel() {
     var box = $("pwair"); if (!box) return;
-    var cap = fleetCap(0), out = fleetsOut(0, true), sq = "", i, pl = AIR.plan, sel = repSel, dead = !P[sel].alive, h = "";
-    for (i = 0; i < cap; i++) sq += "<i class='" + (i < out ? "out" : "rd") + "'></i>";
-    box.className = "pw-air" + (over ? " off" : "");
-    h += "<div class='pa-top'><div class='pa-ic'><span>✈️</span></div><div class='pa-ttl'><b>Air strike</b><small>" + (over ? "The war is over." : "Paratroopers land anywhere, over any border.") + "</small></div><div class='pa-sq' title='Squadrons ready'>" + sq + "</div></div>";
-    h += "<div class='pa-pct'><em>Send</em>" + SENDS.map(function (s) { return "<button data-s='" + s + "'" + (s === SEND ? " class='on'" : "") + ">" + Math.round(s * 100) + "%</button>"; }).join("") + "</div>";
-    if (!AIR.on) {
-      h += "<button class='pa-main' id='pab'" + (over || dead ? " disabled" : "") + ">✈ Plan an air strike on " + esc(NAME[sel]) + "</button>";
-      h += "<div class='pa-hint'>" + (dead ? NAME[sel] + " has been erased." : "<b>" + out + "/" + cap + "</b> squadrons in the air · <b>" + fm(P[0].troops * SEND) + "</b> men ready to drop") + "</div>";
-    } else if (!pl) {
-      h += "<button class='pa-main armed' id='pab'>✈ Tap a target on the map</button><div class='pa-hint'>Pick any enemy territory. Your planes fly a straight line from your nearest land, so deep strikes cut straight across the front.</div><button class='pa-x' id='pax'>Cancel</button>";
-    } else {
-      var tn = pl.t >= 0 ? NAME[pl.t] : "The wilds", fl = pl.t >= 0 ? "<img src='" + FL[pl.t] + "'>" : "", rt = pl.ratio, vd, vc, pc;
-      if (rt >= 1.8) { vd = "Overwhelming"; vc = "#7dff9a"; } else if (rt >= 1.15) { vd = "Strong"; vc = "#b6ff7a"; } else if (rt >= 1) { vd = "Risky"; vc = "#ffd27a"; } else { vd = "Too small"; vc = "#ff6b6b"; }
-      pc = Math.max(4, Math.min(100, rt / 2 * 100));
-      h += "<div class='pa-card'><div class='pa-tg'>" + fl + "<div>" + esc(tn) + "<small>Drop zone marked · " + pl.len + " cells from your land</small></div></div>";
-      h += "<div class='pa-st'><div><b>" + Math.max(1, Math.round(pl.dur / 10)) + "s</b><span>Flight</span></div><div><b>" + fm(pl.send) + "</b><span>Paratroops</span></div><div><b>~" + fm(Math.ceil(pl.need)) + "</b><span>Needed</span></div></div>";
-      h += "<div class='pa-mt'><div><span style='color:" + vc + "'>" + vd + "</span><span style='color:var(--mute)'>" + (rt >= 9 ? "∞" : rt.toFixed(1) + "×") + " strength</span></div><div class='pa-bar'><i data-w='" + pc.toFixed(0) + "' style='background:" + vc + ";box-shadow:0 0 12px " + vc + "'></i></div></div></div>";
-      if (pl.block) h += "<div class='pa-hint' style='color:#ffb0a6'>" + pl.block + "</div>";
-      else if (pl.wait > 0) h += "<div class='pa-hint'>Squadron is refuelling: takes off ~" + Math.ceil(pl.wait / 10) + "s after you return to the war.</div>";
-      h += "<button class='pa-go' id='pal'" + (pl.block ? " disabled" : "") + ">✈ Launch the strike</button><button class='pa-x' id='pax'>Choose another target</button>";
-    }
-    box.innerHTML = h;
-    [].forEach.call(box.querySelectorAll("button[data-s]"), function (b) { b.onclick = function () { SEND = +b.dataset.s; $("sb").lastChild.textContent = Math.round(SEND * 100) + "%"; if (AIR.plan) AIR.plan = airPlan(AIR.plan.c); airPanel(); }; });
+    var dead = !P[repSel].alive;
+    box.className = "pw-air" + (over || dead ? " off" : "");
+    if (!AIR.on) box.innerHTML = "<button class='pa-b' id='pab'" + (over || dead ? " disabled" : "") + ">\u2708\uFE0F Airlift</button>";
+    else box.innerHTML = "<button class='pa-b go' id='pal'>\u2708\uFE0F Launch</button><button class='pa-x' id='pax' aria-label='Cancel'>\u2715</button><div class='pa-hint' id='pah'></div>";
     var pab = $("pab"), pax = $("pax"), pal = $("pal");
-    if (pab) pab.onclick = function () { if (AIR.on) return; AIR.on = true; AIR.c = -1; AIR.plan = null; AIR.t0 = Date.now(); if (repMode === "old") { repMode = "now"; [].forEach.call(document.querySelectorAll("#rpt button[data-m]"), function (x) { x.classList.toggle("on", x.dataset.m === "now"); }); } airMark(); airPanel(); var mp = $("pwm"); if (mp && mp.scrollIntoView) { var rc = mp.getBoundingClientRect(); if (rc.top < 0 || rc.bottom > innerHeight) mp.scrollIntoView({ block: "nearest", behavior: "smooth" }); } };
-    if (pax) pax.onclick = function () { if (AIR.plan) { AIR.plan = null; AIR.c = -1; AIR.t0 = Date.now(); } else AIR.on = false; airMark(); airPanel(); };
+    if (pab) pab.onclick = function () {
+      if (AIR.on) return;
+      AIR.on = true; AIR.t0 = Date.now(); AIR.c = airDefault(); AIR.plan = AIR.c >= 0 ? airPlan(AIR.c) : null;
+      if (repMode === "old") { repMode = "now"; [].forEach.call(document.querySelectorAll("#rpt button[data-m]"), function (x) { x.classList.toggle("on", x.dataset.m === "now"); }); }
+      airMark(); airPanel();
+      var mp = $("pwm"); if (mp && mp.scrollIntoView) { var rc = mp.getBoundingClientRect(); if (rc.top < 0 || rc.bottom > innerHeight) mp.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+    };
+    if (pax) pax.onclick = function () { AIR.on = false; AIR.c = -1; AIR.plan = null; airMark(); airPanel(); };
     if (pal) pal.onclick = function () { airLaunch(); };
-    setTimeout(function () { [].forEach.call(box.querySelectorAll(".pa-bar i"), function (b) { b.style.width = b.dataset.w + "%"; }); }, 30);
+    airHint();
   }
   function airMark() { var mp = document.querySelector("#rpt .pw-mp"); if (mp) mp.classList.toggle("arm", AIR.on); }
   function airInit() {
     var cvs = $("pwm"); airMark(); airPanel(); if (!cvs) return;
     [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (b) { b.onclick = function () { repZoom = b.dataset.z; [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (x) { x.classList.toggle("on", x === b); }); if (AIR.plan) AIR.plan = airPlan(AIR.plan.c); drawFront(); }; });
-    cvs.onclick = function (e) {
+    function airAt(e) {
       if (!AIR.on || over || !repV) return;
       var rc = cvs.getBoundingClientRect(), gx = repV.bx + Math.floor((e.clientX - rc.left) / rc.width * repV.cw), gy = repV.by + Math.floor((e.clientY - rc.top) / rc.height * repV.ch), c = gy * W + gx;
-      if (gx < 0 || gy < 0 || gx >= W || gy >= H) return;
-      var hint = document.querySelector("#pwair .pa-hint");
-      if (!land[c]) { if (hint) hint.textContent = "That's sea. Tap land."; return; }
-      if (own[c] === 0) { if (hint) hint.textContent = "That's your own land. Tap enemy territory."; return; }
-      AIR.c = c; AIR.plan = airPlan(c); AIR.t0 = Date.now(); airPanel();
-      var pa = $("pwair"); if (pa && pa.scrollIntoView) setTimeout(function () { pa.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, 60);
-    };
+      if (gx < 0 || gy < 0 || gx >= W || gy >= H || !land[c] || own[c] === 0 || c === AIR.c) return;
+      AIR.c = c; AIR.plan = airPlan(c); airHint();
+    }
+    cvs.onpointerdown = function (e) { if (!AIR.on || over) return; AIR.drag = true; try { cvs.setPointerCapture(e.pointerId); } catch (_) {} airAt(e); };
+    cvs.onpointermove = function (e) { if (AIR.drag) airAt(e); };
+    cvs.onpointerup = cvs.onpointercancel = function () { AIR.drag = false; };
     if (!repRaf) repRaf = requestAnimationFrame(repLoop);
   }
   function airLaunch() {
@@ -2312,6 +2276,8 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     if (P[0].cells < start0 * 0.6) once("u", "Reinforcements! Your people rally to defend the homeland.", 5000);
     if (E.late) for (var ln in E.late) { var lp = P.filter(function (q) { return NAME[q.id] === ln; })[0]; if (lp && lp.alive && ticks >= E.late[ln]) once("l" + ln, ln + " has fully mobilised. Expect a counter-attack!", 5500); }
   }
+
+  
   function labels() {
     var sx = [], sy = [], n = [], i, h = "";
     for (i = 0; i < P.length; i++) { sx.push(0); sy.push(0); n.push(0); }
