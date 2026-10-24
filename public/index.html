@@ -365,6 +365,54 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 #of>div{display:flex;gap:6px}
 #of button{flex:1;padding:0 10px;min-height:32px;font-size:12px;border-radius:10px}
 #of .fl{width:14px;height:10px}
+
+/* ---- report: real-map look + air strike ---- */
+.pw-mp{position:relative;box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.04)}
+.pw-mp.arm{border-color:#9fd0ff;box-shadow:0 0 0 2px rgba(159,208,255,.5),0 0 34px rgba(90,167,230,.35);cursor:crosshair}
+.pw-mp canvas{touch-action:pan-y}
+.pw-air{position:relative;overflow:hidden;margin:4px 0 8px;padding:16px 14px 14px;border-radius:20px;border:1px solid rgba(159,208,255,.3);background:radial-gradient(120% 120% at 0% 0%,rgba(80,160,235,.28),transparent 58%),radial-gradient(90% 90% at 100% 100%,rgba(255,210,122,.12),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 18px 44px rgba(0,0,0,.45)}
+.pw-air::before{content:"";position:absolute;left:-30%;top:0;width:30%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);animation:paSweep 5s ease-in-out infinite;pointer-events:none}
+.pw-air.off{opacity:.55}
+.pw-zm{position:absolute;top:10px;right:10px;display:flex;gap:4px;z-index:2}
+.pw-zm button{min-height:0;padding:6px 11px;font-size:11px;font-weight:700;border-radius:999px;background:rgba(9,14,19,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pw-zm button.on{background:#fff;color:#0b1118}
+.pa-top{display:flex;align-items:center;gap:12px}
+.pa-ic{flex:none;width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:25px;background:linear-gradient(145deg,#8ad0ff,#2f6fd8);box-shadow:0 8px 22px rgba(47,111,216,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+.pa-ic span{display:block;animation:paFly 3.4s ease-in-out infinite}
+.pa-ttl{min-width:0}
+.pa-ttl b{display:block;font-size:14px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#fff}
+.pa-ttl small{display:block;font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35}
+.pa-sq{display:flex;gap:5px;margin-left:auto;align-items:flex-end}
+.pa-sq i{display:block;width:9px;height:24px;border-radius:3px 3px 2px 2px;background:rgba(255,255,255,.14);clip-path:polygon(50% 0,100% 28%,100% 100%,0 100%,0 28%)}
+.pa-sq i.rd{background:#7dff9a;box-shadow:0 0 10px rgba(125,255,154,.6)}
+.pa-sq i.out{background:#ffb23a}
+.pa-pct{display:flex;gap:6px;margin-top:14px;align-items:center}
+.pa-pct em{flex:none;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-right:2px}
+.pa-pct button{flex:1;padding:8px 0;font-size:12px;border-radius:12px}
+.pa-pct button.on{background:#fff;color:#0b1118}
+.pa-main{position:relative;width:100%;margin-top:12px;min-height:56px;border:0;border-radius:18px;font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0b1118;background:linear-gradient(110deg,#fff 0%,#bfe2ff 40%,#fff 80%);background-size:220% 100%;animation:paShine 3.2s linear infinite;box-shadow:0 10px 28px rgba(120,190,255,.35)}
+.pa-main.armed{color:#fff;background:linear-gradient(110deg,#2f6fd8,#58b0ff,#2f6fd8);background-size:220% 100%;animation:paShine 2s linear infinite,paPulse 1.6s ease-in-out infinite}
+.pa-main:disabled{animation:none;background:rgba(255,255,255,.1);color:var(--mute);box-shadow:none}
+.pa-hint{margin:12px 2px 0;font-size:12px;line-height:1.5;color:rgba(238,242,245,.8);text-align:center}
+.pa-card{margin-top:12px;border-radius:16px;border:1px solid var(--line);background:rgba(8,14,20,.55);padding:12px}
+.pa-tg{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.pa-tg img{width:30px;height:20px;border:1px solid #000;image-rendering:pixelated}
+.pa-tg small{display:block;font-weight:500;font-size:11px;color:var(--mute)}
+.pa-st{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.pa-st div{padding:8px 2px;border-radius:12px;background:rgba(255,255,255,.05);text-align:center}
+.pa-st b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.pa-st span{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.pa-mt{margin-top:12px}
+.pa-mt>div{display:flex;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.pa-bar{height:10px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}
+.pa-bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .6s var(--ease)}
+.pa-go{position:relative;width:100%;margin-top:12px;min-height:58px;border:0;border-radius:18px;font-size:16px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1a1204;background:linear-gradient(110deg,#ffe38a,#ffb23a 50%,#ffe38a);background-size:220% 100%;animation:paShine 2.4s linear infinite;box-shadow:0 12px 30px rgba(255,178,58,.4)}
+.pa-go:disabled{animation:none;background:rgba(255,255,255,.1);color:var(--mute);box-shadow:none}
+.pa-x{width:100%;margin-top:8px;min-height:40px;border-radius:14px;font-size:12px}
+@keyframes paSweep{0%{left:-35%}60%,100%{left:120%}}
+@keyframes paFly{0%,100%{transform:translate(-3px,2px) rotate(-6deg)}50%{transform:translate(3px,-2px) rotate(4deg)}}
+@keyframes paShine{to{background-position:-220% 0}}
+@keyframes paPulse{0%,100%{box-shadow:0 10px 28px rgba(90,170,255,.35)}50%{box-shadow:0 10px 40px rgba(90,170,255,.8)}}
 </style></head><body>
 <div id="app">
  <div id="wrap">
@@ -551,68 +599,217 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     requestAnimationFrame(step);
   }
   
-  var repMode = "chg";
-  function drawFront() {
-    var cvs = $("pwm"); if (!cvs || repSel === null || !REP[repSel] || !REP[repSel].own0) return;
-    var r = REP[repSel], sel = repSel, mode = repMode, i, j, k, x, y, a, b, o, f, c, q, ns, near, edge, gx, gy, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1, any = false;
+  var repMode = "now", repZoom = "enemy", repRaf = 0, repV = null, AIR = { on: false, c: -1, sel: null, t0: 0, plan: null }, RIMG = {};
+  function rimg(kind, col) { var u = spr(kind, col); if (!RIMG[u]) { var im = new Image(); im.src = u; RIMG[u] = im; } return RIMG[u]; }
+  function repView() {
+    var r = REP[repSel], sel = repSel, i, a, b, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1, any = false, pad = 9, zz = repZoom;
     var ext = function (xx, yy) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; any = true; };
-    for (i = 0; i < N; i++) { if (!land[i]) continue; a = r.own0[i]; b = own[i]; if ((a === sel && b === 0) || (a === 0 && b === sel)) ext(i % W, (i / W) | 0); }
-    r.pins.forEach(function (p) { ext(p.i % W, (p.i / W) | 0); });
-    if (!any) for (i = 0; i < N; i++) if (land[i] && (own[i] === sel || r.own0[i] === sel)) ext(i % W, (i / W) | 0);
-    if (!any) { x0 = 0; y0 = 0; x1 = W - 1; y1 = H - 1; }
-    var cw = x1 - x0 + 17, ch = y1 - y0 + 17;
-    cw = Math.max(cw, Math.min(W, 40)); ch = Math.max(ch, Math.min(H, 26));
-    if (cw / ch < 1.6) cw = Math.round(ch * 1.6); else ch = Math.round(cw / 1.6);
+    if (zz === "all") { x0 = 0; y0 = 0; x1 = W - 1; y1 = H - 1; any = true; pad = 0; }
+    else if (zz === "front") {
+      pad = 10;
+      for (i = 0; i < N; i++) { if (!land[i]) continue; a = r.own0[i]; b = own[i]; if ((a === sel && b === 0) || (a === 0 && b === sel)) ext(i % W, (i / W) | 0); }
+      r.pins.forEach(function (p) { ext(p.i % W, (p.i / W) | 0); });
+    }
+    if (!any) for (i = 0; i < N; i++) if (land[i] && (own[i] === sel || r.own0[i] === sel)) ext(i % W, (i / W) | 0);   /* "enemy": the WHOLE country, as it was and as it is */
+    if (!any) { x0 = 0; y0 = 0; x1 = W - 1; y1 = H - 1; pad = 0; }
+    var cw = x1 - x0 + 1 + pad * 2, ch = y1 - y0 + 1 + pad * 2;
+    cw = Math.max(cw, 34); ch = Math.max(ch, 22);
+    if (ch / cw > 1.25) cw = Math.round(ch / 1.25); else if (ch / cw < 0.5) ch = Math.round(cw * 0.5);
     cw = Math.min(W, cw); ch = Math.min(H, ch);
     var bx = Math.max(0, Math.min(W - cw, Math.round((x0 + x1) / 2 - cw / 2))), by = Math.max(0, Math.min(H - ch, Math.round((y0 + y1) / 2 - ch / 2)));
-    var oc = document.createElement("canvas"); oc.width = cw; oc.height = ch;
-    var og = oc.getContext("2d"), id = og.createImageData(cw, ch), dd = id.data, arr = mode === "old" ? r.own0 : own;
+    var cvw = 640, cvh = Math.round(cvw * ch / cw);
+    return { bx: bx, by: by, cw: cw, ch: ch, cvw: cvw, cvh: cvh, sx: cvw / cw, sy: cvh / ch, oc: null };
+  }
+  function drawFront() { if (!$("pwm") || repSel === null || !REP[repSel] || !REP[repSel].own0) return; repV = repView(); paintFront(Date.now()); }
+  /* the report map is painted exactly like the live game map: checkerboard land, shimmering sea, glowing border, cities, factories, ships and planes */
+  function paintFront(now) {
+    var cvs = $("pwm"); if (!cvs || !repV || repSel === null || !REP[repSel] || !REP[repSel].own0) return;
+    var r = REP[repSel], sel = repSel, mode = repMode, V = repV, bx = V.bx, by = V.by, cw = V.cw, ch = V.ch, sx = V.sx, sy = V.sy;
+    var i, j, k, x, y, a, b, o, f, c, q, ns, near, edge, gx, gy, tm = (now >> 8) & 3, arr = mode === "old" ? r.own0 : own, pul = 0.5 + 0.5 * Math.sin(now / 260);
+    if (!V.oc) { V.oc = document.createElement("canvas"); V.oc.width = cw; V.oc.height = ch; V.id = V.oc.getContext("2d").createImageData(cw, ch); }
+    var og = V.oc.getContext("2d"), id = V.id, dd = id.data, armed = AIR.on && !over;
     for (y = 0; y < ch; y++) for (x = 0; x < cw; x++) {
-      gx = bx + x; gy = by + y; i = gy * W + gx; q = (y * cw + x) * 4; f = 1;
-      if (!land[i]) { near = false; ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]]) near = true; c = near ? [26, 78, 108] : [10, 34, 60]; }
+      gx = bx + x; gy = by + y; i = gy * W + gx; q = (y * cw + x) * 4; f = (E.world || !((gx + gy) & 1)) ? 1 : 0.86;
+      if (!land[i]) { near = false; ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]]) near = true; c = near ? [26, 78, 108] : [10, 34, 60]; f = ((gx + gy + tm) & 1) ? 0.9 : 1.06; }
       else {
         a = r.own0[i]; b = own[i]; o = arr[i];
         if (o < 0) c = [TER[i * 3], TER[i * 3 + 1], TER[i * 3 + 2]];
         else {
           c = [COL[o][0] * 0.7 + TER[i * 3] * 0.3, COL[o][1] * 0.7 + TER[i * 3 + 1] * 0.3, COL[o][2] * 0.7 + TER[i * 3 + 2] * 0.3];
-          if (o === 0) c = [Math.min(255, c[0] + 22), Math.min(255, c[1] + 22), Math.min(255, c[2] + 22)];
-          edge = false; ns = nb(i); for (j = 0; j < ns.length; j++) { k = ns[j]; if (land[k] && arr[k] !== o) edge = true; }
+          ns = nb(i); edge = false; for (j = 0; j < ns.length; j++) { k = ns[j]; if (land[k] && arr[k] !== o) edge = true; }
+          if (o === 0) { c = [Math.min(255, COL[0][0] * 0.92 + 25), Math.min(255, COL[0][1] * 0.92 + 25), Math.min(255, COL[0][2] * 0.92 + 25)]; if (edge && mode !== "chg") { c = [255, 255, 255]; f = 0.8 + 0.2 * Math.sin(now / 250); } }
+          else if (edge) f = 0.6; else f *= 0.88;
           if (mode === "chg") {
-            if (a === b) f = 0.5; else if (b === 0 && a === sel) { c = [255, 205, 80]; edge = false; } else if (a === 0 && b === sel) { c = [255, 80, 80]; edge = false; } else f = 0.8;
+            if (a === b) f *= 0.85; else if (b === 0 && a === sel) { c = [255, 205, 80]; f = 1; } else if (a === 0 && b === sel) { c = [255, 80, 80]; f = 1; } else f *= 0.85;
           }
-          if (edge) f *= 0.7;
+          if (o === sel && edge && mode !== "old" && !(mode === "chg" && a !== b)) { c = [255, 150, 140]; f = 0.9 + 0.25 * pul; }   /* the enemy country is outlined */
+          if (armed && o === sel) f *= 1.04 + 0.2 * pul;           /* strikeable land breathes */
         }
+        if (armed && AIR.c >= 0 && land[AIR.c]) { var dx0 = gx - AIR.c % W, dy0 = gy - ((AIR.c / W) | 0); if (dx0 * dx0 + dy0 * dy0 <= 9) { c = [255, 90, 70]; f = 1.0 + 0.35 * pul; } }   /* drop zone */
       }
       dd[q] = Math.min(255, c[0] * f); dd[q + 1] = Math.min(255, c[1] * f); dd[q + 2] = Math.min(255, c[2] * f); dd[q + 3] = 255;
     }
-    var cvw = 640, cvh = Math.min(520, Math.round(640 * ch / cw)); cvs.width = cvw; cvs.height = cvh;
-    var g = cvs.getContext("2d"); og.putImageData(id, 0, 0); g.imageSmoothingEnabled = false; g.drawImage(oc, 0, 0, cw, ch, 0, 0, cvw, cvh);
-    var sx = cvw / cw, sy = cvh / ch;
+    if (cvs.width !== V.cvw || cvs.height !== V.cvh) { cvs.width = V.cvw; cvs.height = V.cvh; }
+    var g = cvs.getContext("2d"); og.putImageData(id, 0, 0); g.imageSmoothingEnabled = false; g.drawImage(V.oc, 0, 0, cw, ch, 0, 0, V.cvw, V.cvh);
     var tt = function (s, X, Y, px, col) { g.font = "700 " + px + "px system-ui,sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round"; g.lineWidth = 3; g.strokeStyle = "rgba(0,0,0,.85)"; g.strokeText(s, X, Y); g.fillStyle = col; g.fillText(s, X, Y); };
+    var inV = function (ci) { var cx2 = ci % W - bx, cy2 = ((ci / W) | 0) - by; return cx2 >= 0 && cy2 >= 0 && cx2 < cw && cy2 < ch ? [(cx2 + 0.5) * sx, (cy2 + 0.5) * sy] : null; };
+    /* nation names + troops, like the main map */
     [0, sel].forEach(function (o2) {
       var sxs = 0, sys = 0, n2 = 0, ii, xx, yy;
       for (yy = 0; yy < ch; yy++) for (xx = 0; xx < cw; xx++) { ii = (by + yy) * W + bx + xx; if (land[ii] && arr[ii] === o2) { sxs += xx; sys += yy; n2++; } }
-      if (n2 > 6) tt(o2 === 0 ? "YOU" : NAME[sel].toUpperCase(), (sxs / n2 + 0.5) * sx, (sys / n2 + 0.5) * sy, 15, o2 === 0 ? "#ffd27a" : "#ffffff");
+      if (n2 > 6) { var X0 = (sxs / n2 + 0.5) * sx, Y0 = (sys / n2 + 0.5) * sy; tt(o2 === 0 ? "YOU" : NAME[sel].toUpperCase(), X0, Y0, 15, o2 === 0 ? "#ffd27a" : "#ffffff"); if (mode !== "old" && P[o2].alive) tt(fm(P[o2].troops), X0, Y0 + 17, 12, "rgba(255,255,255,.85)"); }
     });
+    /* cities */
+    var placed = [];
+    CITY.forEach(function (ct) {
+      var ow = arr[ct.i], p0 = inV(ct.i); if (!p0 || (ow !== 0 && ow !== sel) || E.world) return;
+      var mj = MAJOR.indexOf(ct.n) >= 0, ok = true; if (!mj && cw > 60) return;
+      placed.forEach(function (pp) { if (Math.abs(pp[0] - p0[0]) < 78 && Math.abs(pp[1] - p0[1]) < 17) ok = false; });
+      g.fillStyle = "rgb(" + COL[ow].map(Math.round).join(",") + ")"; g.strokeStyle = "#000"; g.lineWidth = 2; g.beginPath(); g.arc(p0[0], p0[1], 4, 0, 7); g.stroke(); g.fill();
+      if (!ok) return; placed.push(p0); tt((ct.dmg > ticks ? "🔥" : "") + ct.n, p0[0], p0[1] - 11, 10.5, "#fff");
+    });
+    /* factories */
+    FAC.forEach(function (fc) { var p0 = inV(fc.i); if (!p0) return; g.fillStyle = (now >> 8) & 1 ? "#ffff28" : "#ffbe28"; g.strokeStyle = "#000"; g.lineWidth = 2; g.fillRect(p0[0] - 7, p0[1] - 7, 14, 14); g.strokeRect(p0[0] - 7, p0[1] - 7, 14, 14); g.font = "11px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#000"; g.fillText("🏭", p0[0], p0[1] + 1); });
+    /* campaign pins */
     if (mode !== "old") {
       var GL = { cap: "👑", key: "🏙", lost: "🔥", sea: "⚓", air: "✈️", enemy: "💥", rep: "✖️" }, seen = {};
       r.pins.slice(-14).forEach(function (p) {
-        var px0 = p.i % W - bx, py0 = ((p.i / W) | 0) - by, key = p.i + p.k; if (seen[key] || px0 < 0 || py0 < 0 || px0 >= cw || py0 >= ch) return; seen[key] = 1;
-        var X = (px0 + 0.5) * sx, Y = (py0 + 0.5) * sy;
-        g.font = "20px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#fff"; g.fillText(GL[p.k] || "•", X, Y);
-        if (p.n) tt(p.n, X, Y + 17, 12, "#ffffff");
+        var p0 = inV(p.i), key = p.i + p.k; if (seen[key] || !p0) return; seen[key] = 1;
+        g.font = "20px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#fff"; g.fillText(GL[p.k] || "•", p0[0], p0[1]);
+        if (p.n) tt(p.n, p0[0], p0[1] + 17, 12, "#ffffff");
+      });
+      /* every ship and plane in flight, with its troop count */
+      SHIPS.forEach(function (s) {
+        var n = s.pts.length, pos = Math.min(1, Math.max(0, (ticks - s.ts) / s.dur)) * (n - 1), i0 = Math.floor(pos), i1 = Math.min(n - 1, i0 + 1), fr = pos - i0, pa = s.pts[i0], pb = s.pts[i1];
+        var X = ((pa % W) + ((pb % W) - (pa % W)) * fr + 0.5 - bx) * sx, Y = ((((pa / W) | 0) + (((pb / W) | 0) - ((pa / W) | 0)) * fr) + 0.5 - by) * sy;
+        if (X < -20 || Y < -20 || X > V.cvw + 20 || Y > V.cvh + 20) return;
+        var qa = s.pts[Math.max(0, i0 - 1)], qb = s.pts[Math.min(n - 1, i0 + 3)], ang = qa !== qb ? Math.atan2(((qb / W) | 0) - ((qa / W) | 0), (qb % W) - (qa % W)) : 0, im = rimg(s.air ? "plane" : "ship", COL[s.p]), sz = s.air ? 30 : 34;
+        if (im.complete) { g.save(); g.translate(X, Y); g.rotate(ang); g.imageSmoothingEnabled = false; g.drawImage(im, -sz / 2, -sz / (s.air ? 2 : 3.6), sz, s.air ? sz : sz * 0.55); g.restore(); }
+        tt(fm(s.troops), X, Y + 20, 11, "#fff");
       });
     }
+    /* ---------- air-strike planner overlay ---------- */
+    if (armed) {
+      var pl = AIR.plan;
+      if (!pl) {
+        var bw = 300, bh = 30; g.fillStyle = "rgba(9,14,19," + (0.62 + 0.14 * pul) + ")"; g.strokeStyle = "rgba(159,208,255,.8)"; g.lineWidth = 2;
+        g.beginPath(); g.roundRect ? g.roundRect(V.cvw / 2 - bw / 2, 14, bw, bh, 15) : g.rect(V.cvw / 2 - bw / 2, 14, bw, bh); g.fill(); g.stroke();
+        tt("✈  TAP ENEMY LAND TO MARK A DROP ZONE", V.cvw / 2, 29, 12.5, "#cfe8ff");
+      } else {
+        var S = [(pl.sx - bx + 0.5) * sx, (pl.sy - by + 0.5) * sy], T = [(pl.tx - bx + 0.5) * sx, (pl.ty - by + 0.5) * sy], dxr = T[0] - S[0], dyr = T[1] - S[1], ang2 = Math.atan2(dyr, dxr), L2 = Math.sqrt(dxr * dxr + dyr * dyr);
+        g.save(); g.lineCap = "round";
+        g.setLineDash([]); g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 7; g.beginPath(); g.moveTo(S[0], S[1]); g.lineTo(T[0], T[1]); g.stroke();
+        g.setLineDash([11, 9]); g.lineDashOffset = -now / 38; g.strokeStyle = "#ffffff"; g.lineWidth = 3.5; g.shadowColor = "#7cc4ff"; g.shadowBlur = 12; g.beginPath(); g.moveTo(S[0], S[1]); g.lineTo(T[0], T[1]); g.stroke();
+        g.restore();
+        /* origin ring */
+        g.save(); g.strokeStyle = "#7dff9a"; g.lineWidth = 3; g.beginPath(); g.arc(S[0], S[1], 9 + 5 * pul, 0, 7); g.stroke(); g.fillStyle = "#7dff9a"; g.beginPath(); g.arc(S[0], S[1], 4, 0, 7); g.fill(); g.restore();
+        /* contrail + plane gliding the route */
+        var u = ((now - AIR.t0) % 2400) / 2400, e2 = u * u * (3 - 2 * u), k2;
+        for (k2 = 14; k2 >= 1; k2--) { var uu = Math.max(0, e2 - k2 * 0.016); g.fillStyle = "rgba(255,255,255," + (0.5 - k2 * 0.033).toFixed(3) + ")"; g.beginPath(); g.arc(S[0] + dxr * uu, S[1] + dyr * uu, 4.5 - k2 * 0.22, 0, 7); g.fill(); }
+        var pim = rimg("plane", COL[0]);
+        if (pim.complete) { g.save(); g.translate(S[0] + dxr * e2, S[1] + dyr * e2); g.rotate(ang2); g.shadowColor = "rgba(0,0,0,.6)"; g.shadowBlur = 8; g.imageSmoothingEnabled = false; g.drawImage(pim, -22, -22, 44, 44); g.restore(); }
+        /* blue square scope on the drop zone */
+        var hh = Math.max(3.5 * sx, 26), lock = Math.max(0, 1 - (now - AIR.t0) / 450), sh2 = hh * (1 + lock * 1.2), bl = sh2 * 0.45, sw = ((now / 900) % 1) * 2 - 1;
+        g.save(); g.translate(T[0], T[1]);
+        g.shadowColor = "#2f8bff"; g.shadowBlur = 16 + 10 * pul;
+        g.fillStyle = "rgba(47,139,255," + (0.18 + 0.12 * pul).toFixed(3) + ")"; g.fillRect(-sh2, -sh2, sh2 * 2, sh2 * 2);
+        g.strokeStyle = "#4da3ff"; g.lineWidth = 2; g.strokeRect(-sh2, -sh2, sh2 * 2, sh2 * 2);
+        g.strokeStyle = "#d4eaff"; g.lineWidth = 4.5; g.lineCap = "square";
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (q2) { g.beginPath(); g.moveTo(q2[0] * sh2, q2[1] * (sh2 - bl)); g.lineTo(q2[0] * sh2, q2[1] * sh2); g.lineTo(q2[0] * (sh2 - bl), q2[1] * sh2); g.stroke(); });
+        g.shadowBlur = 0; g.strokeStyle = "#fff"; g.lineWidth = 2; g.beginPath(); g.moveTo(-sh2 * 0.4, 0); g.lineTo(-6, 0); g.moveTo(6, 0); g.lineTo(sh2 * 0.4, 0); g.moveTo(0, -sh2 * 0.4); g.lineTo(0, -6); g.moveTo(0, 6); g.lineTo(0, sh2 * 0.4); g.stroke();
+        g.fillStyle = "#fff"; g.beginPath(); g.arc(0, 0, 2.5, 0, 7); g.fill();
+        g.fillStyle = "rgba(160,215,255,.6)"; g.fillRect(-sh2, sw * sh2 - 1, sh2 * 2, 2);
+        g.restore();
+        tt("TARGET LOCKED", T[0], T[1] - sh2 - 13, 11.5, "#bfe0ff"); tt("~" + Math.max(1, Math.round(pl.dur / 10)) + "s", (S[0] + T[0]) / 2, (S[1] + T[1]) / 2 - 18, 12, "#cfe8ff");
+        tt(fm(pl.send) + " men", S[0], S[1] + 22, 11, "#7dff9a");
+      }
+    }
     var lg = $("pwlg");
-    if (lg) lg.innerHTML = mode === "chg" ? "<span style='--c:#ffcd50'>Taken by you</span><span style='--c:#ff5050'>Lost to " + NAME[sel] + "</span><span style='--c:#556'>Unchanged</span>" : mode === "old" ? "<span style='--c:#fff'>The map when the war began</span>" : "<span style='--c:#fff'>The map right now</span>";
+    if (lg) { var lh = mode === "chg" ? "<span style='--c:#ffcd50'>Taken by you</span><span style='--c:#ff5050'>Lost to " + NAME[sel] + "</span><span style='--c:#556'>Unchanged</span>" : mode === "old" ? "<span style='--c:#fff'>The map when the war began</span>" : "<span style='--c:#fff'>The map right now</span>"; if (lg.dataset.h !== lh) { lg.dataset.h = lh; lg.innerHTML = lh; } }
   }
-  function closeReport() { reportOpen = false; paused = false; $("rpt").style.display = "none"; }
+  function repLoop(ts) {
+    if (!reportOpen || !$("pwm")) { repRaf = 0; return; }
+    if (ts - (repLoop.l || 0) >= 40) { repLoop.l = ts; paintFront(Date.now()); }
+    repRaf = requestAnimationFrame(repLoop);
+  }
+
+  /* ================= AIR STRIKE (lives under the report map) ================= */
+  function airPlan(c) {
+    var t = own[c], X = c % W, Y = (c / W) | 0, best = 1e9, sx0 = X, sy0 = Y, i, dx, dy, dd;
+    for (i = 0; i < N; i++) if (own[i] === 0) { dx = i % W - X; dy = ((i / W) | 0) - Y; dd = dx * dx + dy * dy; if (dd < best) { best = dd; sx0 = i % W; sy0 = (i / W) | 0; } }
+    if (best >= 1e9) return null;
+    var len = Math.max(2, Math.round(Math.sqrt(best))), send = P[0].troops * SEND, need = defence(t >= 0 ? P[t] : null, beachN(c, t, 3)) * 0.7, block = "";
+    if (t > 0 && !P[t].alive) block = NAME[t] + " is already erased.";
+    else if (t > 0 && P[t].pact) block = NAME[t] + " is your ally. Break the pact in Diplomacy first.";
+    else if (fleetsOut(0, true) >= fleetCap(0)) block = "All " + fleetCap(0) + " squadrons are in the air. Build factories for more planes.";
+    else if (send < 30) block = "Not enough troops to launch an airlift.";
+    else if (send < need) block = "Too small: this target needs about " + fm(Math.ceil(need)) + " troops. Raise the send % or wait.";
+    return { c: c, t: t, sx: sx0, sy: sy0, tx: X, ty: Y, len: len, dur: Math.round(len * 0.5) + 8, send: send, need: need, ratio: need > 0 ? send / need : 9, block: block, wait: Math.max(0, coolT - ticks) };
+  }
+  function airPanel() {
+    var box = $("pwair"); if (!box) return;
+    var cap = fleetCap(0), out = fleetsOut(0, true), sq = "", i, pl = AIR.plan, sel = repSel, dead = !P[sel].alive, h = "";
+    for (i = 0; i < cap; i++) sq += "<i class='" + (i < out ? "out" : "rd") + "'></i>";
+    box.className = "pw-air" + (over ? " off" : "");
+    h += "<div class='pa-top'><div class='pa-ic'><span>✈️</span></div><div class='pa-ttl'><b>Air strike</b><small>" + (over ? "The war is over." : "Paratroopers land anywhere, over any border.") + "</small></div><div class='pa-sq' title='Squadrons ready'>" + sq + "</div></div>";
+    h += "<div class='pa-pct'><em>Send</em>" + SENDS.map(function (s) { return "<button data-s='" + s + "'" + (s === SEND ? " class='on'" : "") + ">" + Math.round(s * 100) + "%</button>"; }).join("") + "</div>";
+    if (!AIR.on) {
+      h += "<button class='pa-main' id='pab'" + (over || dead ? " disabled" : "") + ">✈ Plan an air strike on " + esc(NAME[sel]) + "</button>";
+      h += "<div class='pa-hint'>" + (dead ? NAME[sel] + " has been erased." : "<b>" + out + "/" + cap + "</b> squadrons in the air · <b>" + fm(P[0].troops * SEND) + "</b> men ready to drop") + "</div>";
+    } else if (!pl) {
+      h += "<button class='pa-main armed' id='pab'>✈ Tap a target on the map</button><div class='pa-hint'>Pick any enemy territory. Your planes fly a straight line from your nearest land, so deep strikes cut straight across the front.</div><button class='pa-x' id='pax'>Cancel</button>";
+    } else {
+      var tn = pl.t >= 0 ? NAME[pl.t] : "The wilds", fl = pl.t >= 0 ? "<img src='" + FL[pl.t] + "'>" : "", rt = pl.ratio, vd, vc, pc;
+      if (rt >= 1.8) { vd = "Overwhelming"; vc = "#7dff9a"; } else if (rt >= 1.15) { vd = "Strong"; vc = "#b6ff7a"; } else if (rt >= 1) { vd = "Risky"; vc = "#ffd27a"; } else { vd = "Too small"; vc = "#ff6b6b"; }
+      pc = Math.max(4, Math.min(100, rt / 2 * 100));
+      h += "<div class='pa-card'><div class='pa-tg'>" + fl + "<div>" + esc(tn) + "<small>Drop zone marked · " + pl.len + " cells from your land</small></div></div>";
+      h += "<div class='pa-st'><div><b>" + Math.max(1, Math.round(pl.dur / 10)) + "s</b><span>Flight</span></div><div><b>" + fm(pl.send) + "</b><span>Paratroops</span></div><div><b>~" + fm(Math.ceil(pl.need)) + "</b><span>Needed</span></div></div>";
+      h += "<div class='pa-mt'><div><span style='color:" + vc + "'>" + vd + "</span><span style='color:var(--mute)'>" + (rt >= 9 ? "∞" : rt.toFixed(1) + "×") + " strength</span></div><div class='pa-bar'><i data-w='" + pc.toFixed(0) + "' style='background:" + vc + ";box-shadow:0 0 12px " + vc + "'></i></div></div></div>";
+      if (pl.block) h += "<div class='pa-hint' style='color:#ffb0a6'>" + pl.block + "</div>";
+      else if (pl.wait > 0) h += "<div class='pa-hint'>Squadron is refuelling: takes off ~" + Math.ceil(pl.wait / 10) + "s after you return to the war.</div>";
+      h += "<button class='pa-go' id='pal'" + (pl.block ? " disabled" : "") + ">✈ Launch the strike</button><button class='pa-x' id='pax'>Choose another target</button>";
+    }
+    box.innerHTML = h;
+    [].forEach.call(box.querySelectorAll("button[data-s]"), function (b) { b.onclick = function () { SEND = +b.dataset.s; $("sb").lastChild.textContent = Math.round(SEND * 100) + "%"; if (AIR.plan) AIR.plan = airPlan(AIR.plan.c); airPanel(); }; });
+    var pab = $("pab"), pax = $("pax"), pal = $("pal");
+    if (pab) pab.onclick = function () { if (AIR.on) return; AIR.on = true; AIR.c = -1; AIR.plan = null; AIR.t0 = Date.now(); if (repMode === "old") { repMode = "now"; [].forEach.call(document.querySelectorAll("#rpt button[data-m]"), function (x) { x.classList.toggle("on", x.dataset.m === "now"); }); } airMark(); airPanel(); var mp = $("pwm"); if (mp && mp.scrollIntoView) { var rc = mp.getBoundingClientRect(); if (rc.top < 0 || rc.bottom > innerHeight) mp.scrollIntoView({ block: "nearest", behavior: "smooth" }); } };
+    if (pax) pax.onclick = function () { if (AIR.plan) { AIR.plan = null; AIR.c = -1; AIR.t0 = Date.now(); } else AIR.on = false; airMark(); airPanel(); };
+    if (pal) pal.onclick = function () { airLaunch(); };
+    setTimeout(function () { [].forEach.call(box.querySelectorAll(".pa-bar i"), function (b) { b.style.width = b.dataset.w + "%"; }); }, 30);
+  }
+  function airMark() { var mp = document.querySelector("#rpt .pw-mp"); if (mp) mp.classList.toggle("arm", AIR.on); }
+  function airInit() {
+    var cvs = $("pwm"); airMark(); airPanel(); if (!cvs) return;
+    [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (b) { b.onclick = function () { repZoom = b.dataset.z; [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (x) { x.classList.toggle("on", x === b); }); if (AIR.plan) AIR.plan = airPlan(AIR.plan.c); drawFront(); }; });
+    cvs.onclick = function (e) {
+      if (!AIR.on || over || !repV) return;
+      var rc = cvs.getBoundingClientRect(), gx = repV.bx + Math.floor((e.clientX - rc.left) / rc.width * repV.cw), gy = repV.by + Math.floor((e.clientY - rc.top) / rc.height * repV.ch), c = gy * W + gx;
+      if (gx < 0 || gy < 0 || gx >= W || gy >= H) return;
+      var hint = document.querySelector("#pwair .pa-hint");
+      if (!land[c]) { if (hint) hint.textContent = "That's sea. Tap land."; return; }
+      if (own[c] === 0) { if (hint) hint.textContent = "That's your own land. Tap enemy territory."; return; }
+      AIR.c = c; AIR.plan = airPlan(c); AIR.t0 = Date.now(); airPanel();
+      var pa = $("pwair"); if (pa && pa.scrollIntoView) setTimeout(function () { pa.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, 60);
+    };
+    if (!repRaf) repRaf = requestAnimationFrame(repLoop);
+  }
+  function airLaunch() {
+    var pl = AIR.plan; if (!pl || pl.block || over) return;
+    var np = airPlan(pl.c); if (!np || np.block) { AIR.plan = np; airPanel(); return; }
+    var c = np.c, t = np.t;
+    track("report_air_strike", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], troops: Math.round(np.send), cells: np.len });
+    closeReport();
+    var go = function () { sfx("air"); airTap(c, own[c]); };
+    if (np.wait > 0) { toast("Squadron refuelling: wheels up in " + Math.ceil(np.wait / 10) + "s.", 2500); var tries = 0, iv = setInterval(function () { if (over || ++tries > 80) { clearInterval(iv); return; } if (!paused && ticks >= coolT) { clearInterval(iv); go(); } }, 100); } else go();
+  }
+  function closeReport() { reportOpen = false; paused = false; AIR.on = false; AIR.c = -1; AIR.plan = null; repZoom = "enemy"; if (repRaf) { cancelAnimationFrame(repRaf); repRaf = 0; } $("rpt").style.display = "none"; }
   function openReport(sel) {
     if (!P || !P[0] || !E) { toast("Start a game first."); return; }
     if (!reportOpen) { reportOpen = true; paused = true; $("rp").classList.remove("nw"); track("report_opened", { empire: E.n, campaigns: Object.keys(REP).length, at_second: Math.round(ticks / 10) }); }
     var ids = Object.keys(REP).map(Number).sort(function (a, b) { return ((REP[b].sent > 0) - (REP[a].sent > 0)) || (REP[b].t1 - REP[a].t1); });
     if (sel === undefined || !REP[sel]) sel = (repSel !== null && REP[repSel]) ? repSel : ids[0];
     repSel = sel === undefined ? null : sel;
+    if (AIR.sel !== repSel) { AIR.on = false; AIR.c = -1; AIR.plan = null; AIR.sel = repSel; }
     var o = $("rpt"), h = "<div class='pw'><div class='pw-h'><div class='pw-k'>📜 " + (FLAVOR[E.n] || "War report") + " · " + gdate(ticks) + "</div><button class='pw-x' id='pwx'>✕</button></div>";
     if (!ids.length) {
       h += "<div class='pw-vs'><div><img src='" + FL[0] + "'>" + E.n + "</div></div><p class='pw-nr' style='text-align:center;margin-top:14px'>No war to report yet.<br>Tap a rival's border to march on them, deep inside their land for planes, or a far coast for ships. Come back here to read how it went.</p>";
@@ -623,8 +820,8 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
       h += "<div class='pw-dt'>" + gdate(r.t0) + " → " + (live ? "now" : gdate(r.t1)) + "<br>" + gdur(r.t0, live ? ticks : r.t1) + " of war · " + Math.round(((live ? ticks : r.t1) - r.t0) / 10) + "s of real time</div>";
       h += "<div class='pw-vd' style='--vc:" + v[1] + "'>" + v[0] + "</div><div class='pw-vl'>" + v[2] + "</div>";
       h += "<p class='pw-nr'>" + story(r, sel) + "</p>";
-      h += "<div class='pw-h3'>The front</div><div class='pw-mp'><canvas id='pwm' width='640' height='400'></canvas></div><div class='pw-md'>" + [["old", "Before"], ["chg", "Changes"], ["now", "Now"]].map(function (m) { return "<button data-m='" + m[0] + "'" + (m[0] === repMode ? " class='on'" : "") + ">" + m[1] + "</button>"; }).join("") + "</div><div class='pw-lg' id='pwlg'></div>";
-      h += realBlock(sel);
+      h += "<div class='pw-h3'>The front</div><div class='pw-mp'><canvas id='pwm' width='640' height='400'></canvas><div class='pw-zm'>" + [["enemy", "Enemy"], ["front", "Front"], ["all", "All"]].map(function (z) { return "<button data-z='" + z[0] + "'" + (z[0] === repZoom ? " class='on'" : "") + ">" + z[1] + "</button>"; }).join("") + "</div></div><div class='pw-md'>" + [["old", "Before"], ["chg", "Changes"], ["now", "Now"]].map(function (m) { return "<button data-m='" + m[0] + "'" + (m[0] === repMode ? " class='on'" : "") + ">" + m[1] + "</button>"; }).join("") + "</div><div class='pw-lg' id='pwlg'></div>";
+      h += "<div class='pw-air' id='pwair'></div>"; h += realBlock(sel);
       if (r.sent > 0) {
         var tot = Math.max(1, r.sent), fe = Math.min(tot, r.spent), hm = Math.min(tot - fe, r.back), fi = Math.max(0, tot - fe - hm);
         h += "<div class='pw-h3'>Your army</div><div class='pw-bar'><i data-w='" + (fe / tot * 100).toFixed(1) + "' style='background:#ff6b6b'></i><i data-w='" + (hm / tot * 100).toFixed(1) + "' style='background:#7dff9a'></i><i data-w='" + (fi / tot * 100).toFixed(1) + "' style='background:#ffd27a'></i></div>";
@@ -650,7 +847,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     o.innerHTML = h; o.style.display = "block"; o.scrollTop = 0;
     $("pwx").onclick = closeReport; $("pwb").onclick = closeReport;
     [].forEach.call(o.querySelectorAll("button[data-m]"), function (b) { b.onclick = function () { repMode = b.dataset.m; [].forEach.call(o.querySelectorAll("button[data-m]"), function (x) { x.classList.toggle("on", x === b); }); drawFront(); }; });
-    drawFront();
+    drawFront(); airInit();
     [].forEach.call(o.querySelectorAll("button[data-o]"), function (b) { b.onclick = function () { openReport(+b.dataset.o); }; });
     setTimeout(function () { [].forEach.call(o.querySelectorAll(".pw-bar i"), function (b) { b.style.width = b.dataset.w + "%"; }); }, 60);
     countUp(o);
