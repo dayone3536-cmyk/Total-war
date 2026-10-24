@@ -352,6 +352,19 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 @keyframes tbg{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 9px rgba(255,255,255,0)}}
 #tub .tbn{margin:10px 0 0;font-size:12px;text-align:center;color:var(--mute)}
 @media (max-height:560px){#tub .tul,#tub .tbn{display:none}#tub .tuk{min-height:56px}#tub .tuk span{font-size:15px}#tub .tbb button{min-height:48px}#tub .tbh b{font-size:18px}}
+#ib{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 12px);z-index:7;flex:none;width:42px;height:42px;min-height:0;padding:0;border-radius:50%;display:none;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--glass);color:var(--ink);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.4);animation:ibin .6s var(--ease) both}
+#ib.show{display:flex}
+#ib svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#ibt{position:absolute;top:calc(env(safe-area-inset-top,0px) + 62px);right:calc(env(safe-area-inset-right,0px) + 12px);z-index:7;max-width:230px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:var(--ink);font-size:12px;font-weight:500;line-height:1.5;display:none;animation:ibin .3s var(--ease) both}
+#ibt.show{display:block}
+@keyframes ibin{from{opacity:0;transform:translateY(-6px) scale(.92)}to{opacity:1;transform:none}}
+
+/* compact messages: keep the map visible */
+#toast{padding:4px 10px;font-size:11px;line-height:1.3;font-weight:500;border:0;border-radius:12px;background:rgba(9,14,19,.62);max-width:min(64vw,260px);overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;box-shadow:none}
+#of{left:14px;right:auto;width:min(292px,calc(100vw - 28px));flex-direction:column;align-items:stretch;gap:6px;padding:8px 10px;border-radius:14px;font-size:12px;line-height:1.35;background:rgba(9,14,19,.72)}
+#of>div{display:flex;gap:6px}
+#of button{flex:1;padding:0 10px;min-height:32px;font-size:12px;border-radius:10px}
+#of .fl{width:14px;height:10px}
 </style></head><body>
 <div id="app">
  <div id="wrap">
@@ -368,6 +381,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   <div id="dp"></div><div id="rpt"></div>
   <div id="bn"></div><button id="vm" class="p">Results</button>
   <div id="ov"></div>
+  <button id="ib" type="button" title="Install Empire" aria-label="Install Empire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14"/></svg></button><div id="ibt" role="status">To install: tap <b>Share</b>, then <b>Add to Home Screen</b>.</div>
   <div id="xc"><div class="xb"><h3>Leave this game?</h3><p>Your progress won't be saved.</p><div class="row"><button id="xs" class="p">Keep playing</button><button id="xy">Exit</button></div></div></div>
  </div>
 </div>
@@ -1218,7 +1232,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     var e = $("toast"), q = TQ.shift();
     if (!q) { tBusy = false; toast.cur = null; e.style.opacity = 0; return; }
     tBusy = true; toast.cur = q[0]; e.textContent = q[0]; e.style.opacity = 1; e.classList.remove("tp"); void e.offsetWidth; e.classList.add("tp");
-    clearTimeout(toastT); toastT = setTimeout(function () { e.style.opacity = 0; toastT = setTimeout(nextToast, 260); }, Math.min(q[1], TQ.length ? 1400 : 2600));
+    clearTimeout(toastT); toastT = setTimeout(function () { e.style.opacity = 0; toastT = setTimeout(nextToast, 260); }, Math.min(q[1], TQ.length ? 1000 : 1900));
   }
   function endReset() { clearTimeout(endT); document.documentElement.classList.remove("end"); $("bn").style.display = "none"; $("vm").style.display = "none"; TQ.length = 0; }
   function once(k, t, ms) { /* tutorial hints off: the intro screen already explains the controls */ shown[k] = 1; }
@@ -2176,7 +2190,7 @@ var WORLDS = {"asia":{"W":210,"H":222,"lon0":25,"lon1":165,"lat0":-11,"lat1":78,
     offerOpen = { r: r.id, e: e.id };
     $("ot").innerHTML = "<img class='fl' src='" + FL[r.id] + "'><b>" + NAME[r.id] + "</b> offers a pact: team up against <b>" + NAME[e.id] + "</b>?";
     $("of").style.display = "flex"; track("pact_offer_shown", { from_nation: NAME[r.id], against: NAME[e.id] });
-    setTimeout(function () { if (offerOpen && offerOpen.r === r.id) closeOffer(); }, 12000);
+    setTimeout(function () { if (offerOpen && offerOpen.r === r.id) closeOffer(); }, 8000);
   }
   function allyHelp(t) {
     if (ticks < (P[t].helped || 0)) return; P[t].helped = ticks + 150;
@@ -2306,4 +2320,32 @@ if ("serviceWorker" in navigator) {
     if (reloaded) return; reloaded = true; location.reload();
   });
 }
+</script><script>
+(function () {
+  var ib = document.getElementById("ib"), tip = document.getElementById("ibt"), ov = document.getElementById("ov"), dp = null, tt = 0;
+  if (!ib || !ov) return;
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  function installed() { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; }
+  function sync() {
+    var menu = getComputedStyle(ov).display !== "none";
+    var can = !installed() && (dp || ios);
+    ib.classList.toggle("show", !!(menu && can));
+    if (!menu) tip.classList.remove("show");
+  }
+  addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); dp = e; sync(); });
+  addEventListener("appinstalled", function () { dp = null; sync(); });
+  ib.addEventListener("click", function () {
+    if (dp) {
+      var p = dp; dp = null; sync();
+      try { p.prompt(); } catch (e) {}
+    } else if (ios) {
+      tip.classList.add("show"); clearTimeout(tt);
+      tt = setTimeout(function () { tip.classList.remove("show"); }, 5000);
+    }
+  });
+  tip.addEventListener("click", function () { tip.classList.remove("show"); });
+  new MutationObserver(sync).observe(ov, { attributes: true, attributeFilter: ["style", "class"] });
+  setInterval(sync, 1500);
+  sync();
+})();
 </script></body></html>
