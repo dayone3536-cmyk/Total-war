@@ -622,8 +622,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     var r = REP[repSel], sel = repSel, mode = repMode, V = repV, bx = V.bx, by = V.by, cw = V.cw, ch = V.ch, sx = V.sx, sy = V.sy;
     var i, j, k, x, y, a, b, o, f, c, q, ns, near, edge, gx, gy, tm = (now >> 8) & 3, arr = mode === "old" ? r.own0 : own, pul = 0.5 + 0.5 * Math.sin(now / 260);
     if (!V.oc) { V.oc = document.createElement("canvas"); V.oc.width = cw; V.oc.height = ch; V.id = V.oc.getContext("2d").createImageData(cw, ch); }
-    var og = V.oc.getContext("2d"), id = V.id, dd = id.data, armed = AIR.on && !over, tintM = null, tintA = 0;
-    if (RT.on && RT.pl && !over) { tintM = RT.pl.mask; tintA = RT.ma || 0; } else if (ATK.on && !over) { var lv = (ATK.drag && ATK.plan && ATK.plan.kind === "land" && ATK.plan.mask && !ATK.plan.block) ? ATK.plan.mask : null, tq; if (ATK.mask && lv) { tintM = (ATK.tmp && ATK.tmp.length === N) ? ATK.tmp : (ATK.tmp = new Uint8Array(N)); tintM.set(ATK.mask); for (tq = 0; tq < N; tq++) if (lv[tq]) tintM[tq] = 1; tintA = 1; } else if (ATK.mask || lv) { tintM = ATK.mask || lv; tintA = 1; } }
+    var og = V.oc.getContext("2d"), id = V.id, dd = id.data, armed = AIR.on && !over;
     for (y = 0; y < ch; y++) for (x = 0; x < cw; x++) {
       gx = bx + x; gy = by + y; i = gy * W + gx; q = (y * cw + x) * 4; f = ((E.world && !(WORLD && WORLD.px)) || !((gx + gy) & 1)) ? 1 : 0.86;
       if (!land[i]) { near = false; ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]]) near = true; c = near ? [26, 78, 108] : [10, 34, 60]; f = ((gx + gy + tm) & 1) ? 0.9 : 1.06; }
@@ -641,8 +640,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
           if (o === sel && edge && mode !== "old" && !(mode === "chg" && a !== b)) { c = [255, 150, 140]; f = 0.9 + 0.25 * pul; }   /* the enemy country is outlined */
           if (armed && o === sel) f *= 1.04 + 0.2 * pul;           /* strikeable land breathes */
         }
-        if (armed && AIR.c >= 0 && land[AIR.c]) { var dx0 = gx - (AIR.vx !== undefined ? AIR.vx : AIR.c % W), dy0 = gy - (AIR.vx !== undefined ? AIR.vy : ((AIR.c / W) | 0)); if (dx0 * dx0 + dy0 * dy0 <= 9) { c = [255, 90, 70]; f = 1.0 + 0.35 * pul; } }   /* drop zone */
-        if (tintM && tintA > 0 && tintM[i]) { var kt = tintA * (0.45 + 0.2 * pul); c = [c[0] + (255 - c[0]) * kt, c[1] + (205 - c[1]) * kt, c[2] + (80 - c[2]) * kt]; f = 1; }
+        if (armed && AIR.c >= 0 && land[AIR.c]) { var dx0 = gx - AIR.c % W, dy0 = gy - ((AIR.c / W) | 0); if (dx0 * dx0 + dy0 * dy0 <= 9) { c = [255, 90, 70]; f = 1.0 + 0.35 * pul; } }   /* drop zone */
       }
       dd[q] = Math.min(255, c[0] * f); dd[q + 1] = Math.min(255, c[1] * f); dd[q + 2] = Math.min(255, c[2] * f); dd[q + 3] = 255;
     }
@@ -734,309 +732,6 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     repRaf = requestAnimationFrame(repLoop);
   }
 
-  /* ================= SWIPE-TO-ATTACK + first-time report tutorial ================= */
-  var ATK = { on: false, from: -1, to: -1, fx: 0, fy: 0, drag: false, plan: null, orders: [], mask: null, msg: "", ghost: undefined, tmp: null, air: false }, RT = { on: false, done: false, t0: 0, pl: null, reveal: false, step: 0, ma: 0 }, AIMC = -1;
-  var RTS = [["1 \u00B7 SWIPE", "Drag your finger from your land across the enemy border."], ["2 \u00B7 SEE THE RESULT", "The dotted arrow carries the men you send. The glow is the land you would probably win."], ["3 \u00B7 ATTACK", "Swipe more arrows if you like: deep inside enemy land makes an airlift. Then tap Launch."]];
-  function rtSeen() { try { return !!localStorage.getItem("emp_rtut"); } catch (e) { return false; } }
-  function rtMark() { try { localStorage.setItem("emp_rtut", "1"); } catch (e) {} }
-  function pc1(x) { return (Math.round(x * 1000) / 10) + "%"; }
-  function midCell(a, b) { return ((((a / W) | 0) + ((b / W) | 0)) >> 1) * W + (((a % W) + (b % W)) >> 1); }
-  function bordersWith(t) {
-    var i, j, ns;
-    for (i = 0; i < N; i++) if (land[i] && own[i] === 0) { ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]] && own[ns[j]] === t) return true; }
-    return false;
-  }
-  function nearOwn(c) {
-    if (land[c] && own[c] === 0) return c;
-    var X = c % W, Y = (c / W) | 0, best = 1e9, bi = -1, i, dx, dy, dd;
-    for (i = 0; i < N; i++) if (land[i] && own[i] === 0) { dx = i % W - X; dy = ((i / W) | 0) - Y; dd = dx * dx + dy * dy; if (dd < best) { best = dd; bi = i; } }
-    return bi;
-  }
-  /* enemy cells your army could actually reach (within 10 steps of your border), nearest to the aim point first */
-  function atkCands(t, to) {
-    var dist = new Int8Array(N).fill(-1), q = [], h = 0, i, j, ns, k, out = [], X = to % W, Y = (to / W) | 0;
-    for (i = 0; i < N; i++) if (land[i] && own[i] === t) { ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]] && own[ns[j]] === 0) { dist[i] = 1; q.push(i); break; } }
-    while (h < q.length && out.length < 4000) {
-      i = q[h++]; out.push(i); if (dist[i] >= 10) continue; ns = nb(i);
-      for (j = 0; j < ns.length; j++) { k = ns[j]; if (land[k] && own[k] === t && dist[k] < 0) { dist[k] = dist[i] + 1; q.push(k); } }
-    }
-    out.sort(function (a, b) { var ax = a % W - X, ay = ((a / W) | 0) - Y, bx = b % W - X, by = ((b / W) | 0) - Y; return ax * ax + ay * ay - (bx * bx + by * by); });
-    return out;
-  }
-  function atkPlan(from, to, sendAmt) {
-    if (to < 0 || !land[to] || own[to] === 0) return null;
-    var t = own[to], d = t > 0 ? P[t] : null, send = sendAmt === undefined ? P[0].troops * SEND : sendAmt, block = "";
-    if (t > 0 && !P[t].alive) block = NAME[t] + " is already erased.";
-    else if (t > 0 && P[t].pact) block = NAME[t] + " is your ally. Break the pact first.";
-    else if (send < 5) block = "Not enough troops yet.";
-    else if (!bordersWith(t)) block = "No shared border: use \u2708\uFE0F Airlift.";
-    var cand = block ? [] : atkCands(t, to), cost = d ? Math.max(2.5, d.troops / Math.max(1, d.cells) * 1.25 + 1) : 2, est, mask = new Uint8Array(N), m, ratio, lab, col;
-    cost *= 0.85 * (1 + Math.max(0, P[0].cells / landN - 0.3) * 0.8) * LV().pc;
-    if (d && send > d.troops * 1.5) cost *= 0.65;
-    est = Math.min(cand.length, Math.floor(send * 0.92 / cost));
-    for (m = 0; m < est; m++) mask[cand[m]] = 1;
-    ratio = d ? send / Math.max(1, d.troops) : 9;
-    if (!est) { lab = "WON'T BREAK THROUGH"; col = "#ff7a7a"; }
-    else if (ratio >= 1.5) { lab = "OVERWHELMING FORCE"; col = "#7dff9a"; }
-    else if (ratio >= 0.9) { lab = "FAVOURABLE ODDS"; col = "#9fd0ff"; }
-    else if (ratio >= 0.5) { lab = "RISKY FIGHT"; col = "#ffd27a"; }
-    else { lab = "LIKELY TO STALL"; col = "#ff9a7a"; }
-    return { from: from, to: to, t: t, send: send, est: est, pct: est / landN, mask: mask, lab: lab, col: col, block: block };
-  }
-  /* a sensible default arrow across the busiest stretch of border with this enemy */
-  function atkAuto(sel) {
-    var F = [], i, j, ns, mx = 0, my = 0, n, stp, bs = -1000000, bp = null;
-    if (sel === null || sel === undefined || sel < 0 || !P[sel] || !P[sel].alive) return null;
-    for (i = 0; i < N; i++) if (land[i] && own[i] === sel) { ns = nb(i); for (j = 0; j < ns.length; j++) if (land[ns[j]] && own[ns[j]] === 0) { F.push([i, ns[j]]); break; } }
-    if (!F.length) return null;
-    F.forEach(function (q) { mx += q[0] % W; my += (q[0] / W) | 0; }); mx /= F.length; my /= F.length;
-    stp = Math.max(1, Math.floor(F.length / 200));
-    for (n = 0; n < F.length; n += stp) {
-      var f = F[n][0], X = f % W, Y = (f / W) | 0, c = 0, x, y, sc;
-      for (y = Math.max(0, Y - 6); y <= Math.min(H - 1, Y + 6); y++) for (x = Math.max(0, X - 6); x <= Math.min(W - 1, X + 6); x++) if (land[y * W + x] && own[y * W + x] === sel) c++;
-      sc = c - 0.02 * ((X - mx) * (X - mx) + (Y - my) * (Y - my));
-      if (sc > bs) { bs = sc; bp = F[n]; }
-    }
-    var fc = bp[0], oc = bp[1], dx = (fc % W) - (oc % W), dy = ((fc / W) | 0) - ((oc / W) | 0), a = oc, b = fc, s2, xx, yy, qq;
-    for (s2 = 0; s2 < 6; s2++) { xx = a % W - dx; yy = ((a / W) | 0) - dy; if (xx < 0 || yy < 0 || xx >= W || yy >= H) break; qq = yy * W + xx; if (!land[qq] || own[qq] !== 0) break; a = qq; }
-    for (s2 = 0; s2 < 7; s2++) { xx = b % W + dx; yy = ((b / W) | 0) + dy; if (xx < 0 || yy < 0 || xx >= W || yy >= H) break; qq = yy * W + xx; if (!land[qq] || own[qq] !== sel) break; b = qq; }
-    return { from: a, to: b };
-  }
-  function aimInit(sel) {
-    var au = (sel !== null && sel !== undefined && P && P[sel]) ? atkAuto(sel) : null;
-    AIMC = au ? midCell(au.from, au.to) : -1; repZoom = au ? "aim" : "enemy";
-  }
-  /* the report always lists your neighbours, even before any war has started */
-  function seedNeighbours() {
-    var nr = neighbours(0), list = [], k;
-    for (k in nr) { k = +k; if (k > 0 && P[k] && P[k].alive) list.push(k); }
-    if (list.length < 3) P.slice().sort(function (a, b) { return b.cells - a.cells; }).forEach(function (q) { if (q.id > 0 && q.alive && list.indexOf(q.id) < 0 && list.length < 3) list.push(q.id); });
-    list.forEach(function (q) { rep(q); });
-  }
-  function atkCell(e, cvs) {
-    var rc = cvs.getBoundingClientRect(), gx = repV.bx + (e.clientX - rc.left) / rc.width * repV.cw, gy = repV.by + (e.clientY - rc.top) / rc.height * repV.ch, x = Math.floor(gx), y = Math.floor(gy);
-    return { x: x, y: y, c: y * W + x, fx: gx - 0.5, fy: gy - 0.5 };
-  }
-  var MAXO = 4;
-  function atkReset() { ATK.on = false; ATK.drag = false; ATK.plan = null; ATK.from = -1; ATK.to = -1; ATK.orders = []; ATK.mask = null; ATK.msg = ""; ATK.ghost = undefined; ATK.air = false; }
-  function shareOf(n) { return P[0].troops * SEND / Math.max(1, n); }
-  /* one swipe = one order: walkable target => land attack, deep inside => airlift (same rule as tapping in the game) */
-  function orderPlan(from, to, send, qa, fa) {
-    if (to < 0 || !land[to] || own[to] === 0) return null;
-    var t = own[to], pl;
-    if (!fa && touches(to, t)) { pl = atkPlan(from, to, send); if (pl) pl.kind = "land"; }
-    else { pl = airPlan(to, send, qa); if (pl) { pl.kind = "air"; pl.from = pl.sy * W + pl.sx; pl.to = to; } }
-    if (pl) pl.fa = !!fa;
-    return pl;
-  }
-  function airQueued() { return ATK.orders.filter(function (o) { return o.kind === "air"; }).length; }
-  function liveOrder(c) { return orderPlan(ATK.from, c, shareOf(ATK.orders.length + 1), airQueued(), ATK.air); }
-  /* the army is split evenly between all arrows; re-plan every arrow whenever that split changes */
-  function ordersRecalc(extra) {
-    var os = ATK.orders, send = shareOf(os.length + (extra || 0)), qa = 0, m = null, k, o, pl, i;
-    for (k = 0; k < os.length; k++) {
-      o = os[k]; pl = orderPlan(o.from, o.to, send, qa, o.fa); o.plan = pl;
-      if (pl) { o.kind = pl.kind; if (pl.kind === "air") qa++; else if (pl.mask && !pl.block) { if (!m) m = new Uint8Array(N); for (i = 0; i < N; i++) if (pl.mask[i]) m[i] = 1; } }
-    }
-    ATK.mask = m;
-  }
-  function airPlanQ(c) { return airPlan(c, shareOf(ATK.orders.length + 1), airQueued()); }
-  function atkHint() {
-    var h = $("pah"), os = ATK.orders, n = os.length, bl = os.filter(function (o) { return !o.plan || o.plan.block; })[0], txt; if (!h) return;
-    if (AIR.on) {
-      var apl = AIR.plan, ad = $("pad"), lb = $("pal2");
-      txt = ATK.msg || (!apl ? "Drag the blue square onto enemy land." : apl.block ? apl.block : "Drag the blue square \u00B7 " + fm(apl.send) + " men \u00B7 ~" + Math.max(1, Math.round(apl.dur / 10)) + "s. Then tap Add airlift.");
-      h.textContent = txt; if (ad) ad.disabled = !apl || !!apl.block; if (lb) lb.disabled = over || !n || !!bl; return;
-    }
-    if (ATK.msg) txt = ATK.msg;
-    else if (ATK.drag && ATK.plan && ATK.plan.block) txt = ATK.plan.block;
-    else if (bl) txt = bl.plan ? bl.plan.block : "That arrow is no longer valid. Undo it.";
-    else if (!n && ATK.air) txt = "Airlift is on: swipe onto any enemy land to send planes there.";
-    else if (!n) txt = "Swipe from your land onto enemy land. Swipe deep inside for an airlift. You can add up to " + MAXO + " arrows.";
-    else txt = n + "/" + MAXO + " arrows ready. Swipe again to add more, then Launch.";
-    h.textContent = txt;
-    var b = $("pal2"); if (b) b.disabled = over || !n || !!bl;
-  }
-  function atkDown(e, cvs) {
-    if (!repV) return; var p = atkCell(e, cvs); if (p.x < 0 || p.y < 0 || p.x >= W || p.y >= H) return;
-    if (RT.on) rtEnd();
-    ATK.msg = "";
-    if (ATK.orders.length >= MAXO) { ATK.msg = "That's the maximum of " + MAXO + " arrows. Tap \u21B6 to undo one."; atkHint(); return; }
-    oldToNow(); var st = nearOwn(p.c); if (st < 0) return;
-    ATK.drag = true; ATK.from = st; ATK.to = -1; ATK.plan = null; ATK.fx = p.fx; ATK.fy = p.fy;
-    try { cvs.setPointerCapture(e.pointerId); } catch (_) {}
-    atkMove(e, cvs);
-  }
-  function atkMove(e, cvs) {
-    if (!repV) return; var p = atkCell(e, cvs); ATK.fx = p.fx; ATK.fy = p.fy;
-    if (p.x >= 0 && p.y >= 0 && p.x < W && p.y < H) {
-      if (land[p.c] && own[p.c] !== 0) { if (p.c !== ATK.to) { ATK.to = p.c; ATK.plan = liveOrder(p.c); atkHint(); } }
-      else if (ATK.to !== -1) { ATK.to = -1; ATK.plan = null; atkHint(); }
-    }
-  }
-  /* letting go of the finger drops the arrow into the queue */
-  function atkUp() {
-    var pl = ATK.plan; ATK.drag = false;
-    if (pl && !pl.block) { ATK.orders.push({ kind: pl.kind, from: pl.from, to: pl.to, t: pl.t, fa: pl.fa, plan: pl }); ordersRecalc(0); ATK.msg = ""; }
-    else ATK.msg = pl ? pl.block : "Swipe all the way onto enemy land.";
-    ATK.from = -1; ATK.to = -1; ATK.plan = null;
-    airPanel();
-  }
-  function ordersLaunch() {
-    var os = ATK.orders; if (!os.length || over) return;
-    ordersRecalc(0);
-    var bad = os.filter(function (o) { return !o.plan || o.plan.block; })[0];
-    if (bad) { ATK.msg = bad.plan ? bad.plan.block : "That arrow is no longer valid."; airPanel(); return; }
-    var total = P[0].troops * SEND, share = total / os.length, list = os.map(function (o) { return { kind: o.kind, t: o.plan.t, to: o.to }; }), nAir = list.filter(function (o) { return o.kind === "air"; }).length;
-    track("report_arrows", { empire: E.n, arrows: list.length, land: list.length - nAir, air: nAir, troops: Math.round(total) });
-    closeReport(); sfx("go");
-    list.forEach(function (o) { if (o.kind === "air") airTap(o.to, own[o.to], share, true); });
-    list.forEach(function (o) { if (o.kind === "land") landAttack(o.t, o.to, Math.min(1, share / Math.max(1, P[0].troops))); });
-    if (list.length > 1) toast(list.length + " arrows launched: " + (list.length - nAir) + " by land, " + nAir + " by air.", 3500);
-  }
-
-  /* ---- drawing on the report map ---- */
-  function rtTxt(g, t, x, y, px, col) { g.font = "800 " + px + "px system-ui,sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round"; g.lineWidth = 4; g.strokeStyle = "rgba(0,0,0,.85)"; g.strokeText(t, x, y); g.fillStyle = col; g.fillText(t, x, y); }
-  function rtPill(g, x, y, w, h, fill, stroke, r) { g.beginPath(); if (g.roundRect) g.roundRect(x - w / 2, y - h / 2, w, h, r); else g.rect(x - w / 2, y - h / 2, w, h); g.fillStyle = fill; g.fill(); g.strokeStyle = stroke; g.lineWidth = 2.5; g.stroke(); }
-  function rtBanner(g, V, txt) { var w; g.save(); g.font = "800 20px system-ui,sans-serif"; w = g.measureText(txt).width + 36; rtPill(g, V.cvw / 2, 30, w, 38, "rgba(9,14,19,.85)", "rgba(159,208,255,.8)", 19); rtTxt(g, txt, V.cvw / 2, 31, 20, "#cfe8ff"); g.restore(); }
-  function atkArrow(g, A, B, now, men, alpha, col, ico) {
-    var dx = B[0] - A[0], dy = B[1] - A[1], L = Math.sqrt(dx * dx + dy * dy); if (L < 8) return;
-    var ux = dx / L, uy = dy / L, hl = Math.min(30, L * 0.5), tx = B[0] - ux * hl * 0.7, ty = B[1] - uy * hl * 0.7, al = alpha === undefined ? 1 : alpha;
-    g.save(); g.globalAlpha = al; g.lineCap = "round"; g.lineJoin = "round";
-    g.setLineDash([]); g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 11; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(tx, ty); g.stroke();
-    g.setLineDash([16, 12]); g.lineDashOffset = -now / 30; g.strokeStyle = "#ffffff"; g.lineWidth = 6; g.shadowColor = col || "#ffd27a"; g.shadowBlur = 14; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(tx, ty); g.stroke();
-    g.shadowBlur = 0; g.setLineDash([]);
-    g.fillStyle = "#7dff9a"; g.strokeStyle = "#000"; g.lineWidth = 3; g.beginPath(); g.arc(A[0], A[1], 9, 0, 7); g.fill(); g.stroke();
-    g.translate(B[0], B[1]); g.rotate(Math.atan2(dy, dx)); g.fillStyle = "#fff"; g.strokeStyle = "rgba(0,0,0,.8)"; g.lineWidth = 3;
-    g.beginPath(); g.moveTo(0, 0); g.lineTo(-hl, -hl * 0.58); g.lineTo(-hl * 0.72, 0); g.lineTo(-hl, hl * 0.58); g.closePath(); g.fill(); g.stroke();
-    g.restore();
-    /* the men being deployed ride on top of the line */
-    if (men === null) return;
-    var txt = (ico || "\u2694") + " " + men + " men", mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, w;
-    g.save(); g.globalAlpha = al; g.font = "800 22px system-ui,sans-serif"; w = g.measureText(txt).width + 28;
-    rtPill(g, mx, my, w, 38, "rgba(9,14,19,.92)", col || "#ffd27a", 19); rtTxt(g, txt, mx, my + 1, 22, "#ffffff"); g.restore();
-  }
-  /* the forecast: how much land this attack would probably win */
-  function predPanel(g, V, B, pl, a) {
-    var lines, cols, px = [22, 17, 16], i, w = 0, h, X, Y, cp = P[0].cells / landN;
-    if (pl.block) { lines = [pl.block]; cols = ["#ff9a9a"]; px = [17]; }
-    else { lines = ["\u2248 +" + pl.est + " territories", "Your land " + pc1(cp) + " \u2192 " + pc1(cp + pl.pct), pl.lab]; cols = ["#ffd27a", "#ffffff", pl.col]; }
-    g.save();
-    for (i = 0; i < lines.length; i++) { g.font = "800 " + px[i] + "px system-ui,sans-serif"; w = Math.max(w, g.measureText(lines[i]).width); }
-    w += 34; h = lines.length * 26 + 16;
-    X = Math.min(V.cvw - w / 2 - 8, Math.max(w / 2 + 8, B[0])); Y = B[1] + 34 + h / 2;
-    if (Y + h / 2 > V.cvh - 8) Y = B[1] - 38 - h / 2;
-    Y = Math.min(V.cvh - h / 2 - 8, Math.max(h / 2 + 8, Y));
-    g.globalAlpha = a; rtPill(g, X, Y, w, h, "rgba(9,14,19,.92)", pl.block ? "#ff9a9a" : pl.col, 14);
-    for (i = 0; i < lines.length; i++) rtTxt(g, lines[i], X, Y - h / 2 + 21 + i * 26, px[i], cols[i]);
-    g.restore();
-  }
-  function atkLive(g, V, now) {
-    var cp = function (c) { return [((c % W) - V.bx + 0.5) * V.sx, (((c / W) | 0) - V.by + 0.5) * V.sy]; };
-    var os = ATK.orders, k, o, A, B, pl, T, u, F, fa, fs, gh;
-    for (k = 0; k < os.length; k++) {
-      o = os[k]; if (!o.plan) continue;
-      atkArrow(g, cp(o.plan.from), cp(o.to), now, fm(o.plan.send), 1, o.kind === "air" ? "#7cc4ff" : "#ffd27a", o.kind === "air" ? "\u2708" : "\u2694");
-    }
-    if (ATK.drag && ATK.from >= 0) {
-      pl = ATK.plan; A = cp(ATK.from); B = [(ATK.fx - V.bx + 0.5) * V.sx, (ATK.fy - V.by + 0.5) * V.sy];
-      atkArrow(g, A, B, now, fm(pl ? pl.send : shareOf(os.length + 1)), 1, pl && pl.kind === "air" ? "#7cc4ff" : "#ffd27a", pl && pl.kind === "air" ? "\u2708" : "\u2694");
-      return;
-    }
-    if (!os.length && !AIR.on) {
-      rtBanner(g, V, "\u2694  SWIPE FROM YOUR LAND ONTO ENEMY LAND");
-      if (ATK.ghost === undefined) ATK.ghost = atkAuto(repSel) || null;
-      gh = ATK.ghost;
-      if (gh) {
-        A = cp(gh.from); B = cp(gh.to); T = now % 3400;
-        u = T < 700 ? 0 : T < 2100 ? tuIO((T - 700) / 1400) : 1;
-        fa = T < 400 ? T / 400 : T > 2700 ? Math.max(0, 1 - (T - 2700) / 500) : 1;
-        F = [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u];
-        if (u > 0.02) atkArrow(g, A, F, now, null, 0.55 * fa);
-        if (fa > 0.01) {
-          g.save(); g.globalAlpha = fa; g.shadowColor = "rgba(0,0,0,.6)"; g.shadowBlur = 10; g.shadowOffsetY = 3; fs = 66;
-          g.font = fs + "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("\uD83D\uDC46", F[0], F[1] + 0.42 * fs);
-          g.restore();
-        }
-      }
-    }
-  }
-  /* the tutorial: a finger swipes across enemy land, the arrow shows the men, the forecast appears, then the Attack button is revealed */
-  function rtDraw(g, V, now) {
-    var pl = RT.pl, T = (now - RT.t0) % 8200, cp = function (c) { return [((c % W) - V.bx + 0.5) * V.sx, (((c / W) | 0) - V.by + 0.5) * V.sy]; };
-    var A = cp(pl.from), B = cp(pl.to), prog = 0, fa = 0, down = 0, F = A, step, e, E2, fs, u;
-    if (T < 900) { e = tuOut(T / 900); F = [A[0] + 90 * (1 - e), A[1] + 120 * (1 - e)]; fa = Math.min(1, T / 300); }
-    else if (T < 1150) { F = A; fa = 1; down = (T - 900) / 250; }
-    else if (T < 3050) { prog = tuIO((T - 1150) / 1900); F = [A[0] + (B[0] - A[0]) * prog, A[1] + (B[1] - A[1]) * prog]; fa = 1; down = 1; }
-    else if (T < 3550) { F = B; prog = 1; fa = 1 - (T - 3050) / 500; }
-    else { prog = 1; F = B; }
-    RT.ma = T < 3000 ? 0 : Math.min(1, (T - 3000) / 600);
-    step = T < 3000 ? 1 : T < 4200 ? 2 : 3;
-    if (RT.step !== step) rtStep(step);
-    if (T >= 4200 && !RT.reveal) { RT.reveal = true; var pat = $("pat"); if (pat) { pat.classList.remove("rthide"); pat.classList.add("rtpulse"); } }
-    if (T >= 900 && T < 1600) { u = (T - 900) / 700; g.save(); g.globalAlpha = 1 - u; g.strokeStyle = "#fff"; g.lineWidth = 4; g.beginPath(); g.arc(A[0], A[1], 12 + 40 * u, 0, 7); g.stroke(); g.restore(); }
-    if (prog > 0.01) { E2 = [A[0] + (B[0] - A[0]) * prog, A[1] + (B[1] - A[1]) * prog]; atkArrow(g, A, E2, now, fm(pl.send * Math.min(1, prog * 1.5))); }
-    
-    if (fa > 0.01) {
-      g.save(); g.globalAlpha = fa; g.shadowColor = "rgba(0,0,0,.6)"; g.shadowBlur = 10; g.shadowOffsetY = 3; fs = 66 * (1 - 0.14 * down);
-      g.font = fs + "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("\uD83D\uDC46", F[0], F[1] + 0.42 * fs);
-      g.restore();
-    }
-  }
-  function rtStep(n) {
-    RT.step = n; var s = $("rts"), dots = document.querySelectorAll("#rtt .pw-tp i"), gb = $("rtg"), i; if (!s) return;
-    s.innerHTML = "<b>" + RTS[n - 1][0] + "</b><span>" + RTS[n - 1][1] + "</span>";
-    for (i = 0; i < dots.length; i++) dots[i].className = i < n ? "on" : "";
-    if (n === 3) { rtMark(); if (gb) { gb.textContent = "Got it"; gb.className = "on"; } } else if (gb) { gb.textContent = "Skip"; gb.className = ""; }
-  }
-  function rtEnd() { RT.on = false; RT.done = true; rtMark(); var b = $("rtt"); if (b) b.innerHTML = ""; var pat = $("pat"); if (pat) pat.classList.remove("rthide", "rtpulse"); }
-  function rtMaybe() {
-    var box = $("rtt"); RT.on = false; if (box) box.innerHTML = "";
-    if (!box || RT.done || rtSeen() || over || repSel === null || repSel === undefined || !P[repSel] || !P[repSel].alive || AIR.on) return;
-    var au = atkAuto(repSel), pl = au && atkPlan(au.from, au.to); if (!pl) return;
-    RT.on = true; RT.pl = pl; RT.t0 = Date.now(); RT.reveal = false; RT.step = 0; RT.ma = 0;
-    box.innerHTML = "<div class='pw-tt'><div class='pw-tk'>Quick guide \u00B7 how to attack</div><div class='pw-ts' id='rts'></div><div class='pw-tp'><i></i><i></i><i></i></div><button id='rtg'>Skip</button></div>";
-    $("rtg").onclick = function () { rtEnd(); };
-    rtStep(1); var pat = $("pat"); if (pat) pat.classList.add("rthide");
-    setTimeout(function () { var b2 = $("rtt"); if (b2 && b2.scrollIntoView && reportOpen) b2.scrollIntoView({ block: "end", behavior: "smooth" }); }, 150);
-  }
-  function zoomSync() { [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (x) { x.classList.toggle("on", x.dataset.z === repZoom); }); }
-  function oldToNow() { if (repMode === "old") { repMode = "now"; [].forEach.call(document.querySelectorAll("#rpt button[data-m]"), function (x) { x.classList.toggle("on", x.dataset.m === "now"); }); } }
-  function scrollMap() { var mp = $("pwm"); if (mp && mp.scrollIntoView) { var rc = mp.getBoundingClientRect(); if (rc.top < 0 || rc.bottom > innerHeight) mp.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }
-  /* the action row under the map: Airlift, Attack, and the % of your army to deploy */
-  function airPanel() {
-    var box = $("pwair"); if (!box || repSel === null || !P[repSel]) return;
-    var bad = over || !P[repSel].alive, h = "", os = ATK.orders, n = os.length, total = P[0].troops * SEND;
-    h += "<div class='pw-pc'><span>Deploy <b>" + fm(total) + "</b> of " + fm(P[0].troops) + " men" + (n > 1 ? " \u00B7 <b>" + fm(total / n) + "</b> per arrow" : "") + "</span>" + [0.25, 0.5, 0.75, 1].map(function (q) { return "<button data-p='" + q + "'" + (q === SEND ? " class='on'" : "") + ">" + Math.round(q * 100) + "%</button>"; }).join("") + "</div>";
-    box.className = "pw-air" + (bad ? " off" : "");
-    h += AIR.on ? "<button class='pa-x' id='pax' aria-label='Cancel airlift'>\u2715</button><button class='pa-b go' id='pad'>\u2708\uFE0F Add airlift</button>" : "<button class='pa-x' id='pau' aria-label='Undo last arrow'" + (bad || !n ? " disabled" : "") + ">\u21B6</button><button class='pa-b' id='pab'" + (bad ? " disabled" : "") + ">\u2708\uFE0F Airlift</button>";
-    h += "<button class='pa-b go atk' id='pal2'" + (bad || !n ? " disabled" : "") + ">\u2694\uFE0F Launch" + (n ? " " + n + (n === 1 ? " arrow" : " arrows") : "") + "</button><div class='pa-hint' id='pah'></div>";
-    box.innerHTML = h;
-    [].forEach.call(box.querySelectorAll("button[data-p]"), function (b) {
-      b.onclick = function () {
-        SEND = +b.dataset.p; try { $("sb").lastChild.textContent = Math.round(SEND * 100) + "%"; } catch (_) {}
-        ATK.msg = ""; ordersRecalc(0); if (AIR.on && AIR.plan) AIR.plan = airPlanQ(AIR.plan.c); airPanel();
-      };
-    });
-    var pau = $("pau"), pal2 = $("pal2"), pab = $("pab"), pax = $("pax"), pad = $("pad");
-    if (pab) pab.onclick = function () {
-      if (RT.on) rtEnd();
-      if (ATK.orders.length >= MAXO) { ATK.msg = "That's the maximum of " + MAXO + " arrows. Tap \u21B6 to undo one."; airPanel(); return; }
-      ATK.msg = ""; AIR.on = true; AIR.t0 = Date.now(); AIR.vx = undefined; AIR.lt = 0; AIR.c = airDefault(); AIR.plan = AIR.c >= 0 ? airPlanQ(AIR.c) : null;
-      oldToNow(); airMark(); airPanel(); scrollMap();
-    };
-    if (pax) pax.onclick = function () { AIR.on = false; AIR.c = -1; AIR.plan = null; AIR.vx = undefined; AIR.drag = false; ATK.msg = ""; airMark(); airPanel(); };
-    if (pad) pad.onclick = function () {
-      var pl = AIR.plan; if (!pl || pl.block) return;
-      ATK.orders.push({ kind: "air", from: pl.sy * W + pl.sx, to: pl.c, t: pl.t, fa: true, plan: pl });
-      AIR.on = false; AIR.c = -1; AIR.plan = null; AIR.vx = undefined; AIR.drag = false; ATK.msg = "";
-      ordersRecalc(0); airMark(); airPanel();
-    };
-    if (pau) pau.onclick = function () { ATK.orders.pop(); ATK.msg = ""; ordersRecalc(0); airPanel(); };
-    if (pal2) pal2.onclick = function () { ordersLaunch(); };
-    atkHint();
-  }
-
   /* ================= AIR STRIKE (lives under the report map) ================= */
   function airPlan(c, sendAmt, qa) {
     var t = own[c], X = c % W, Y = (c / W) | 0, best = 1e9, sx0 = X, sy0 = Y, i, dx, dy, dd;
@@ -1088,9 +783,9 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
       if (gx < 0 || gy < 0 || gx >= W || gy >= H || !land[c] || own[c] === 0 || c === AIR.c) return;
       AIR.c = c; AIR.plan = airPlanQ(c); atkHint();
     }
-    cvs.onpointerdown = function (e) { if (AIR.on && !over) { AIR.drag = true; try { cvs.setPointerCapture(e.pointerId); } catch (_) {} airAt(e); return; } if (ATK.on && !over) { atkDown(e, cvs); return; } if (!AIR.on || over) return; AIR.drag = true; try { cvs.setPointerCapture(e.pointerId); } catch (_) {} airAt(e); };
-    cvs.onpointermove = function (e) { if (ATK.drag) { atkMove(e, cvs); return; } if (AIR.drag) airAt(e); };
-    cvs.onpointerup = cvs.onpointercancel = function () { AIR.drag = false; if (ATK.drag) atkUp(); };
+    cvs.onpointerdown = function (e) { if (!AIR.on || over) return; AIR.drag = true; try { cvs.setPointerCapture(e.pointerId); } catch (_) {} airAt(e); };
+    cvs.onpointermove = function (e) { if (AIR.drag) airAt(e); };
+    cvs.onpointerup = cvs.onpointercancel = function () { AIR.drag = false; };
     if (!repRaf) repRaf = requestAnimationFrame(repLoop);
   }
   function airLaunch() {
@@ -1102,7 +797,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     var go = function () { sfx("air"); airTap(c, own[c]); };
     if (np.wait > 0) { toast("Squadron refuelling: wheels up in " + Math.ceil(np.wait / 10) + "s.", 2500); var tries = 0, iv = setInterval(function () { if (over || ++tries > 80) { clearInterval(iv); return; } if (!paused && ticks >= coolT) { clearInterval(iv); go(); } }, 100); } else go();
   }
-  function closeReport() { reportOpen = false; paused = false; AIR.on = false; AIR.c = -1; AIR.plan = null; atkReset(); RT.on = false; AIR.sel = null; repZoom = "enemy"; if (repRaf) { cancelAnimationFrame(repRaf); repRaf = 0; } $("rpt").style.display = "none"; }
+  function closeReport() { reportOpen = false; paused = false; AIR.on = false; AIR.c = -1; AIR.plan = null; repZoom = "enemy"; if (repRaf) { cancelAnimationFrame(repRaf); repRaf = 0; } $("rpt").style.display = "none"; }
   function openReport(sel) {
     if (!P || !P[0] || !E) { toast("Start a game first."); return; }
     if (!reportOpen) { reportOpen = true; paused = true; $("rp").classList.remove("nw"); track("report_opened", { empire: E.n, campaigns: Object.keys(REP).length, at_second: Math.round(ticks / 10) }); }
@@ -1110,8 +805,8 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     var ids = Object.keys(REP).map(Number).sort(function (a, b) { return (((REP[b].sent > 0) || (REP[b].esent > 0)) - ((REP[a].sent > 0) || (REP[a].esent > 0))) || (REP[b].t1 - REP[a].t1) || (P[b].cells - P[a].cells); });
     if (sel === undefined || !REP[sel]) sel = (repSel !== null && REP[repSel]) ? repSel : ids[0];
     repSel = sel === undefined ? null : sel;
-    if (AIR.sel !== repSel) { AIR.on = false; AIR.c = -1; AIR.plan = null; AIR.sel = repSel; atkReset(); aimInit(repSel); }
-    var o = $("rpt"), h = "<div class='pw'><div class='pw-h'><div class='pw-k'>📜 " + (FLAVOR[E.n] || "War report") + " · " + gdate(ticks) + "</div><div style='display:flex;gap:6px'><button class='pw-x' id='pwq' title='How to attack' aria-label='How to attack'>?</button><button class='pw-x' id='pwx'>✕</button></div></div>";
+    if (AIR.sel !== repSel) { AIR.on = false; AIR.c = -1; AIR.plan = null; AIR.sel = repSel; }
+    var o = $("rpt"), h = "<div class='pw'><div class='pw-h'><div class='pw-k'>📜 " + (FLAVOR[E.n] || "War report") + " · " + gdate(ticks) + "</div><button class='pw-x' id='pwx'>✕</button></div>";
     if (!ids.length) {
       h += "<div class='pw-vs'><div><img src='" + FL[0] + "'>" + E.n + "</div></div><p class='pw-nr' style='text-align:center;margin-top:14px'>No war to report yet.<br>Tap a rival's border to march on them, deep inside their land for planes, or a far coast for ships. Come back here to read how it went.</p>";
     } else {
@@ -1391,9 +1086,9 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     toast("Transport planes take off for " + (t < 0 ? "the wilds" : NAME[t]) + "! Landing in about " + Math.max(1, Math.round(dur / 10)) + "s.", 3500);
     track("air_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], troops: Math.round(send), eta_s: Math.round(dur / 10) });
   }
-  function landAttack(t, fc, frac) {
-    var fr = frac === undefined ? SEND : frac;
-    if (launch(0, t, fr, fc)) { track("attack_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], fraction: fr, at_second: Math.round(ticks / 10) }); toast(t < 0 ? "Expanding into empty land" : "Attacking " + NAME[t] + "!"); if (t > 0) allyHelp(t); }
+  function landAttack(t) {
+    var fr = SEND;
+    if (launch(0, t, fr)) { track("attack_launched", { empire: E.n, target: t < 0 ? "wilds" : NAME[t], fraction: fr, at_second: Math.round(ticks / 10) }); toast(t < 0 ? "Expanding into empty land" : "Attacking " + NAME[t] + "!"); if (t > 0) allyHelp(t); }
     else toast("Not enough troops yet.");
   }
   var DIFF = { easy: 70, normal: 45, hard: 28 }, diff = "normal";
@@ -2401,7 +2096,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     }
     P.forEach(function (p, j) { p.troops = E.world ? (j === 0 ? (150 + p.cells * 9 + Math.max(0, 40 - p.cells) * 10) * 1.5 : (50 + p.cells * 9) * 0.75 * getDyn()) : (j === 0 ? (130 + p.cells * 6) * (E.pt || 1) : (50 + p.cells * (E.modern ? 12 : 9)) * (E.bt || 1) * getDyn()); if (!p.cells) p.alive = false; if (j > 0 && E.late && E.late[NAME[j]]) p.next = E.late[NAME[j]]; });
     SCL = []; var RR = !E.world && REAL[E.n]; P.forEach(function (p, j) { var rv = RR ? (j ? RR.foes[NAME[j]] : RR.me) : 0; SCL[j] = rv && p.troops > 0 ? rv / p.troops : 1; });
-    start0 = Math.max(1, P[0].cells); REP = {}; repSel = null; reportOpen = false; atkReset(); RT.on = false; AIR.sel = null; $("rpt").style.display = "none"; $("rp").classList.remove("nw");
+    start0 = Math.max(1, P[0].cells); REP = {}; repSel = null; reportOpen = false; $("rpt").style.display = "none"; $("rp").classList.remove("nw");
     P.forEach(function (p) { var nm = NAME[p.id], cn = E.world ? nm : CAPN[nm], k, f = null; if (cn) for (k = 0; k < CITY.length; k++) if (CITY[k].n === cn && own[CITY[k].i] === p.id) f = CITY[k]; if (!f) for (k = 0; k < CITY.length; k++) if (own[CITY[k].i] === p.id) { f = CITY[k]; break; } p.cap = f ? f.n : null; });
     Z = 1; PX = 0; PY = 0; zapply(); focusYou(); closeOffer(); $("dp").style.display = "none";
     $("ov").style.display = "none"; toast(LV().e + " " + LV().n + " · You rule the " + E.n + " in " + E.y + ". Tap a border to attack, or deep inside for planes!", 4000);
@@ -2418,7 +2113,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     if (send < 5) return false; repLaunch(p, t, send);
     pl.troops -= send;
     var ex = atk.filter(function (a) { return a.p === p && a.t === t; })[0];
-    if (ex) { ex.troops += send; ex.idle = 0; if (fc !== undefined) { ex.fcs = ex.fcs || (ex.fc >= 0 ? [ex.fc] : []); ex.fcs.push(fc); ex.fc = fc; } } else atk.push({ p: p, t: t, troops: send, idle: 0, took: 0, fc: fc, fcs: fc !== undefined ? [fc] : undefined });
+    if (ex) { ex.troops += send; ex.idle = 0; } else atk.push({ p: p, t: t, troops: send, idle: 0, took: 0 });
     return true;
   }
   function botBuild(p) {
@@ -2486,7 +2181,6 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       var n = Math.min(fr.length, 24, Math.floor(budget / cost + Math.random())), got = 0;
       for (var m = 0; m < n; m++) {
         var c1 = fr[(Math.random() * fr.length) | 0], c2 = fr[(Math.random() * fr.length) | 0], c = CNT[c2] > CNT[c1] ? c2 : c1;
-        var fcc = (a.fcs && a.fcs.length) ? a.fcs[(Math.random() * a.fcs.length) | 0] : a.fc; if (fcc >= 0) { var c3 = fr[(Math.random() * fr.length) | 0], fx3 = fcc % W, fy3 = (fcc / W) | 0, dd3 = function (q) { return Math.pow(q % W - fx3, 2) + Math.pow(((q / W) | 0) - fy3, 2); }; c = dd3(c1) <= dd3(c2) ? c1 : c2; if (dd3(c3) < dd3(c)) c = c3; }
         if (own[c] !== a.t) { c = c1 === c ? c2 : c1; if (own[c] !== a.t) continue; }
         if (a.troops < cost) break;
         a.troops -= cost;
