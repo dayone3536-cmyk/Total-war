@@ -404,7 +404,15 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 .pw-tp i.on{background:#ffd27a}
 .pw-tt button{width:100%;min-height:42px;border-radius:12px}
 .pw-tt button.on{background:#fff;color:#0b1118;border-color:transparent}
+
+/* ---- landscape-only on phones ---- */
+#rot{display:none;position:fixed;inset:0;z-index:2147483647;background:#0b1118;color:#e8eef2;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:600 18px system-ui,sans-serif;gap:14px}
+#rot i{font-style:normal;font-size:64px;display:block;animation:rotp 1.8s ease-in-out infinite}
+#rot small{font-weight:400;font-size:13px;opacity:.7}
+@keyframes rotp{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (pointer:coarse) and (max-width:900px){#rot{display:flex}}
 </style></head><body>
+<div id="rot"><i>📱</i><div>Rotate your phone</div><small>Empire is played in landscape</small></div>
 <div id="app">
  <div id="wrap">
   <div id="bx"><div id="zm"><canvas id="c" width="80" height="120"></canvas><div id="nm"></div><div id="mv"></div></div></div>
@@ -2869,4 +2877,26 @@ if ("serviceWorker" in navigator) {
   setInterval(sync, 1500);
   sync();
 })();
-</script></body></html>
+</script><script>
+(function(){
+  function lock(){
+    try{
+      var o=screen.orientation;
+      if(o&&o.lock){
+        var go=function(){o.lock('landscape').catch(function(){});};
+        if(!document.fullscreenElement&&document.documentElement.requestFullscreen){
+          document.documentElement.requestFullscreen().then(go).catch(go);
+        }else go();
+      }
+    }catch(e){}
+  }
+  var coarse=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+  if(coarse){
+    lock();
+    document.addEventListener('click',lock,{once:true});
+    document.addEventListener('touchend',lock,{once:true});
+  }
+})();
+</script>
+</body></html>
+
