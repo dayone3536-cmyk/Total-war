@@ -428,7 +428,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 (function () {
   var W = 80, H = 120, N = W * H, WIN = 0.97, SEND = 0.5, paused = false;
   var $ = function (id) { return document.getElementById(id); };
-  var CMD = ""; try { CMD = (localStorage.getItem("emp_cmd") || "").trim(); } catch (e) {}
+  var CMD = ""; try { CMD = (localStorage.getItem("emp_cmd") || "").trim(); if (CMD.toLowerCase() === "commander" && localStorage.getItem("emp_named") !== "1") CMD = ""; } catch (e) {}
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function askName(done) {
     if (CMD) { done(); return; }
@@ -442,8 +442,9 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     document.body.appendChild(d);
     var inp = d.querySelector("#cmdIn");
     function go() {
-      var v = inp.value.replace(/\s+/g, " ").trim().slice(0, 16) || "Commander";
-      CMD = v; try { localStorage.setItem("emp_cmd", v); } catch (e) {}
+      var v = inp.value.replace(/\s+/g, " ").trim().slice(0, 16);
+      if (!v) { inp.style.borderColor = "#ff5a4a"; inp.placeholder = "Type your name"; try { inp.focus(); } catch (e) {} return; }
+      CMD = v; try { localStorage.setItem("emp_cmd", v); localStorage.setItem("emp_named", "1"); } catch (e) {}
       d.remove(); done();
     }
     d.querySelector("#cmdGo").onclick = go;
@@ -472,7 +473,26 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
   function facCost(o) { return 400 * (facN(o || 0) + 1); }
   function track(n, p) { try { posthog.capture(n, Object.assign({ game: "empire" }, p || {})); } catch (_) {} }
-  function tagPlayer() { try { posthog.identify(posthog.get_distinct_id(), { name: CMD }); posthog.register({ player_name: CMD }); } catch (_) {} }
+  /* ---- Supabase: one row per player (id, name). Paste your own values below. ---- */
+  var SB_URL = "https://ctmyubrzkbvmckgqzxnk.supabase.co", SB_KEY = "sb_publishable_OpF88CHe-g4dTmKOhbDh9Q_R66ymTG4";
+  function playerId() {
+    var u = ""; try { u = localStorage.getItem("emp_uid") || ""; } catch (e) {}
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(u)) {
+      u = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); });
+      try { localStorage.setItem("emp_uid", u); } catch (e) {}
+    }
+    return u;
+  }
+  function sbRegister() {
+    if (!CMD || SB_URL.indexOf("PASTE") === 0 || SB_KEY.indexOf("PASTE") === 0) return;
+    var ph = null; try { ph = posthog.get_distinct_id() || null; } catch (_) {}
+    var h = { "Content-Type": "application/json", "apikey": SB_KEY };
+    if (SB_KEY.indexOf("eyJ") === 0) h["Authorization"] = "Bearer " + SB_KEY;
+    try {
+      fetch(SB_URL.replace(/\/+$/, "") + "/rest/v1/rpc/register_player", { method: "POST", headers: h, keepalive: true, body: JSON.stringify({ p_id: playerId(), p_name: CMD, p_ph: ph }) }).catch(function () {});
+    } catch (_) {}
+  }
+  function tagPlayer() { try { posthog.identify(posthog.get_distinct_id(), { name: CMD }); posthog.register({ player_name: CMD }); } catch (_) {} sbRegister(); }
   /* ================= WAR REPORT (phase 1) ================= */
   var REP = {}, reportOpen = false, repSel = null;
   var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -593,6 +613,22 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   }
   
   var repMode = "now", repZoom = "enemy", repRaf = 0, repV = null, AIR = { on: false, c: -1, sel: null, t0: 0, plan: null }, RIMG = {};
+  var ATK = { on: false, drag: false, from: -1, to: -1, plan: null }, RT = { on: false, pl: null, done: true }, AIMC = -1;
+  /* report helpers: make sure every living neighbour has a report page even before any shot is fired */
+  function seedNeighbours() {
+    var i, j, ns, o, seen = {};
+    for (i = 0; i < N; i++) {
+      if (!land[i] || own[i] !== 0) continue;
+      ns = nb(i);
+      for (j = 0; j < ns.length; j++) { o = own[ns[j]]; if (o > 0 && !seen[o] && P[o] && P[o].alive) { seen[o] = 1; rep(o); } }
+    }
+  }
+  function airPanel() { airPanelOld(); }
+  function airPlanQ(c) { return airPlan(c); }
+  function atkHint() { airHint(); }
+  function atkLive() {}
+  function rtDraw() {}
+  function rtMaybe() {}
   function rimg(kind, col) { var u = spr(kind, col); if (!RIMG[u]) { var im = new Image(); im.src = u; RIMG[u] = im; } return RIMG[u]; }
   function repView() {
     var r = REP[repSel], sel = repSel, i, a, b, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1, any = false, pad = 9, zz = repZoom;
@@ -773,7 +809,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     if (pal) pal.onclick = function () { airLaunch(); };
     airHint();
   }
-  function airMark() { var mp = document.querySelector("#rpt .pw-mp"); if (mp) mp.classList.toggle("arm", AIR.on || ATK.on); }
+  function airMark() { var mp = document.querySelector("#rpt .pw-mp"); if (mp) mp.classList.toggle("arm", !!AIR.on); }
   function airInit() {
     var cvs = $("pwm"); if (!AIR.on && !ATK.on && !over && repSel !== null && P[repSel] && P[repSel].alive) { ATK.on = true; ATK.drag = false; ATK.from = -1; ATK.to = -1; ATK.plan = null; } airMark(); airPanel(); if (!cvs) return;
     [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (b) { b.onclick = function () { repZoom = b.dataset.z; [].forEach.call(document.querySelectorAll("#rpt button[data-z]"), function (x) { x.classList.toggle("on", x === b); }); if (AIR.plan) AIR.plan = airPlanQ(AIR.plan.c); drawFront(); }; });
@@ -797,7 +833,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     var go = function () { sfx("air"); airTap(c, own[c]); };
     if (np.wait > 0) { toast("Squadron refuelling: wheels up in " + Math.ceil(np.wait / 10) + "s.", 2500); var tries = 0, iv = setInterval(function () { if (over || ++tries > 80) { clearInterval(iv); return; } if (!paused && ticks >= coolT) { clearInterval(iv); go(); } }, 100); } else go();
   }
-  function closeReport() { reportOpen = false; paused = false; AIR.on = false; AIR.c = -1; AIR.plan = null; repZoom = "enemy"; if (repRaf) { cancelAnimationFrame(repRaf); repRaf = 0; } $("rpt").style.display = "none"; }
+  function closeReport() { reportOpen = false; paused = false; AIR.on = false; AIR.drag = false; AIR.c = -1; AIR.plan = null; ATK.on = false; ATK.drag = false; ATK.plan = null; repZoom = "enemy"; repMode = "now"; repV = null; if (repRaf) { cancelAnimationFrame(repRaf); repRaf = 0; } $("rpt").style.display = "none"; }
   function openReport(sel) {
     if (!P || !P[0] || !E) { toast("Start a game first."); return; }
     if (!reportOpen) { reportOpen = true; paused = true; $("rp").classList.remove("nw"); track("report_opened", { empire: E.n, campaigns: Object.keys(REP).length, at_second: Math.round(ticks / 10) }); }
@@ -840,10 +876,10 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
     var sh = P[0].cells / landN;
     h += "<div class='pw-h3' style='margin-top:16px'>Your empire</div><div class='pw-st'>Land <b>" + Math.round(sh * 100) + "%</b> · Troops <b>" + fm(P[0].troops) + "</b> · Factories <b>" + facN(0) + "</b> · Time <b>" + Math.floor(ticks / 600) + ":" + ("0" + Math.round(ticks / 10 % 60)).slice(-2) + "</b></div>";
     h += "<div class='pw-go'><button class='p' id='pwb'>" + (over ? "Close report" : "Back to the war") + "</button></div></div>";
-    o.innerHTML = h; o.style.display = "block"; o.scrollTop = 0;
+    o.innerHTML = h; o.style.display = "block"; o.style.overflowY = "auto"; o.style.touchAction = "pan-y"; o.scrollTop = 0; requestAnimationFrame(function () { o.scrollTop = 0; });
     $("pwx").onclick = closeReport; $("pwb").onclick = closeReport;
     [].forEach.call(o.querySelectorAll("button[data-m]"), function (b) { b.onclick = function () { repMode = b.dataset.m; [].forEach.call(o.querySelectorAll("button[data-m]"), function (x) { x.classList.toggle("on", x === b); }); drawFront(); }; });
-    drawFront(); airInit(); rtMaybe(); $("pwq").onclick = function () { RT.done = false; try { localStorage.removeItem("emp_rtut"); } catch (e) {} rtMaybe(); };
+    drawFront(); airInit(); rtMaybe(); var pwq = $("pwq"); if (pwq) pwq.onclick = function () { RT.done = false; try { localStorage.removeItem("emp_rtut"); } catch (e) {} rtMaybe(); };
     [].forEach.call(o.querySelectorAll("button[data-o]"), function (b) { b.onclick = function () { openReport(+b.dataset.o); }; });
     setTimeout(function () { [].forEach.call(o.querySelectorAll(".pw-bar i"), function (b) { b.style.width = b.dataset.w + "%"; }); }, 60);
     countUp(o);
