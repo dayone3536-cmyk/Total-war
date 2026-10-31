@@ -2381,9 +2381,362 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     bindVote(o, "start"); bindLv(o); tuBind(o);
     $("go").onclick = function () { newGame(); }; if ($("ch")) $("ch").onclick = showPicker; if ($("wany")) $("wany").onclick = showWorldPicker;
   }
+  /* ===== MATCH VIDEO: records the whole match in 9:16, then asks the player to send it ===== */
+  var RL = { res: null, rec: null, recOn: false, stopping: false, blob: null, rc: null, rg: null, t0: 0, cap: "", capT: 0, dead: [], er: 0, asked: false, urls: [], poster: "" };
+  var RW = 540, RH = 960;
+  function reelMime() {
+    var c = ["video/mp4;codecs=avc1.42E01E", "video/mp4;codecs=avc1", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"], i;
+    for (i = 0; i < c.length; i++) { try { if (MediaRecorder.isTypeSupported(c[i])) return c[i]; } catch (_) {} }
+    return "";
+  }
+  function reelFit(g, txt, max, size, weight) {
+    do { g.font = weight + " " + size + "px system-ui,-apple-system,sans-serif"; size -= 2; } while (g.measureText(txt).width > max && size > 14);
+  }
+  function reelReset() {
+    reelLiveStop(true);
+    RL.res = null; RL.blob = null; RL.cap = ""; RL.capT = 0; RL.dead = []; RL.er = 0; RL.asked = false; RL.poster = "";
+    RL.urls.forEach(function (u) { try { URL.revokeObjectURL(u); } catch (_) {} }); RL.urls = [];
+    var o = document.getElementById("rlask"); if (o) o.remove();
+  }
+  function reelLiveStop(discard) {
+    var r = RL.rec; RL.rec = null; RL.recOn = false;
+    if (!discard && RL.rc) { try { RL.poster = RL.rc.toDataURL("image/jpeg", 0.82); } catch (_) {} }
+    if (RL.rc && RL.rc.parentNode) RL.rc.parentNode.removeChild(RL.rc);
+    if (!r) return;
+    if (discard) { r.onstop = null; r.ondataavailable = null; } else RL.stopping = true;
+    try { if (r.state !== "inactive") r.stop(); else RL.stopping = false; } catch (_) { RL.stopping = false; }
+  }
+  function reelLiveStart() {
+    try {
+      if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) return;
+      var mime = reelMime(), rc = document.createElement("canvas"), chunks = [];
+      rc.width = RW; rc.height = RH; rc.style.cssText = "position:fixed;left:-9999px;top:0;width:2px;height:2px;pointer-events:none";
+      document.body.appendChild(rc);
+      var rec = new MediaRecorder(rc.captureStream(24), mime ? { mimeType: mime, videoBitsPerSecond: 2000000 } : { videoBitsPerSecond: 2000000 });
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function () {
+        RL.stopping = false;
+        if (!chunks.length) return;
+        RL.blob = new Blob(chunks, { type: ((rec.mimeType || mime || "video/webm").split(";")[0]) || "video/webm" });
+        if (RL.res) reelAsk();
+      };
+      RL.rc = rc; RL.rg = rc.getContext("2d"); RL.rec = rec; RL.recOn = true; RL.t0 = Date.now(); RL.cap = ""; RL.capT = 0;
+      rec.start(1000);
+    } catch (_) { RL.rec = null; RL.recOn = false; }
+  }
+  /* ---- real-screen recording: the video shows what the player actually sees (their zoom, ships, names, taps, report, diplomacy) ---- */
+  function reelTap(x, y) { RL.taps = RL.taps || []; RL.taps.push({ x: x, y: y, t: Date.now() }); if (RL.taps.length > 8) RL.taps.shift(); }
+  function reelCent() {
+    var t = Date.now(), sx = [], sy = [], n = [], i, o;
+    if (RL.ct && t - RL.ctT < 600 && RL.ct.n.length === P.length) return RL.ct;
+    for (i = 0; i < P.length; i++) { sx.push(0); sy.push(0); n.push(0); }
+    for (i = 0; i < N; i++) { o = own[i]; if (o >= 0 && land[i]) { sx[o] += i % W; sy[o] += (i / W) | 0; n[o]++; } }
+    RL.ct = { sx: sx, sy: sy, n: n }; RL.ctT = t; return RL.ct;
+  }
+  function reelTxt(g, s, x, y, px, col, al) {
+    g.font = "800 " + px + "px system-ui,-apple-system,sans-serif"; g.textAlign = al || "center"; g.lineJoin = "round";
+    g.lineWidth = Math.max(2, px / 4); g.strokeStyle = "rgba(0,0,0,.85)"; g.strokeText(s, x, y); g.fillStyle = col; g.fillText(s, x, y);
+  }
+  function reelScene(g, sh, y, foes) {
+    var now = Date.now(), SX = 15, SY = 115, SW = 510, SH = 730, i, rp = reportOpen && repSel !== null && P[repSel], dpOpen = $("dp").style.display === "flex";
+    g.textAlign = "center"; g.textBaseline = "alphabetic";
+    g.fillStyle = "#ffd27a"; reelFit(g, rp ? "WAR REPORT" : dpOpen ? "DIPLOMACY" : E.n, 500, 40, "800"); g.fillText(rp ? "WAR REPORT" : dpOpen ? "DIPLOMACY" : E.n, 270, 57);
+    g.fillStyle = "#9fb3c4"; g.font = "600 18px system-ui,-apple-system,sans-serif";
+    g.fillText(rp ? E.n + " vs " + NAME[repSel] + " · " + gdate(ticks) : dpOpen ? E.n + " · pacts " + pactCount() + "/" + MAXPACTS : (foes && NAME.length > 1 ? "vs " + foes : ""), 270, 90);
+    if (rp) {
+      var r = REP[repSel], cvs = $("pwm"), vd = document.querySelector("#rpt .pw-vd"), yy = 150;
+      if (vd) { g.fillStyle = "#ffd27a"; g.font = "800 24px system-ui,-apple-system,sans-serif"; g.fillText(vd.textContent, 270, yy); yy += 25; }
+      if (cvs && cvs.width > 10) {
+        var hh = Math.min(520, cvs.height * 510 / cvs.width); g.imageSmoothingEnabled = false; g.drawImage(cvs, 15, yy, 510, hh); yy += hh + 34;
+      }
+      if (r) {
+        g.fillStyle = "#eef2f5"; g.font = "700 22px system-ui,-apple-system,sans-serif";
+        g.fillText("Men sent " + fm(r.sent) + "  ·  fallen " + fm(r.spent), 270, yy); g.fillText("Territories won " + r.took + "  ·  lost " + r.lost, 270, yy + 36);
+      }
+    } else if (dpOpen) {
+      var rows = document.querySelectorAll("#dp .dr"), ry = 150;
+      [].forEach.call(rows, function (row, ix) {
+        if (ix > 9) return; var sp = row.querySelector("span"), sm = row.querySelector("small"), btn = row.querySelector("button");
+        g.fillStyle = "rgba(255,255,255,.06)"; g.fillRect(30, ry - 28, 480, 62);
+        g.textAlign = "left"; g.fillStyle = "#eef2f5"; g.font = "700 22px system-ui,-apple-system,sans-serif"; g.fillText(sp && sp.firstChild ? sp.firstChild.textContent : "", 44, ry);
+        g.fillStyle = "#9fb3c4"; g.font = "500 16px system-ui,-apple-system,sans-serif"; g.fillText(sm ? sm.textContent : "", 44, ry + 24);
+        g.textAlign = "right"; g.fillStyle = "#ffd27a"; g.font = "700 16px system-ui,-apple-system,sans-serif"; g.fillText(btn ? btn.textContent : "", 500, ry + 6); g.textAlign = "center";
+        ry += 72;
+      });
+    } else {
+      var s = csz(), bw = s.bw, bh = s.bh; if (!bw || !bh) return false;
+      var DW = Math.min(SW, SH * bw / bh), DH = DW * bh / bw, DX = SX + (SW - DW) / 2, DY = SY + (SH - DH) / 2, k = DW / bw, cn, ox, oy;
+      var X = function (c) { return DX + (PX + (c + 0.5) / W * s.cw * Z) * k; }, Y = function (c) { return DY + (PY + (c + 0.5) / H * s.ch * Z) * k; };
+      g.save(); g.beginPath(); g.rect(DX, DY, DW, DH); g.clip(); g.fillStyle = "#0a1620"; g.fillRect(DX, DY, DW, DH);
+      g.imageSmoothingEnabled = !!(MODE === "world" && WORLD && !WORLD.px);
+      g.drawImage(cv, DX + PX * k, DY + PY * k, s.cw * Z * k, s.ch * Z * k); g.imageSmoothingEnabled = false;
+      cn = reelCent();
+      P.forEach(function (p) {
+        if (!p.alive || !cn.n[p.id]) return;
+        if (E.world ? !(p.id === 0 || cn.n[p.id] >= landN * 0.10) : cn.n[p.id] < 14) return;
+        var cx0 = X(cn.sx[p.id] / cn.n[p.id]), cy0 = Y(cn.sy[p.id] / cn.n[p.id]);
+        reelTxt(g, p.id === 0 ? "YOU" : NAME[p.id], cx0, cy0, 11 * k, "#fff"); reelTxt(g, String(fm(p.troops)), cx0, cy0 + 12 * k, 10 * k, "#fff");
+      });
+      FAC.forEach(function (f) { g.font = (10 * k) + "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; g.textAlign = "center"; g.fillStyle = "#fff"; g.fillText("🏭", X(f.i % W), Y((f.i / W) | 0) + 4 * k); });
+      var fr = Math.min(1, (now - lastTick) / 100);
+      SHIPS.forEach(function (sp) {
+        var n = sp.pts.length, pos = Math.min(1, Math.max(0, (ticks - sp.ts + fr) / sp.dur)) * (n - 1), i0 = Math.floor(pos), i1 = Math.min(n - 1, i0 + 1), f = pos - i0, a = sp.pts[i0], b = sp.pts[i1];
+        var cx1 = (a % W) + ((b % W) - (a % W)) * f, cy1 = ((a / W) | 0) + (((b / W) | 0) - ((a / W) | 0)) * f, im = rimg(sp.air ? "plane" : "ship", COL[sp.p]), wpx = 24 * k * (0.9 + Math.min(0.55, sp.troops / 5000));
+        ox = X(cx1); oy = Y(cy1);
+        if (im.complete && im.naturalWidth) { g.save(); g.translate(ox, oy); g.rotate((sp.ang || 0) * Math.PI / 180); g.drawImage(im, -wpx / 2, -wpx * im.naturalHeight / im.naturalWidth / 2, wpx, wpx * im.naturalHeight / im.naturalWidth); g.restore(); }
+        reelTxt(g, String(fm(sp.troops)), ox, oy + 16 * k, 8 * k, "#fff");
+      });
+      RL.taps = (RL.taps || []).filter(function (t) { return now - t.t < 800; });
+      RL.taps.forEach(function (t) {
+        var u = (now - t.t) / 800, tx = X(t.x), ty = Y(t.y);
+        g.strokeStyle = "rgba(255,255,255," + (1 - u).toFixed(2) + ")"; g.lineWidth = 3; g.beginPath(); g.arc(tx, ty, (6 + 30 * u) * k / 1.2, 0, 6.3); g.stroke();
+      });
+      g.restore(); g.strokeStyle = "rgba(255,255,255,.15)"; g.lineWidth = 2; g.strokeRect(DX, DY, DW, DH);
+    }
+    var tt = $("toast"); if (tt && tt.textContent && tt.style.opacity === "1") {
+      g.fillStyle = "rgba(9,14,19,.85)"; g.fillRect(0, 130, RW, 56); g.textAlign = "center"; g.fillStyle = "#eef2f5"; reelFit(g, tt.textContent, 510, 22, "700"); g.fillText(tt.textContent, 270, 166);
+    }
+    g.fillStyle = "rgba(255,255,255,.15)"; g.fillRect(30, 870, 480, 12);
+    g.fillStyle = "#ffd27a"; g.fillRect(30, 870, Math.round(480 * Math.max(0, Math.min(1, sh))), 12);
+    g.fillStyle = "#eef2f5"; g.font = "700 22px system-ui,-apple-system,sans-serif";
+    g.textAlign = "left"; if (isFinite(y) && y > 0) g.fillText("Year " + y, 30, 927);
+    g.textAlign = "center"; g.fillText("Troops " + fm(P[0].troops), 270, 927);
+    g.textAlign = "right"; g.fillText(Math.round(sh * 100) + "% of the map", 510, 927);
+    if (RL.cap && now < RL.capT) { g.fillStyle = "rgba(9,14,19,.8)"; g.fillRect(0, 438, RW, 84); g.textAlign = "center"; g.fillStyle = "#ff7a7a"; reelFit(g, RL.cap, 510, 38, "800"); g.fillText(RL.cap, 270, 492); }
+    return true;
+  }
+  /* called after every map redraw: paints one 9:16 frame */
+  function reelLive() {
+    var g = RL.rg; if (!g || !RL.recOn || !E || !P || !P[0]) return;
+    var sh = P[0].cells / landN, y = 0, foes = NAME.slice(1, 4).join(", ") + (NAME.length > 4 ? "\u2026" : "");
+    try { y = yearNow(); } catch (_) {}
+    g.fillStyle = "#090e13"; g.fillRect(0, 0, RW, RH);
+    g.imageSmoothingEnabled = false;
+    if (RL.res) {
+      var R = RL.res, good = R.win || R.beat, mm = Math.floor(R.el / 60), ss = ("0" + Math.round(R.el % 60)).slice(-2);
+      g.globalAlpha = 0.25; g.drawImage(cv, 30, 120, 480, 720); g.globalAlpha = 1; g.textAlign = "center";
+      g.fillStyle = good ? "#ffd27a" : "#ff7a7a"; reelFit(g, R.head, 490, 46, "800"); g.fillText(R.head, 270, 375);
+      g.fillStyle = "#eef2f5"; reelFit(g, R.n, 490, 28, "700"); g.fillText(R.n, 270, 423);
+      g.fillStyle = "#9fb3c4"; g.font = "600 22px system-ui,-apple-system,sans-serif";
+      g.fillText("Peak land " + Math.round(R.sh * 100) + "%  \u00B7  Rivals erased " + R.er, 270, 483); g.fillText("Time " + mm + ":" + ss, 270, 519);
+      g.fillStyle = "#ffd27a"; g.font = "800 28px system-ui,-apple-system,sans-serif"; g.fillText("Play Empire free", 270, 825);
+      g.fillStyle = "#9fb3c4"; g.font = "600 20px system-ui,-apple-system,sans-serif"; g.fillText(location.host, 270, 858);
+      return;
+    }
+    try { if (reelScene(g, sh, y, foes)) return; } catch (_) {}
+    g.drawImage(cv, 30, 120, 480, 720); g.textAlign = "center";
+    g.fillStyle = "#ffd27a"; reelFit(g, E.n, 500, 40, "800"); g.fillText(E.n, 270, 57);
+    if (foes && NAME.length > 1) { g.fillStyle = "#9fb3c4"; g.font = "600 18px system-ui,-apple-system,sans-serif"; g.fillText("vs " + foes, 270, 90); }
+    g.fillStyle = "rgba(255,255,255,.15)"; g.fillRect(30, 870, 480, 12);
+    g.fillStyle = "#ffd27a"; g.fillRect(30, 870, Math.round(480 * Math.max(0, Math.min(1, sh))), 12);
+    g.fillStyle = "#eef2f5"; g.font = "700 22px system-ui,-apple-system,sans-serif";
+    g.textAlign = "left"; if (isFinite(y) && y > 0) g.fillText("Year " + y, 30, 927);
+    g.textAlign = "right"; g.fillText(Math.round(sh * 100) + "% of the map", 510, 927);
+    if (RL.cap && Date.now() < RL.capT) { g.fillStyle = "rgba(9,14,19,.8)"; g.fillRect(0, 438, RW, 84); g.textAlign = "center"; g.fillStyle = "#ff7a7a"; reelFit(g, RL.cap, 510, 38, "800"); g.fillText(RL.cap, 270, 492); }
+  }
+  /* watches for fallen rivals (banner), pause/hidden (pauses the recording), and a 15 minute safety cap */
+  setInterval(function () {
+    try {
+      if (RL.rec && RL.recOn) {
+        var hold = document.hidden;   /* keep recording while the report, diplomacy or exit dialog is open */
+        if (hold && RL.rec.state === "recording") RL.rec.pause(); else if (!hold && RL.rec.state === "paused") RL.rec.resume();
+        if (!RL.res && Date.now() - RL.t0 > 900000) reelLiveStop(false);
+      }
+      if (!P || !P[0] || !E || over) return;
+      var i;
+      for (i = 1; i < P.length; i++) {
+        if (P[i] && !P[i].alive && !RL.dead[i]) { RL.dead[i] = 1; RL.cap = NAME[i] + (erased > RL.er ? " erased!" : " has fallen"); RL.capT = Date.now() + 2200; }
+      }
+      RL.er = erased;
+    } catch (_) {}
+  }, 200);
+  function reelEnd(win, beat, head, el) {
+    RL.res = { win: win, beat: beat, head: head, el: el, sh: peakShare, er: erased, n: E.n };
+    if (RL.recOn) setTimeout(function () { reelLiveStop(false); }, 2800);
+  }
+  /* ===== send sheet: appears by itself when the match is over and the video is ready ===== */
+  var RLI = {
+    share: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>',
+    save: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg>',
+    play: '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M8.5 6v12l10-6z" fill="#fff" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+    yt: '<svg viewBox="0 0 24 24" width="30" height="30"><rect x="1.5" y="4.5" width="21" height="15" rx="4.6" fill="#ff0000"/><path d="M10 8.9v6.2l5.4-3.1z" fill="#fff"/></svg>',
+    ig: '<svg viewBox="0 0 24 24" width="30" height="30"><defs><linearGradient id="rlig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#fa7e1e"/><stop offset=".6" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#rlig)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16" cy="8" r="1" fill="#fff"/></svg>',
+    rd: '<svg viewBox="0 0 24 24" width="30" height="30"><circle cx="12" cy="12" r="10" fill="#ff4500"/><ellipse cx="12" cy="13.6" rx="5.8" ry="4" fill="#fff"/><circle cx="8" cy="10.9" r="1.4" fill="#fff"/><circle cx="16" cy="10.9" r="1.4" fill="#fff"/><circle cx="9.9" cy="13" r="1.1" fill="#ff4500"/><circle cx="14.1" cy="13" r="1.1" fill="#ff4500"/><path d="M10 15.5c1.2.8 2.8.8 4 0" fill="none" stroke="#ff4500" stroke-width=".9" stroke-linecap="round"/><path d="M12 9.6 12.9 6l3 .7" fill="none" stroke="#fff" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16.6" cy="6.9" r="1.1" fill="#fff"/></svg>'
+  };
+  function rlCss() {
+    if (document.getElementById("rls-css")) return;
+    var c = [
+      "#rlask{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,11,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-family:system-ui,-apple-system,Roboto,sans-serif;color:#eef2f5;opacity:0;transition:opacity .22s ease;-webkit-tap-highlight-color:transparent}",
+      "#rlask.on{opacity:1}",
+      "#rlask .rls{position:relative;width:100%;max-width:440px;max-height:100%;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:10px 20px calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,#19232e,#10171e);border-radius:28px 28px 0 0;border-top:1px solid rgba(255,255,255,.1);box-shadow:0 -24px 60px rgba(0,0,0,.5);transform:translateY(36px);transition:transform .34s cubic-bezier(.2,.9,.25,1);text-align:center}",
+      "#rlask.on .rls{transform:none}",
+      "#rlask .rls::before{content:'';position:absolute;left:0;right:0;top:0;height:300px;background:var(--p) center/cover;-webkit-filter:blur(44px) saturate(1.5);filter:blur(44px) saturate(1.5);opacity:.3;-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent);pointer-events:none}",
+      "#rlask .rls>*{position:relative}",
+      "#rlask .rls-grab{width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.22);margin:0 auto 16px}",
+      "#rlask .rls-media{position:relative;height:min(36vh,340px);aspect-ratio:9/16;margin:0 auto 18px;border-radius:18px;overflow:hidden;background:#0b1015 center/cover no-repeat;box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.09)}",
+      "#rlask .rls-media.busy::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5)}",
+      "#rlask .rls-spin{position:absolute;z-index:2;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;box-sizing:border-box;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:#ffd27a;animation:rlsr .8s linear infinite}",
+      "@keyframes rlsr{to{transform:rotate(360deg)}}",
+      "#rlask .rls-pill{position:absolute;left:10px;bottom:10px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.58);color:#fff;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}",
+      "#rlask .rls-v{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease;background:#000}",
+      "#rlask .rls-v.ok{opacity:1}",
+      "#rlask .rls-pb{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;transition:opacity .2s ease}",
+      "#rlask .rls-pb svg{box-sizing:content-box;padding:15px 14px 15px 17px;border-radius:50%;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}",
+      "#rlask .rls-media.go .rls-pb{opacity:0}",
+      "#rlask .rls-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.2)}",
+      "#rlask .rls-bar i{display:block;height:100%;width:0;background:#ffd27a}",
+      "#rlask .rls-t{margin:0 0 6px;font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.02em;color:#f4f7fa}",
+      "#rlask .rls-s{margin:0 0 20px;font-size:14.5px;line-height:1.45;color:#92a3b2}",
+      "#rlask .rls-acts{display:flex;flex-direction:column;gap:4px}",
+      "#rlask button,#rlask a{all:unset;box-sizing:border-box;cursor:pointer;-webkit-tap-highlight-color:transparent}",
+      "#rlask .rls-go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:54px;border-radius:16px;background:linear-gradient(180deg,#ffdc94,#f4bd5c);color:#251700;font-size:16.5px;font-weight:700;letter-spacing:-.01em;box-shadow:0 8px 22px rgba(255,200,100,.2),inset 0 1px 0 rgba(255,255,255,.55);transition:transform .14s ease}",
+      "#rlask .rls-go:active{transform:scale(.97)}",
+      "#rlask .rls-ghost{display:flex;align-items:center;justify-content:center;width:100%;height:46px;margin-top:2px;border-radius:14px;color:#9eafbe;font-size:15px;font-weight:600}",
+      "#rlask .rls-ghost:active{background:rgba(255,255,255,.06)}",
+      "#rlask .rls-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 10px}",
+      "#rlask .rls-tile{display:flex;flex-direction:column;align-items:center;gap:7px;padding:11px 0 10px;border-radius:16px;background:rgba(255,255,255,.055);color:#cbd6e0;font-size:12px;font-weight:600;transition:transform .14s ease,background-color .2s ease}",
+      "#rlask .rls-tile:active{transform:scale(.95);background:rgba(255,255,255,.1)}",
+      "#rlask .rls-ic{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px}",
+      "#rlask .rls-tile:first-child .rls-ic{background:rgba(255,255,255,.09);color:#eef2f5}",
+      "#rlask .rls-note{margin:0 0 6px;font-size:12px;line-height:1.4;color:#738494}",
+      "@media (min-width:600px) and (min-height:621px){#rlask{align-items:center}#rlask .rls{border-radius:28px;max-width:420px}#rlask .rls-grab{display:none}}",
+      "@media (orientation:landscape) and (max-height:620px){#rlask{align-items:center}#rlask .rls{max-width:740px;border-radius:24px;padding:20px 24px;transform:translateY(20px)}#rlask.on .rls{transform:none}#rlask .rls-grab{display:none}#rlask .rls-body{display:flex;align-items:center;gap:26px}#rlask .rls-media{flex:none;height:min(74vh,300px);margin:0}#rlask .rls-side{flex:1;min-width:0;text-align:left}#rlask .rls-s{margin-bottom:16px}#rlask .rls-row{margin:12px 0 6px}}",
+      "@media (prefers-reduced-motion:reduce){#rlask,#rlask .rls{transition:none}#rlask .rls-spin{animation-duration:2.4s}}"
+    ];
+    var s = document.createElement("style"); s.id = "rls-css"; s.textContent = c.join("\n"); document.head.appendChild(s);
+  }
+  function reelAsk() {
+    if (RL.asked || !RL.blob) return; RL.asked = true;
+    var blob = RL.blob, type = blob.type || "video/mp4", ext = /mp4/.test(type) ? "mp4" : "webm", R = RL.res || {}, poster = RL.poster || "";
+    var nm = "empire-" + String(E.n).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "." + ext;
+    var url = URL.createObjectURL(blob); RL.urls.push(url);
+    var good = !!(R.win || R.beat), secs = Math.round(R.el || 0), len = Math.floor(secs / 60) + ":" + ("0" + (secs % 60)).slice(-2);
+    var mb = blob.size / 1048576, size = (mb >= 10 ? Math.round(mb) : mb.toFixed(1)) + " MB";
+    var stageName = "ask", v = null;
+    track("video_offer_shown", { empire: E.n });
+    rlCss();
+    var m = document.createElement("div"); m.id = "rlask";
+    if (poster) m.style.setProperty("--p", "url(" + poster + ")");
+    var sheet = document.createElement("div"); sheet.className = "rls"; m.appendChild(sheet); document.body.appendChild(m);
+    function mk(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; }
+    function btn(cls, html, fn) { var b = mk("button", cls, html); b.type = "button"; b.onclick = fn; return b; }
+    function mediaBox() { var d = mk("div", "rls-media"); if (poster) d.style.backgroundImage = "url(" + poster + ")"; return d; }
+    function frame(title, sub, md, side) {
+      sheet.innerHTML = ""; sheet.scrollTop = 0; sheet.appendChild(mk("div", "rls-grab"));
+      var body = mk("div", "rls-body"), s = mk("div", "rls-side");
+      s.appendChild(mk("h2", "rls-t", title)); s.appendChild(mk("p", "rls-s", sub)); side(s);
+      body.appendChild(md); body.appendChild(s); sheet.appendChild(body);
+    }
+    function close() { try { if (v) v.pause(); } catch (_) {} m.classList.remove("on"); setTimeout(function () { if (m.parentNode) m.remove(); }, 240); }
+    function save() { var a = document.createElement("a"); a.href = url; a.download = nm; document.body.appendChild(a); a.click(); a.remove(); track("video_saved", { empire: E.n }); }
+    m.addEventListener("click", function (e) { if (e.target === m && stageName === "ask") close(); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { m.classList.add("on"); }); });
+
+    function ask() {
+      var md = mediaBox(); md.appendChild(mk("span", "rls-pill", len));
+      frame(good ? "Great match. Send it to your friends?" : "Send this match to your friends?", "The whole match as a vertical video, ready for Shorts, Reels and chats.", md, function (s) {
+        var a = mk("div", "rls-acts");
+        a.appendChild(btn("rls-go", RLI.share + "<span>Yes, send it</span>", process));
+        a.appendChild(btn("rls-ghost", "Not now", function () { track("video_offer_no", { empire: E.n }); close(); }));
+        s.appendChild(a);
+      });
+    }
+    function process() {
+      stageName = "work"; track("video_offer_yes", { empire: E.n });
+      var md = mediaBox(); md.classList.add("busy"); md.appendChild(mk("div", "rls-spin"));
+      frame("Getting your video ready", "Hang on, this takes a second.", md, function () {});
+      var done = false, t0 = Date.now(), pv = document.createElement("video");
+      function go() { if (done) return; done = true; setTimeout(ready, Math.max(0, 900 - (Date.now() - t0))); }
+      pv.preload = "auto"; pv.muted = true; pv.setAttribute("playsinline", ""); pv.onloadeddata = go; pv.onerror = go; pv.src = url;
+      setTimeout(go, 3500);
+    }
+    function ready() {
+      stageName = "ready";
+      var md = mediaBox(), fixing = false, noteEl = null;
+      v = document.createElement("video"); v.className = "rls-v"; v.muted = true; v.loop = true; v.playsInline = true;
+      v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.preload = "auto";
+      var bar = mk("div", "rls-bar", "<i></i>"), fill = bar.firstChild, pb = btn("rls-pb", RLI.play, function () { if (v.paused) play(); else v.pause(); });
+      pb.setAttribute("aria-label", "Play or pause");
+      md.appendChild(v); md.appendChild(pb); md.appendChild(bar);
+      function play() { var p; try { p = v.play(); } catch (_) {} if (p && p.catch) p.catch(function () {}); }
+      function unfix() { if (!fixing) return; fixing = false; try { v.currentTime = 0; } catch (_) {} v.classList.add("ok"); play(); }
+      v.addEventListener("loadedmetadata", function () {
+        /* recorded files often report an endless length until they are seeked once */
+        if (v.duration === Infinity || isNaN(v.duration)) {
+          fixing = true;
+          var back = function () { v.removeEventListener("timeupdate", back); unfix(); };
+          v.addEventListener("timeupdate", back);
+          try { v.currentTime = 1e7; } catch (_) { unfix(); }
+          setTimeout(unfix, 1500);
+        }
+      });
+      v.addEventListener("loadeddata", function () { if (fixing) return; v.classList.add("ok"); play(); });
+      v.addEventListener("playing", function () { v.classList.add("ok"); md.classList.add("go"); });
+      v.addEventListener("pause", function () { md.classList.remove("go"); });
+      v.addEventListener("timeupdate", function () { var d = v.duration; if (!fixing && d && isFinite(d)) fill.style.width = (v.currentTime / d * 100) + "%"; });
+      v.src = url;
+      function send() {
+        var file = null; try { file = new File([blob], nm, { type: type }); } catch (_) {}
+        track("video_sent", { empire: E.n });
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: "Empire", text: "I took over the map as " + E.n + " in Empire. Can you beat it? " + location.href }).catch(function () {});
+        } else { save(); if (noteEl) noteEl.textContent = "Saved to your device. Send it from your gallery."; }
+      }
+      frame("Ready to send", len + "  \u00B7  9:16  \u00B7  " + size, md, function (s) {
+        var a = mk("div", "rls-acts");
+        a.appendChild(btn("rls-ghost", "▶ Watch full video", function () {
+          try { v.pause(); } catch (_) {}
+          var w = document.createElement("div"); w.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;background:#000";
+          var pv = document.createElement("video"); pv.controls = true; pv.playsInline = true; pv.setAttribute("playsinline", "");
+          pv.style.cssText = "width:100%;height:100%;object-fit:contain;background:#000";
+          var x = document.createElement("button"); x.type = "button"; x.textContent = "✕";
+          x.style.cssText = "position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;z-index:2;width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:18px";
+          x.onclick = function () { try { pv.pause(); } catch (_) {} w.remove(); };
+          pv.addEventListener("loadedmetadata", function () {
+            if (pv.duration === Infinity || isNaN(pv.duration)) {   /* recorded files report no length until seeked once */
+              var back = function () { pv.removeEventListener("timeupdate", back); try { pv.currentTime = 0; } catch (_) {} };
+              pv.addEventListener("timeupdate", back); try { pv.currentTime = 1e7; } catch (_) {}
+            }
+          });
+          var tried = 0;
+          pv.addEventListener("error", function () {
+            if (!tried) {   /* retry once with the other container label */
+              tried = 1; var alt = /mp4/.test(type) ? "video/webm" : "video/mp4", u2 = URL.createObjectURL(new Blob([blob], { type: alt }));
+              RL.urls.push(u2); pv.src = u2; pv.load(); var p2; try { p2 = pv.play(); } catch (_) {} if (p2 && p2.catch) p2.catch(function () {});
+              return;
+            }
+            if (w.querySelector(".pvm")) return;
+            var m2 = document.createElement("div"); m2.className = "pvm";
+            m2.style.cssText = "position:absolute;left:0;right:0;bottom:90px;text-align:center;color:#fff;font:600 15px system-ui,sans-serif;padding:0 24px";
+            m2.innerHTML = "This phone can't play the video here.<br>Tap below to save it, then watch it from your gallery.<br><br>";
+            var sb2 = document.createElement("button"); sb2.type = "button"; sb2.textContent = "Save video";
+            sb2.style.cssText = "padding:14px 28px;border:0;border-radius:14px;background:#ffd27a;color:#251700;font:700 16px system-ui,sans-serif";
+            sb2.onclick = save; m2.appendChild(sb2); w.appendChild(m2);
+          });
+          pv.src = url; w.appendChild(pv); w.appendChild(x); document.body.appendChild(w);
+          var pp; try { pp = pv.play(); } catch (_) {} if (pp && pp.catch) pp.catch(function () {});
+          track("video_watched_full", { empire: E.n });
+        }));
+        a.appendChild(btn("rls-go", RLI.share + "<span>Send video</span>", send)); s.appendChild(a);
+        var row = mk("div", "rls-row"), sv = btn("rls-tile", '<b class="rls-ic">' + RLI.save + "</b><span>Save</span>", function () {
+          save(); var sp = sv.lastChild; sp.textContent = "Saved"; setTimeout(function () { sp.textContent = "Save"; }, 1800);
+        });
+        row.appendChild(sv);
+        [["YouTube", RLI.yt, "https://www.youtube.com/upload"], ["Instagram", RLI.ig, "https://www.instagram.com/"], ["Reddit", RLI.rd, "https://www.reddit.com/submit"]].forEach(function (x) {
+          var l = mk("a", "rls-tile", '<b class="rls-ic">' + x[1] + "</b><span>" + x[0] + "</span>");
+          l.href = x[2]; l.target = "_blank"; l.rel = "noopener"; l.onclick = function () { save(); }; row.appendChild(l);
+        });
+        s.appendChild(row);
+        noteEl = mk("p", "rls-note", "YouTube, Instagram and Reddit save the video first, then open their upload page."); s.appendChild(noteEl);
+        var d = mk("div", "rls-acts"); d.appendChild(btn("rls-ghost", "Done", close)); s.appendChild(d);
+      });
+    }
+    ask();
+  }
+
   function newGame() {
     tuStop(); genMap(); genTerrain(); placeCities(); own = new Int8Array(N).fill(-1); hot = new Uint8Array(N);
-    P = []; atk = []; fx = []; FAC = []; SHIPS = []; $("mv").innerHTML = ""; stat = { nl: 0 }; curM = null; misDone = 0; evT = 0; over = false; ticks = 0; endReset(); erased = 0; coolT = 0; shown = {}; peakShare = 0; if (!NBR) nb(0);
+    P = []; atk = []; fx = []; FAC = []; SHIPS = []; $("mv").innerHTML = ""; stat = { nl: 0 }; curM = null; misDone = 0; evT = 0; over = false; ticks = 0; endReset(); reelReset(); reelLiveStart(); erased = 0; coolT = 0; shown = {}; peakShare = 0; if (!NBR) nb(0);
     var seats = [], i;
     if (E.world) worldStart(); else {
     E.me.forEach(function (s) { var q = xy(s[0], s[1]); seats.push([q[0], q[1], s[2], 0]); });
@@ -2520,6 +2873,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     try { best = +localStorage.getItem("pw_" + E.n + (lvKey() === "normal" ? "" : "_" + lvKey())) || 0; if (el > best) { localStorage.setItem("pw_" + E.n + (lvKey() === "normal" ? "" : "_" + lvKey()), el); rec = best > 0; } } catch (e) {}
     sfx(win || beat ? "win" : "hurt"); var head = win ? (E.world ? (REG === "asia" ? "YOU CONQUERED ASIA" : "YOU CONQUERED EURASIA") : E.hist ? "YOU CONQUERED ASIA" : "YOU CONQUERED EUROPE") : beat ? (E.world ? "YOU HELD THE CENTURY" : "YOU BEAT HISTORY") : "THE EMPIRE FELL";
     track("game_ended", { level: lvKey(), empire: E.n, result: win ? "won" : beat ? "beat_history" : "lost", seconds: Math.round(el), peak_land_pct: Math.round(peakShare * 100), rivals_erased: erased, factories: facN(0), reason: why || null });
+    try { reelEnd(win, beat, head, el); } catch (_) {}
     var l1 = win ? "Before history could end you, you rewrote it." : beat ? E.win : (why || "Your empire fell in " + yr + ".");
     var l2 = E.world ? (beat ? "You held " + E.n + " until the clock ran out!" : "You lasted " + Math.round(el) + "s of the " + E.par + "s you needed.") : beat ? "You lasted " + Math.max(0, yr - E.end) + " years past the real " + E.end + " collapse." : "The real " + E.n + " lasted until " + E.end + ", " + Math.max(0, E.end - yr) + " years longer. " + (E.par - el < 60 ? "So close: " + Math.round(E.par - el) + " seconds short!" : "Can you do better?");
     var d0 = getDyn(), d1 = d0;
@@ -2736,7 +3090,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
   mm.addEventListener("pointerdown", function (e) { mmDown = true; mm.setPointerCapture(e.pointerId); mmJump(e); e.stopPropagation(); });
   mm.addEventListener("pointermove", function (e) { if (mmDown) mmJump(e); });
   mm.addEventListener("pointerup", function () { mmDown = false; });
-  function loop(ts) { if (P && !document.hidden && ts - lastF > 48) { lastF = ts; draw(); movers(); drawMM(); } requestAnimationFrame(loop); }
+  function loop(ts) { if (P && !document.hidden && ts - lastF > 48) { lastF = ts; draw(); reelLive(); movers(); drawMM(); } requestAnimationFrame(loop); }
   var Z = 1, PX = 0, PY = 0, ptrs = {}, moved = false, pinch0 = 0, zbox = $("bx"), zm = $("zm");
   function csz() {
     var bw = zbox.clientWidth, bh = zbox.clientHeight, ar = W / H, cw, ch;
@@ -2766,7 +3120,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     var t = own[c]; if (t === 0) { toast("That's your land. Tap a rival."); return; }
     if (t > 0 && !P[t].alive) return;
     if (t > 0 && P[t].pact) { toast(NAME[t] + " is your ally. Break the pact in Diplomacy first."); return; }
-    ringAt(c, "#ffffff");
+    ringAt(c, "#ffffff"); reelTap(x, y);
     if (touches(c, t)) { landAttack(t); return; }
     var pl = seaPlan(0, t, c), dxs = 99, dys = 0;
     if (pl) { dxs = pl.L % W - c % W; dys = ((pl.L / W) | 0) - ((c / W) | 0); }
