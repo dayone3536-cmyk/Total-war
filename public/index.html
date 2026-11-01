@@ -436,7 +436,7 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 (function () {
   var W = 80, H = 120, N = W * H, WIN = 0.97, SEND = 0.5, paused = false;
   var $ = function (id) { return document.getElementById(id); };
-  var CMD = ""; try { CMD = (localStorage.getItem("emp_cmd") || "").trim(); } catch (e) {}
+  var CMD = ""; try { CMD = (localStorage.getItem("emp_cmd") || "").trim(); if (/^commander$/i.test(CMD) && localStorage.getItem("emp_cmd_ok") !== "1") { CMD = ""; localStorage.removeItem("emp_cmd"); } } catch (e) {}
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function askName(done) {
     if (CMD) { done(); return; }
@@ -448,14 +448,29 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
       "<input id='cmdIn' maxlength='16' autocomplete='off' autocapitalize='words' spellcheck='false' style='width:100%;max-width:300px;box-sizing:border-box;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#eef2f5;font-size:18px;text-align:center;outline:none;-webkit-user-select:text;user-select:text'>" +
       "<button id='cmdGo' class='p' style='flex:none;width:100%;max-width:300px;margin-top:14px;height:48px;border-radius:12px;font-size:16px'>Continue</button>";
     document.body.appendChild(d);
-    var inp = d.querySelector("#cmdIn");
+    var inp = d.querySelector("#cmdIn"), btn = d.querySelector("#cmdGo"), err = document.createElement("div");
+    err.style.cssText = "min-height:20px;margin-top:10px;font-size:13px;font-weight:600;color:#ff8a8a;opacity:0;transition:opacity .2s";
+    inp.insertAdjacentElement("afterend", err);
+    function clean() { return inp.value.replace(/\s+/g, " ").trim().slice(0, 16); }
+    function valid() { var v = clean(); return v.length >= 2 && /[\p{L}\p{N}]/u.test(v); }
+    function sync() { var ok = valid(); btn.classList.toggle("dim", !ok); if (ok) err.style.opacity = 0; }
+    function shake() {
+      err.textContent = clean() ? "Name must be at least 2 characters" : "Enter your name to continue";
+      err.style.opacity = 1; inp.style.borderColor = "#ff6b6b";
+      try { inp.animate([{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(0)" }], { duration: 320 }); } catch (e) {}
+      try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+      inp.focus();
+    }
     function go() {
-      var v = inp.value.replace(/\s+/g, " ").trim().slice(0, 16) || "Commander";
-      CMD = v; try { localStorage.setItem("emp_cmd", v); } catch (e) {}
+      if (!valid()) { shake(); return; }
+      var v = clean();
+      CMD = v; try { localStorage.setItem("emp_cmd", v); localStorage.setItem("emp_cmd_ok", "1"); } catch (e) {}
       d.remove(); done();
     }
-    d.querySelector("#cmdGo").onclick = go;
+    inp.oninput = function () { inp.style.borderColor = "rgba(255,255,255,.2)"; sync(); };
+    btn.onclick = go;
     inp.onkeydown = function (e) { if (e.key === "Enter") go(); };
+    sync();
     setTimeout(function () { try { inp.focus(); } catch (e) {} }, 100);
   }
   var cv = $("c"), cx = cv.getContext("2d"), im = cx.createImageData(W, H);
