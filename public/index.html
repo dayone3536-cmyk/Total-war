@@ -411,6 +411,13 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 #rot small{font-weight:400;font-size:13px;opacity:.7}
 @keyframes rotp{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
 @media (orientation:portrait) and (pointer:coarse) and (max-width:900px){#rot{display:flex}}
+#dp{justify-content:flex-start}
+#dp>:first-child{margin-top:auto!important}
+#dp>:last-child{margin-bottom:auto!important}
+
+#dx{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:2;box-shadow:0 0 0 10px rgba(9,14,19,.96)}
+
+
 </style></head><body>
 <div id="rot"><i>📱</i><div>Rotate your phone</div><small>Empire is played in landscape</small></div>
 <div id="app">
@@ -491,6 +498,8 @@ button:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
   ];
   var K = W / ((45 + 11) * 0.574);
   function xy(lon, lat) { if (E && E.hist) return [(lon - WORLD.lon0) / (WORLD.lon1 - WORLD.lon0) * W, (WORLD.lat1 - lat) / (WORLD.lat1 - WORLD.lat0) * H]; return [(lon + 11) * 0.574 * K, (71.5 - lat) * K]; }
+  var GOLD = 0, TRD = {};
+  function goldRate() { return 0.1 + P[0].cells * 0.004 + cityN(0) * 0.05; }
   var FAC = [], MAXF = 6, MAXBF = 2, FBONUS = 1.6;   /* factories: every nation can build them; they sit on the map and can be captured */
   function facN(o) { var n = 0; for (var k = 0; k < FAC.length; k++) if (FAC[k].o === o) n++; return n; }
   function facCost(o) { return 400 * (facN(o || 0) + 1); }
@@ -2782,6 +2791,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     }
     P.forEach(function (p, j) { p.troops = E.world ? (j === 0 ? (150 + p.cells * 9 + Math.max(0, 40 - p.cells) * 10) * 1.5 : (50 + p.cells * 9) * 0.75 * getDyn()) : (j === 0 ? (130 + p.cells * 6) * (E.pt || 1) : (50 + p.cells * (E.modern ? 12 : 9)) * (E.bt || 1) * getDyn()); if (!p.cells) p.alive = false; if (j > 0 && E.late && E.late[NAME[j]]) p.next = E.late[NAME[j]]; });
     SCL = []; var RR = !E.world && REAL[E.n]; P.forEach(function (p, j) { var rv = RR ? (j ? RR.foes[NAME[j]] : RR.me) : 0; SCL[j] = rv && p.troops > 0 ? rv / p.troops : 1; });
+    GOLD = 150; TRD = {};
     start0 = Math.max(1, P[0].cells); REP = {}; repSel = null; reportOpen = false; atkReset(); RT.on = false; AIR.sel = null; $("rpt").style.display = "none"; $("rp").classList.remove("nw");
     P.forEach(function (p) { var nm = NAME[p.id], cn = E.world ? nm : CAPN[nm], k, f = null; if (cn) for (k = 0; k < CITY.length; k++) if (CITY[k].n === cn && own[CITY[k].i] === p.id) f = CITY[k]; if (!f) for (k = 0; k < CITY.length; k++) if (own[CITY[k].i] === p.id) { f = CITY[k]; break; } p.cap = f ? f.n : null; });
     Z = 1; PX = 0; PY = 0; zapply(); focusYou(); closeOffer(); $("dp").style.display = "none";
@@ -2850,6 +2860,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
       var baseG = (0.1 + 0.05 * Math.pow(p.cells, 0.6) + 0.05 * cityN(p.id)) * Math.max(0, 1 - p.troops / cap) * mult;
       var facG = facN(p.id) * FBONUS * (p.id ? 0.6 : 1) * Math.max(0.35, 1 - p.troops / (cap * 1.6)) * Math.max(0.7, mult);
       p.troops += baseG + facG; p.rate = baseG + facG; p.facG = facG;
+      if (p.id === 0) GOLD += goldRate();
       if (p.id > 0 && ticks >= p.next) { p.next = ticks + Math.max(5, Math.round((E.modern ? 18 : 30) * LV().dl)) + ((Math.random() * 8) | 0); botThink(p); }
     });
     atk.forEach(function (a) {
@@ -2994,6 +3005,7 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     if (lbM > 2) lbT.push(P[0]);
     $("lb").innerHTML = LBC ? "<div>🏆 #" + (lbM + 1) + " · " + Math.round(sh * 100) + "%</div>" : lbT.map(function (p) { return "<div" + (p.id === 0 ? " class='me'" : "") + "><span>" + (lbR.indexOf(p) + 1) + "</span>" + (FL[p.id] ? "<img class='fl' src='" + FL[p.id] + "'>" : "") + "<span>" + (p.id === 0 ? "You" : NAME[p.id]) + "</span><b style='margin-left:auto;padding-left:8px'>" + Math.round(p.cells / landN * 100) + "%</b></div>"; }).join("");
     $("you").innerHTML = "<img class='fl' src='" + FL[0] + "'>" + E.n + " · " + yearNow(); $("trp").innerHTML = "Land " + Math.round(sh * 100) + "/" + Math.round(WIN * 100) + "% · Troops " + fm(P[0].troops) + (P[0].rate ? " (+" + fm(P[0].rate * 10) + "/s)" : "") + (facN(0) ? " · 🏭" + facN(0) : "") + "<br>Fleets " + fleetsOut(0, false) + "/" + fleetCap(0) + " \u00b7 Planes " + fleetsOut(0, true) + "/" + fleetCap(0);
+    $("trp").innerHTML += "<br>\ud83d\udcb0 Gold " + Math.floor(GOLD) + " (+" + Math.round(goldRate() * 10) + "/s)";
     var fc = facCost(0), fbn = $("fb"), maxed = facN(0) >= MAXF;
     var fbh = maxed ? "<i>🏭</i><span>" + facN(0) + "/" + MAXF + "</span>" : "<i>🏭</i><span>" + fm(fc) + "</span>"; if (fbn._h !== fbh) { fbn._h = fbh; fbn.innerHTML = fbh; } fbn.title = "Factory (" + facN(0) + "/" + MAXF + ")";
     fbn.className = (maxed || P[0].troops < fc) ? "dim" : "p";
@@ -3078,10 +3090,37 @@ var WORLDS = {"asia":{"W":158,"H":103,"lon0":25.243,"lon1":146.0,"lat0":-11.0,"l
     if (a.th && neighbours(i)[a.th.id]) toast(NAME[i] + " accepts and attacks " + NAME[a.th.id] + "!", 3500);
   }
   function breakPact(i) { logIf(i, "bad", "You broke the pact with " + NAME[i] + "."); P[i].pact = false; P[i].cool = ticks + 900; P[i].grudge = 0; P[i].gt = ticks; toast("You broke the pact with " + NAME[i] + ". They will not forgive."); track("pact_broken", { empire: E.n, with_nation: NAME[i] }); }
+  function tradeInfo(i) {
+    var p = P[i], price = p.pact ? 2 : 3, amt = Math.floor(p.troops * 0.15), cost = Math.ceil(amt * price), why = "";
+    if (ticks < p.cool || (p.grudge === 0 && ticks - (p.gt || 0) < 400)) why = "Refuses to trade";
+    else if (ticks < (TRD[i] || 0)) why = "Restocking " + Math.ceil((TRD[i] - ticks) / 10) + "s";
+    else if (amt < 20) why = "No troops to spare";
+    else if (GOLD < cost) why = "Need " + cost + "g";
+    return { amt: amt, cost: cost, why: why };
+  }
+  function buyTroops(i) {
+    if (over || !P[i].alive) return;
+    var t = tradeInfo(i);
+    if (t.why) { toast(NAME[i] + ": " + t.why + "."); return; }
+    GOLD -= t.cost; P[i].troops -= t.amt; P[0].troops += t.amt; TRD[i] = ticks + 300;
+    toast("Bought " + fm(t.amt) + " troops from " + NAME[i] + " for " + t.cost + " gold.", 3500);
+    track("troops_bought", { empire: E.n, from_nation: NAME[i], troops: Math.round(t.amt), gold: t.cost });
+  }
   function dipl() {
     var o = $("dp"); o.style.display = "flex";
-    o.innerHTML = "<h3 style='margin:0'>Diplomacy</h3><p style='margin:0;font-size:12px;opacity:.7'>Allies never attack you and join your wars. Pacts held: " + pactCount() + "/" + MAXPACTS + "</p>" + P.filter(function (p) { return p.id > 0 && p.alive; }).map(function (p) { var a = attitude(p.id); return "<div class='dr'><img class='fl' src='" + FL[p.id] + "'><span>" + NAME[p.id] + "<br><small style='font-weight:400;color:" + a.c + "'>" + a.txt + "</small></span><button data-i='" + p.id + "'" + (p.pact || a.ok ? "" : " class='dim'") + ">" + (p.pact ? "Break pact" : "Propose pact") + "</button></div>"; }).join("") + "<button class='p' id='dx' style='flex:none;max-width:340px;width:100%'>Close</button>";
+    var rows = P.filter(function (p) { return p.id > 0 && p.alive; }).map(function (p) {
+      var a = attitude(p.id), t = tradeInfo(p.id);
+      return "<div class='dr'><img class='fl' src='" + FL[p.id] + "'><span>" + NAME[p.id] + "<br><small style='font-weight:400;color:" + a.c + "'>" + a.txt + "</small><br><button data-b='" + p.id + "'" + (t.why ? " class='dim'" : "") + " style='margin-top:4px;padding:6px 10px;font-size:12px'>" + (t.why ? "💰 " + t.why : "💰 Buy " + fm(t.amt) + " · " + t.cost + "g") + "</button></span><button data-i='" + p.id + "'" + (p.pact || a.ok ? "" : " class='dim'") + ">" + (p.pact ? "Break pact" : "Propose pact") + "</button></div>";
+
+
+    });
+
+
+    o.innerHTML = "<h3 style='margin:0'>Diplomacy &amp; Trade</h3><p style='margin:0;font-size:13px;font-weight:700;color:#ffd27a'>💰 Gold " + Math.floor(GOLD) + " (+" + Math.round(goldRate() * 10) + "/s)</p><p style='margin:0;font-size:12px;opacity:.7'>Allies never attack you and join your wars. Pacts held: " + pactCount() + "/" + MAXPACTS + "</p>" + rows.join("") + "<button class='p' id='dx' style='flex:none;max-width:340px;width:100%'>⚔️ Back to the war</button>";
+
+    
     [].forEach.call(o.querySelectorAll("button[data-i]"), function (b) { b.onclick = function () { var i = +b.dataset.i; if (P[i].pact) breakPact(i); else propose(i); dipl(); }; });
+    [].forEach.call(o.querySelectorAll("button[data-b]"), function (b) { b.onclick = function () { buyTroops(+b.dataset.b); dipl(); }; });
     $("dx").onclick = function () { o.style.display = "none"; };
   }
   function closeOffer() { offerOpen = null; $("of").style.display = "none"; }
@@ -3273,4 +3312,3 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 </body></html>
-
